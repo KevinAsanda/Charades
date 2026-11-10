@@ -31,6 +31,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Timer
@@ -79,6 +80,7 @@ import com.example.ui.theme.StripiRuby
 import com.example.ui.theme.StripiSubduedHover
 import com.example.ui.theme.StripiTypeTokens
 import kotlinx.coroutines.delay
+import kotlin.math.abs
 
 @Composable
 fun GamePlayScreen(
@@ -91,12 +93,14 @@ fun GamePlayScreen(
   val context = LocalContext.current
   BackHandler { onExit() }
 
-  val cards = remember { deck.cards.shuffled() }
+  var roundKey by remember { mutableIntStateOf(0) }
+  val cards = remember(deck, roundKey) { deck.cards.shuffled() }
   var currentCardIndex by remember { mutableIntStateOf(0) }
   var timeLeft by remember { mutableLongStateOf(roundDurationSeconds) }
   var isPlaying by remember { mutableStateOf(false) }
   var isCountdownReady by remember { mutableStateOf(true) }
   var readyCountdown by remember { mutableIntStateOf(3) }
+  var isTeamIntermission by remember { mutableStateOf(false) }
   var isGameOver by remember { mutableStateOf(false) }
   var showHints by remember { mutableStateOf(false) }
 
@@ -111,6 +115,7 @@ fun GamePlayScreen(
     context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
   }
   var lastTiltTime by remember { mutableLongStateOf(0L) }
+  var isTiltArmed by remember { mutableStateOf(false) }
 
   fun triggerHaptic(success: Boolean) {
     try {
@@ -131,47 +136,64 @@ fun GamePlayScreen(
     } catch (_: Exception) {}
   }
 
+  fun advanceOrCompleteTurn() {
+    if (currentCardIndex + 1 < cards.size) {
+      currentCardIndex++
+    } else if (gameMode == "party_teams" && activeTeam == "Team A") {
+      // Reshuffle for Team B and enter intermission
+      roundKey++
+      currentCardIndex = 0
+      isPlaying = false
+      isTeamIntermission = true
+    } else {
+      isPlaying = false
+      isGameOver = true
+    }
+  }
+
   fun onCorrect() {
-    if (!isPlaying || isGameOver || currentCardIndex >= cards.size) return
+    if (!isPlaying || isGameOver || isTeamIntermission || currentCardIndex >= cards.size) return
     val card = cards[currentCardIndex]
     guessedWords.add(card.term)
     if (activeTeam == "Team A") teamAScore++ else teamBScore++
     triggerHaptic(true)
-
-    if (currentCardIndex + 1 < cards.size) {
-      currentCardIndex++
-    } else {
-      isGameOver = true
-    }
+    advanceOrCompleteTurn()
   }
 
   fun onPass() {
-    if (!isPlaying || isGameOver || currentCardIndex >= cards.size) return
+    if (!isPlaying || isGameOver || isTeamIntermission || currentCardIndex >= cards.size) return
     val card = cards[currentCardIndex]
     passedWords.add(card.term)
     triggerHaptic(false)
-
-    if (currentCardIndex + 1 < cards.size) {
-      currentCardIndex++
-    } else {
-      isGameOver = true
-    }
+    advanceOrCompleteTurn()
   }
 
-  // Tilt Sensor Listener for Heads-Up Mode
+  // Tilt Sensor Listener for Heads-Up Mode:
+  // Requires returning to vertical neutral position (abs(z) < 4.0f) on the forehead before arming,
+  // so holding the phone flat in hand never auto-skips cards.
   DisposableEffect(gameMode, isPlaying) {
     if (gameMode == "heads_up" && isPlaying && sensorManager != null) {
       val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
       val listener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
           val now = System.currentTimeMillis()
-          if (now - lastTiltTime < 1200L) return
-
           val z = event.values[2]
-          if (z > 7.5f) {
+
+          // Arm the tilt sensor once the phone is held roughly upright on the forehead
+          if (abs(z) < 4.0f) {
+            isTiltArmed = true
+            return
+          }
+
+          if (!isTiltArmed || now - lastTiltTime < 1100L) return
+
+          // Nodding forward/down (z < -6.5f) = Correct; Tilting back/up (z > 6.5f) = Pass
+          if (z < -6.5f) {
+            isTiltArmed = false
             lastTiltTime = now
             onCorrect()
-          } else if (z < -7.5f) {
+          } else if (z > 6.5f) {
+            isTiltArmed = false
             lastTiltTime = now
             onPass()
           }
@@ -184,6 +206,7 @@ fun GamePlayScreen(
       }
 
       onDispose {
+        isTiltArmed = false
         sensorManager.unregisterListener(listener)
       }
     } else {
@@ -204,16 +227,20 @@ fun GamePlayScreen(
   }
 
   // Round timer countdown
-  LaunchedEffect(isPlaying, isGameOver) {
-    if (isPlaying && !isGameOver) {
-      while (timeLeft > 0 && !isGameOver) {
+  LaunchedEffect(isPlaying, isGameOver, isTeamIntermission) {
+    if (isPlaying && !isGameOver && !isTeamIntermission) {
+      while (timeLeft > 0 && !isGameOver && !isTeamIntermission) {
         delay(1000)
         timeLeft--
       }
       if (timeLeft <= 0) {
-        isGameOver = true
         isPlaying = false
         triggerHaptic(false)
+        if (gameMode == "party_teams" && activeTeam == "Team A") {
+          isTeamIntermission = true
+        } else {
+          isGameOver = true
+        }
       }
     }
   }
@@ -234,11 +261,19 @@ fun GamePlayScreen(
           verticalArrangement = Arrangement.Center
         ) {
           StripiSoftPillTag(
-            text = if (gameMode == "heads_up") "Forehead Tilt Mode" else "Party Match Mode"
+            text = when (gameMode) {
+              "heads_up" -> "Forehead Tilt Mode"
+              "party_teams" -> "$activeTeam Turn"
+              else -> "Quick Solo Blitz"
+            }
           )
           Spacer(modifier = Modifier.height(16.dp))
           Text(
-            text = if (gameMode == "heads_up") "Place phone on forehead" else "Get ready to act",
+            text = when (gameMode) {
+              "heads_up" -> "Place phone upright on forehead"
+              "party_teams" -> "$activeTeam: Get ready to act"
+              else -> "Get ready to act"
+            },
             style = StripiTypeTokens.displayLg.copy(color = StripiInk),
             textAlign = TextAlign.Center
           )
@@ -264,10 +299,100 @@ fun GamePlayScreen(
           }
         }
       }
+    } else if (isTeamIntermission) {
+      // Team A -> Team B Intermission Screen for Party Teams Mode
+      StripiGradientMeshHero(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(24.dp)
+      ) {
+        Column(
+          modifier = Modifier.fillMaxSize(),
+          horizontalAlignment = Alignment.CenterHorizontally,
+          verticalArrangement = Arrangement.SpaceBetween
+        ) {
+          Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(top = 24.dp)
+          ) {
+            Box(
+              modifier = Modifier
+                .size(64.dp)
+                .clip(CircleShape)
+                .background(StripiSubduedHover.copy(alpha = 0.45f)),
+              contentAlignment = Alignment.Center
+            ) {
+              Icon(
+                imageVector = Icons.Default.Groups,
+                contentDescription = "Pass to Team B",
+                tint = StripiPrimary,
+                modifier = Modifier.size(32.dp)
+              )
+            }
+            Spacer(modifier = Modifier.height(14.dp))
+            StripiSoftPillTag(text = "Halftime Switch")
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+              text = "Pass Phone to Team B.",
+              style = StripiTypeTokens.displayLg.copy(color = StripiInk),
+              textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+              text = "Team A finished their round. Now Team B steps up to beat their score.",
+              style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary),
+              textAlign = TextAlign.Center
+            )
+          }
+
+          StripiFeaturedDarkCard(modifier = Modifier.fillMaxWidth()) {
+            Column(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+              Text(
+                text = "Team A Score to Beat",
+                style = StripiTypeTokens.caption.copy(color = StripiSubduedHover)
+              )
+              Spacer(modifier = Modifier.height(6.dp))
+              StripiTabularText(
+                text = "$teamAScore",
+                color = StripiOnPrimary,
+                fontSize = 48,
+                fontWeight = FontWeight.Light
+              )
+              Spacer(modifier = Modifier.height(8.dp))
+              StripiSoftPillTag(
+                text = "${roundDurationSeconds}s on the clock for Team B",
+                containerColor = StripiPrimary,
+                contentColor = StripiOnPrimary
+              )
+            }
+          }
+
+          StripiPrimaryPillButton(
+            text = "Start Team B Turn",
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(50.dp)
+              .testTag("start_team_b_button"),
+            onClick = {
+              activeTeam = "Team B"
+              if (currentCardIndex >= cards.size) {
+                roundKey++
+                currentCardIndex = 0
+              }
+              timeLeft = roundDurationSeconds
+              readyCountdown = 3
+              isTeamIntermission = false
+              isCountdownReady = true
+            }
+          )
+        }
+      }
     } else if (isGameOver) {
       // Game Over Summary Screen
       val totalScore = guessedWords.size.toLong()
-      val session = remember {
+      val session = remember(roundKey, teamAScore, teamBScore, totalScore) {
         GameSession(
           deckId = deck.id,
           deckName = deck.name,
@@ -280,7 +405,7 @@ fun GamePlayScreen(
         )
       }
 
-      LaunchedEffect(Unit) {
+      LaunchedEffect(session) {
         onFinishGame(session)
       }
 
@@ -312,7 +437,15 @@ fun GamePlayScreen(
           }
           Spacer(modifier = Modifier.height(12.dp))
           Text(
-            text = "Round Complete.",
+            text = if (gameMode == "party_teams") {
+              when {
+                teamAScore > teamBScore -> "Team A Wins!"
+                teamBScore > teamAScore -> "Team B Wins!"
+                else -> "It's a Draw!"
+              }
+            } else {
+              "Round Complete."
+            },
             style = StripiTypeTokens.displayLg.copy(color = StripiInk)
           )
           Text(
@@ -353,6 +486,12 @@ fun GamePlayScreen(
                   )
                 }
               }
+              Spacer(modifier = Modifier.height(10.dp))
+              StripiSoftPillTag(
+                text = "+${10 + (guessedWords.size * 5)} Coins Earned",
+                containerColor = StripiPrimary,
+                contentColor = StripiOnPrimary
+              )
             } else {
               Text(
                 text = "Words Guessed",
@@ -425,12 +564,15 @@ fun GamePlayScreen(
               )
             },
             onClick = {
+              roundKey++
               currentCardIndex = 0
               timeLeft = roundDurationSeconds
               guessedWords.clear()
               passedWords.clear()
               teamAScore = 0
               teamBScore = 0
+              activeTeam = "Team A"
+              isTeamIntermission = false
               readyCountdown = 3
               isCountdownReady = true
               isGameOver = false
@@ -481,7 +623,11 @@ fun GamePlayScreen(
           }
 
           StripiSoftPillTag(
-            text = "Score: ${guessedWords.size}"
+            text = if (gameMode == "party_teams") {
+              "$activeTeam: ${if (activeTeam == "Team A") teamAScore else teamBScore}"
+            } else {
+              "Score: ${guessedWords.size}"
+            }
           )
         }
 
@@ -514,7 +660,11 @@ fun GamePlayScreen(
                   contentColor = StripiOnPrimary
                 )
                 StripiSoftPillTag(
-                  text = currentCard?.culturalEra.orEmpty(),
+                  text = if (gameMode == "heads_up") {
+                    if (isTiltArmed) "Tilt Ready: Down=Correct" else "Hold Upright on Forehead"
+                  } else {
+                    currentCard?.culturalEra.orEmpty()
+                  },
                   containerColor = StripiSubduedHover,
                   contentColor = StripiBrandDark900
                 )

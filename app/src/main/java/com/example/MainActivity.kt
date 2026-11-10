@@ -12,7 +12,9 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.data.local.LocalPlayerStore
 import com.example.ui.AuthScreen
 import com.example.ui.MainFeatureScreen
 import com.example.ui.theme.MzansiCharadesTheme
@@ -25,7 +27,7 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    // MANDATORY STEP 1: Configure App Check with launch intent before any UI or Firebase operations
+    // Configure App Check safely before UI or Firebase operations
     configureAppCheck(this, intent)
 
     enableEdgeToEdge()
@@ -42,29 +44,47 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun AppContent() {
-  var currentUser by remember { mutableStateOf(Firebase.auth.currentUser) }
+  val context = LocalContext.current
+  val localStore = remember { LocalPlayerStore.getInstance(context) }
+  val localUserId by localStore.activeUserId.collectAsStateWithLifecycle()
+
+  var firebaseUid by remember {
+    mutableStateOf(runCatching { Firebase.auth.currentUser?.uid }.getOrNull())
+  }
 
   DisposableEffect(Unit) {
+    val authInstance = runCatching { Firebase.auth }.getOrNull()
     val listener = FirebaseAuth.AuthStateListener { auth ->
-      currentUser = auth.currentUser
+      firebaseUid = auth.currentUser?.uid
     }
-    Firebase.auth.addAuthStateListener(listener)
+    authInstance?.addAuthStateListener(listener)
     onDispose {
-      Firebase.auth.removeAuthStateListener(listener)
+      authInstance?.removeAuthStateListener(listener)
     }
   }
 
-  if (currentUser == null) {
+  val effectiveUid = firebaseUid ?: localUserId
+
+  if (effectiveUid == null) {
     AuthScreen(
       onAuthSuccess = {
-        currentUser = Firebase.auth.currentUser
+        val currentFirebaseUser = runCatching { Firebase.auth.currentUser }.getOrNull()
+        if (currentFirebaseUser != null) {
+          firebaseUid = currentFirebaseUser.uid
+          localStore.signInLocalUser(
+            uid = currentFirebaseUser.uid,
+            displayName = currentFirebaseUser.displayName.orEmpty().ifBlank { "Mzansi Star" },
+            email = currentFirebaseUser.email ?: "Signed in with Google"
+          )
+        } else {
+          localStore.signInLocalUser()
+        }
       }
     )
   } else {
-    val uid = currentUser!!.uid
-    key(uid) {
+    key(effectiveUid) {
       MainFeatureScreen(
-        currentUserId = uid
+        currentUserId = effectiveUid
       )
     }
   }

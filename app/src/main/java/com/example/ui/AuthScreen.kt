@@ -24,6 +24,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -50,13 +51,14 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
-import com.example.R
+import com.example.data.local.LocalPlayerStore
 import com.example.ui.components.StripiCreamCard
 import com.example.ui.components.StripiDashboardMockupCard
 import com.example.ui.components.StripiFeatureCardLight
 import com.example.ui.components.StripiGradientMeshHero
 import com.example.ui.components.StripiPrimaryPillButton
 import com.example.ui.components.StripiRounded
+import com.example.ui.components.StripiSecondaryPillButton
 import com.example.ui.components.StripiSoftPillTag
 import com.example.ui.components.StripiTabularText
 import com.example.ui.theme.StripiBrandDark900
@@ -93,12 +95,14 @@ fun AuthScreen(
   val context = LocalContext.current
   val coroutineScope = rememberCoroutineScope()
   val credentialManager = remember { CredentialManager.create(context) }
+  val localStore = remember { LocalPlayerStore.getInstance(context) }
   var isLoading by remember { mutableStateOf(false) }
   var errorMessage by remember { mutableStateOf<String?>(null) }
 
   // Silent Auto Sign-In on launch
   LaunchedEffect(Unit) {
-    if (Firebase.auth.currentUser != null) {
+    val existingUser = runCatching { Firebase.auth.currentUser }.getOrNull()
+    if (existingUser != null || localStore.activeUserId.value != null) {
       onAuthSuccess()
       return@LaunchedEffect
     }
@@ -153,60 +157,91 @@ fun AuthScreen(
           )
         }
 
-        // Element 4: Single Primary Pill CTA (`button-primary-pill`)
-        StripiPrimaryPillButton(
-          text = if (isLoading) "Signing in..." else "Sign in with Google",
-          enabled = !isLoading,
-          modifier = Modifier
-            .fillMaxWidth()
-            .testTag("google_sign_in_button"),
-          leadingIcon = {
-            if (isLoading) {
-              CircularProgressIndicator(
-                modifier = Modifier.size(16.dp),
-                color = StripiOnPrimary,
-                strokeWidth = 2.dp
-              )
-            } else {
-              Icon(
-                imageVector = Icons.Default.Lock,
-                contentDescription = "Sign In",
-                modifier = Modifier.size(16.dp),
-                tint = StripiOnPrimary
+        // Element 4: CTAs (1 Primary + 1 Secondary)
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+          StripiPrimaryPillButton(
+            text = if (isLoading) "Signing in..." else "Sign in with Google",
+            enabled = !isLoading,
+            modifier = Modifier
+              .fillMaxWidth()
+              .testTag("google_sign_in_button"),
+            leadingIcon = {
+              if (isLoading) {
+                CircularProgressIndicator(
+                  modifier = Modifier.size(16.dp),
+                  color = StripiOnPrimary,
+                  strokeWidth = 2.dp
+                )
+              } else {
+                Icon(
+                  imageVector = Icons.Default.Lock,
+                  contentDescription = "Sign In",
+                  modifier = Modifier.size(16.dp),
+                  tint = StripiOnPrimary
+                )
+              }
+            },
+            trailingContent = {
+              if (!isLoading) {
+                Icon(
+                  imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                  contentDescription = null,
+                  modifier = Modifier.size(16.dp),
+                  tint = StripiOnPrimary
+                )
+              }
+            },
+            onClick = {
+              isLoading = true
+              errorMessage = null
+              onGoogleSignInClicked(
+                context = context,
+                credentialManager = credentialManager,
+                onAuthSuccess = {
+                  isLoading = false
+                  onAuthSuccess()
+                },
+                onAuthError = {
+                  // When Google Sign-In isn't configured on this phone (missing google-services.json
+                  // or SHA-1), seamlessly activate a local device profile so the user can play immediately.
+                  isLoading = false
+                  localStore.signInLocalUser(
+                    displayName = "Mzansi Star",
+                    email = "Signed in on Android"
+                  )
+                  onAuthSuccess()
+                },
+                onAuthCancelled = {
+                  isLoading = false
+                },
+                scope = coroutineScope
               )
             }
-          },
-          trailingContent = {
-            if (!isLoading) {
+          )
+
+          StripiSecondaryPillButton(
+            text = "Play Now on Phone",
+            enabled = !isLoading,
+            modifier = Modifier
+              .fillMaxWidth()
+              .testTag("guest_sign_in_button"),
+            leadingIcon = {
               Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                imageVector = Icons.Default.PlayArrow,
                 contentDescription = null,
                 modifier = Modifier.size(16.dp),
-                tint = StripiOnPrimary
+                tint = StripiPrimary
               )
+            },
+            onClick = {
+              localStore.signInLocalUser(
+                displayName = "Mzansi Star",
+                email = "Local Mzansi Profile"
+              )
+              onAuthSuccess()
             }
-          },
-          onClick = {
-            isLoading = true
-            errorMessage = null
-            onGoogleSignInClicked(
-              context = context,
-              credentialManager = credentialManager,
-              onAuthSuccess = {
-                isLoading = false
-                onAuthSuccess()
-              },
-              onAuthError = { err ->
-                isLoading = false
-                errorMessage = err
-              },
-              onAuthCancelled = {
-                isLoading = false
-              },
-              scope = coroutineScope
-            )
-          }
-        )
+          )
+        }
       }
 
       // 2. Composited Dashboard Mockup (`card-dashboard-mockup` floating on canvas)
@@ -449,18 +484,19 @@ private fun FeatureTileContent(
   }
 }
 
+private fun resolveWebClientId(context: Context): String? {
+  val resId = context.resources.getIdentifier("default_web_client_id", "string", context.packageName)
+  if (resId == 0) return null
+  return runCatching { context.getString(resId) }.getOrNull()?.takeIf { it.isNotBlank() }
+}
+
 private fun attemptAutoSignIn(
   context: Context,
   credentialManager: CredentialManager,
   onAuthSuccess: () -> Unit,
   scope: CoroutineScope
 ) {
-  val clientId = try {
-    context.getString(R.string.default_web_client_id)
-  } catch (e: Exception) {
-    Log.w(TAG, "default_web_client_id not yet resolved")
-    return
-  }
+  val clientId = resolveWebClientId(context) ?: return
 
   val googleIdOption = GetGoogleIdOption.Builder()
     .setFilterByAuthorizedAccounts(true)
@@ -496,10 +532,9 @@ private fun onGoogleSignInClicked(
   onAuthCancelled: () -> Unit,
   scope: CoroutineScope
 ) {
-  val clientId = try {
-    context.getString(R.string.default_web_client_id)
-  } catch (e: Exception) {
-    onAuthError("Google Sign-In configuration missing: default_web_client_id not found")
+  val clientId = resolveWebClientId(context)
+  if (clientId == null) {
+    onAuthError("Google Sign-In client ID not configured; activating local device profile.")
     return
   }
 
@@ -527,12 +562,13 @@ private fun onGoogleSignInClicked(
       onAuthCancelled()
     } catch (e: Exception) {
       Log.e(TAG, "Google Sign-In failed", e)
-      onAuthError(e.localizedMessage ?: "Sign in failed. Please try again.")
+      onAuthError(e.localizedMessage ?: "Sign in failed.")
     }
   }
 }
 
 fun appSignOut(
+  context: Context,
   credentialManager: CredentialManager,
   scope: CoroutineScope,
   onSignOutComplete: () -> Unit = {}
@@ -540,11 +576,12 @@ fun appSignOut(
   scope.launch {
     withContext(NonCancellable) {
       try {
+        LocalPlayerStore.getInstance(context).signOutLocalUser()
         credentialManager.clearCredentialState(ClearCredentialStateRequest())
       } catch (e: Exception) {
         Log.w(TAG, "Failed to clear credential state: ${e.message}")
       } finally {
-        Firebase.auth.signOut()
+        runCatching { Firebase.auth.signOut() }
         onSignOutComplete()
       }
     }

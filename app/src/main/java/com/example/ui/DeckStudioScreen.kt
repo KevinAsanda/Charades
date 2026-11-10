@@ -144,7 +144,7 @@ fun DeckStudioScreen(
     ) {
       when (selectedTab) {
         0 -> AiDeckGeneratorTab(aiRepository, onAddCard)
-        1 -> AiCardArtGeneratorTab(aiRepository)
+        1 -> AiCardArtGeneratorTab(aiRepository, onAddCard)
         2 -> MyCustomCardsTab(customCards, onAddCard, onDeleteCard)
       }
     }
@@ -412,13 +412,17 @@ private fun AiDeckGeneratorTab(
 }
 
 @Composable
-private fun AiCardArtGeneratorTab(aiRepository: AiRepository) {
+private fun AiCardArtGeneratorTab(
+  aiRepository: AiRepository,
+  onAddCard: (CustomCard) -> Unit
+) {
   val scope = rememberCoroutineScope()
   var imagePrompt by remember { mutableStateOf("") }
   var selectedSizeOption by remember { mutableStateOf(CardImageSize.SIZE_1K) }
   var isGeneratingImage by remember { mutableStateOf(false) }
   var generatedBitmap by remember { mutableStateOf<Bitmap?>(null) }
   var errorMessage by remember { mutableStateOf<String?>(null) }
+  var artSavedBanner by remember { mutableStateOf<String?>(null) }
 
   val sampleImagePrompts = listOf(
     "Vintage 2000s Kwaito cassette tape with colorful township graffiti",
@@ -610,6 +614,44 @@ private fun AiCardArtGeneratorTab(aiRepository: AiRepository) {
             text = imagePrompt,
             style = StripiTypeTokens.bodyMd.copy(color = StripiSubduedHover)
           )
+          Spacer(modifier = Modifier.height(14.dp))
+          StripiPrimaryPillButton(
+            text = "Save Prompt as Custom Card",
+            modifier = Modifier
+              .fillMaxWidth()
+              .testTag("save_art_as_card_button"),
+            leadingIcon = {
+              Icon(
+                imageVector = Icons.Default.Save,
+                contentDescription = null,
+                tint = StripiOnPrimary,
+                modifier = Modifier.size(16.dp)
+              )
+            },
+            onClick = {
+              val cardTitle = imagePrompt.take(44).trim()
+              onAddCard(
+                CustomCard(
+                  term = cardTitle,
+                  category = "Art & Culture",
+                  hints = listOf(
+                    "Act out the scene: $imagePrompt",
+                    "Use big expressive Mzansi gestures",
+                    "Strike a freeze-frame poster pose"
+                  ),
+                  culturalEra = "Early 2000s"
+                )
+              )
+              artSavedBanner = "Saved '$cardTitle' to your playable Custom Cards!"
+            }
+          )
+          if (artSavedBanner != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+              text = artSavedBanner.orEmpty(),
+              style = StripiTypeTokens.caption.copy(color = StripiOnPrimary)
+            )
+          }
         }
       }
     }
@@ -645,7 +687,7 @@ private fun MyCustomCardsTab(
             style = StripiTypeTokens.headingMd.copy(color = StripiInk)
           )
           StripiTabularText(
-            text = "${customCards.size} cards synced to Firestore",
+            text = "${customCards.size} cards saved in your collection",
             color = StripiInkMute,
             fontSize = 14
           )

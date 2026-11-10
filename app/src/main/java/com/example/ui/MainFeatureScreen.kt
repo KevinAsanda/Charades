@@ -1,7 +1,6 @@
 package com.example.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.data.local.LocalPlayerStore
 import com.example.data.model.Deck
 import com.example.data.model.StoreCatalog
 import com.example.data.repository.AiRepository
@@ -52,6 +52,7 @@ import com.example.ui.theme.StripiSubduedHover
 import com.example.ui.theme.StripiTypeTokens
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 @Composable
@@ -63,45 +64,109 @@ fun MainFeatureScreen(
   val snackbarHostState = remember { SnackbarHostState() }
   val credentialManager = remember { CredentialManager.create(context) }
 
-  val userRepository = remember { UserRepository(context) }
-  val gameSessionRepository = remember { GameSessionRepository(context) }
-  val customCardRepository = remember { CustomCardRepository(context) }
-  val paymentRepository = remember { PaymentRepository(context) }
+  val localStore = remember { LocalPlayerStore.getInstance(context) }
   val aiRepository = remember { AiRepository() }
 
-  // Observe player profile
-  val profileFlow = remember(currentUserId) { userRepository.observeUserProfile(currentUserId) }
-  val userProfile by profileFlow.collectAsStateWithLifecycle(initialValue = null)
+  // Lazily and safely create cloud repositories so missing google-services.json never crashes the app
+  val userRepository = remember { runCatching { UserRepository(context) }.getOrNull() }
+  val gameSessionRepository = remember { runCatching { GameSessionRepository(context) }.getOrNull() }
+  val customCardRepository = remember { runCatching { CustomCardRepository(context) }.getOrNull() }
+  val paymentRepository = remember { runCatching { PaymentRepository(context) }.getOrNull() }
 
-  // Initialize profile on first launch
+  // Observe local device state first for instant responsiveness offline & online
+  val localProfile by localStore.userProfile.collectAsStateWithLifecycle()
+  val localSessions by localStore.gameSessions.collectAsStateWithLifecycle()
+  val localCustomCards by localStore.customCards.collectAsStateWithLifecycle()
+  val localPaymentMethods by localStore.paymentMethods.collectAsStateWithLifecycle()
+  val localTransactions by localStore.transactions.collectAsStateWithLifecycle()
+
+  // Also keep track of any remote items if Firestore is active
+  var remoteSessions by remember { mutableStateOf<List<com.example.data.model.GameSession>>(emptyList()) }
+  var remoteCustomCards by remember { mutableStateOf<List<com.example.data.model.CustomCard>>(emptyList()) }
+  var remotePaymentMethods by remember { mutableStateOf<List<com.example.data.model.PaymentMethod>>(emptyList()) }
+  var remoteTransactions by remember { mutableStateOf<List<com.example.data.model.PaymentTransaction>>(emptyList()) }
+
+  // Initialize local + cloud profile and subscribe safely to Firestore streams when available
   LaunchedEffect(currentUserId) {
-    val authUser = Firebase.auth.currentUser
-    if (authUser != null) {
-      try {
+    val authUser = runCatching { Firebase.auth.currentUser }.getOrNull()
+    val displayName = authUser?.displayName.orEmpty().ifBlank { localProfile.displayName.ifBlank { "Mzansi Star" } }
+    val email = authUser?.email ?: localProfile.email ?: "Player on Android"
+
+    localStore.signInLocalUser(
+      uid = currentUserId,
+      displayName = displayName,
+      email = email
+    )
+
+    if (authUser != null && userRepository != null) {
+      runCatching {
         userRepository.getOrCreateProfile(
           userId = currentUserId,
-          displayName = authUser.displayName.orEmpty().ifBlank { "Mzansi Star" },
-          email = authUser.email,
+          displayName = displayName,
+          email = email,
           photoUrl = authUser.photoUrl?.toString()
         )
-      } catch (_: Exception) {}
+      }
+    }
+
+    launch {
+      runCatching {
+        userRepository?.observeUserProfile(currentUserId)
+          ?.catch { }
+          ?.collect { remote ->
+            if (remote != null) {
+              localStore.syncFromRemoteProfile(remote)
+            }
+          }
+      }
+    }
+
+    launch {
+      runCatching {
+        gameSessionRepository?.observeSessions(currentUserId)
+          ?.catch { }
+          ?.collect { sessions -> remoteSessions = sessions }
+      }
+    }
+
+    launch {
+      runCatching {
+        customCardRepository?.observeCards(currentUserId)
+          ?.catch { }
+          ?.collect { cards -> remoteCustomCards = cards }
+      }
+    }
+
+    launch {
+      runCatching {
+        paymentRepository?.observePaymentMethods(currentUserId)
+          ?.catch { }
+          ?.collect { methods -> remotePaymentMethods = methods }
+      }
+    }
+
+    launch {
+      runCatching {
+        paymentRepository?.observeTransactions(currentUserId)
+          ?.catch { }
+          ?.collect { txs -> remoteTransactions = txs }
+      }
     }
   }
 
-  // Observe match history
-  val sessionFlow = remember(currentUserId) { gameSessionRepository.observeSessions(currentUserId) }
-  val gameSessions by sessionFlow.collectAsStateWithLifecycle(initialValue = emptyList())
-
-  // Observe custom cards
-  val customCardFlow = remember(currentUserId) { customCardRepository.observeCards(currentUserId) }
-  val customCards by customCardFlow.collectAsStateWithLifecycle(initialValue = emptyList())
-
-  // Observe saved payment methods & ZAR transactions
-  val paymentMethodsFlow = remember(currentUserId) { paymentRepository.observePaymentMethods(currentUserId) }
-  val savedPaymentMethods by paymentMethodsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
-
-  val transactionsFlow = remember(currentUserId) { paymentRepository.observeTransactions(currentUserId) }
-  val transactions by transactionsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+  val userProfile = localProfile
+  val gameSessions = remember(localSessions, remoteSessions) {
+    (localSessions + remoteSessions).distinctBy { it.id.ifBlank { "${it.deckId}_${it.teamAScore}_${it.teamBScore}" } }
+  }
+  val customCards = remember(localCustomCards, remoteCustomCards) {
+    (localCustomCards + remoteCustomCards).distinctBy { it.id.ifBlank { it.term.lowercase() } }
+  }
+  val savedPaymentMethods = remember(localPaymentMethods, remotePaymentMethods) {
+    (localPaymentMethods + remotePaymentMethods).distinctBy { "${it.brand}_${it.last4}_${it.holderName}" }
+  }
+  val transactions = remember(localTransactions, remoteTransactions) {
+    (localTransactions + remoteTransactions).distinctBy { it.id.ifBlank { "${it.itemId}_${it.amountCents}" } }
+  }
 
   // Active game session state (when playing a round)
   var activePlayingDeck by remember { mutableStateOf<Deck?>(null) }
@@ -123,36 +188,30 @@ fun MainFeatureScreen(
       isProcessing = isProcessingPayment,
       onAddPaymentMethod = { newMethod ->
         coroutineScope.launch {
-          try {
-            paymentRepository.addPaymentMethod(newMethod)
-            snackbarHostState.showSnackbar("Saved ${newMethod.summaryLabel()} as default payment method.")
-          } catch (e: Exception) {
-            snackbarHostState.showSnackbar("Could not save payment method: ${e.localizedMessage}")
-          }
+          val savedLocal = localStore.addPaymentMethod(newMethod)
+          runCatching { paymentRepository?.addPaymentMethod(savedLocal) }
+          snackbarHostState.showSnackbar("Saved ${savedLocal.summaryLabel()} as default payment method.")
         }
       },
       onSetDefaultMethod = { methodId ->
         coroutineScope.launch {
-          try {
-            paymentRepository.setDefaultPaymentMethod(methodId)
-          } catch (_: Exception) {}
+          localStore.setDefaultPaymentMethod(methodId)
+          runCatching { paymentRepository?.setDefaultPaymentMethod(methodId) }
         }
       },
       onDeleteMethod = { methodId ->
         coroutineScope.launch {
-          try {
-            paymentRepository.deletePaymentMethod(methodId)
-            snackbarHostState.showSnackbar("Payment method deleted.")
-          } catch (e: Exception) {
-            snackbarHostState.showSnackbar("Failed to delete method: ${e.localizedMessage}")
-          }
+          localStore.deletePaymentMethod(methodId)
+          runCatching { paymentRepository?.deletePaymentMethod(methodId) }
+          snackbarHostState.showSnackbar("Payment method deleted.")
         }
       },
       onCompleteCheckout = { item, method ->
         isProcessingPayment = true
         coroutineScope.launch {
           try {
-            paymentRepository.recordPurchaseTransaction(
+            // 1. Persist locally immediately so phone users get instant unlock & receipt
+            localStore.recordTransaction(
               itemId = item.itemId,
               itemTitle = item.title,
               amountCents = item.amountCents,
@@ -161,20 +220,41 @@ fun MainFeatureScreen(
               packUnlocked = item.packIdToUnlock
             )
             if (item.coinsGranted > 0L) {
-              userRepository.addCoins(currentUserId, item.coinsGranted)
+              localStore.addCoins(item.coinsGranted)
             }
             if (item.packIdToUnlock == "ALL_EXPANSIONS") {
               StoreCatalog.EXPANSION_PACKS.forEach { pack ->
-                userRepository.unlockPack(currentUserId, pack.id, 0L)
+                localStore.unlockPack(pack.id, 0L)
               }
             } else if (!item.packIdToUnlock.isNullOrBlank()) {
-              userRepository.unlockPack(currentUserId, item.packIdToUnlock, 0L)
+              localStore.unlockPack(item.packIdToUnlock, 0L)
             }
+
+            // 2. Sync to Firestore in background if available
+            runCatching {
+              paymentRepository?.recordPurchaseTransaction(
+                itemId = item.itemId,
+                itemTitle = item.title,
+                amountCents = item.amountCents,
+                paymentMethod = method,
+                coinsGranted = item.coinsGranted,
+                packUnlocked = item.packIdToUnlock
+              )
+              if (item.coinsGranted > 0L) {
+                userRepository?.addCoins(currentUserId, item.coinsGranted)
+              }
+              if (item.packIdToUnlock == "ALL_EXPANSIONS") {
+                StoreCatalog.EXPANSION_PACKS.forEach { pack ->
+                  userRepository?.unlockPack(currentUserId, pack.id, 0L)
+                }
+              } else if (!item.packIdToUnlock.isNullOrBlank()) {
+                userRepository?.unlockPack(currentUserId, item.packIdToUnlock, 0L)
+              }
+            }
+
             showPaymentModal = false
             pendingCheckoutItem = null
             snackbarHostState.showSnackbar("Halala! Paid ${item.formattedZar()} for ${item.title}.")
-          } catch (e: Exception) {
-            snackbarHostState.showSnackbar("Payment failed: ${e.localizedMessage}")
           } finally {
             isProcessingPayment = false
           }
@@ -196,11 +276,10 @@ fun MainFeatureScreen(
       roundDurationSeconds = activeRoundDuration,
       onFinishGame = { session ->
         coroutineScope.launch {
-          try {
-            gameSessionRepository.recordSession(session)
-            userRepository.recordGameResult(currentUserId, session.wordsGuessed.size.toLong())
-          } catch (e: Exception) {
-            snackbarHostState.showSnackbar("Failed to sync match: ${e.localizedMessage}")
+          localStore.recordGameResult(session)
+          runCatching {
+            gameSessionRepository?.recordSession(session)
+            userRepository?.recordGameResult(currentUserId, session.wordsGuessed.size.toLong())
           }
         }
       },
@@ -321,20 +400,16 @@ fun MainFeatureScreen(
             transactions = transactions,
             onAddCoins = { amount ->
               coroutineScope.launch {
-                try {
-                  userRepository.addCoins(currentUserId, amount)
-                } catch (e: Exception) {
-                  snackbarHostState.showSnackbar("Coin addition failed: ${e.localizedMessage}")
-                }
+                localStore.addCoins(amount)
+                runCatching { userRepository?.addCoins(currentUserId, amount) }
+                snackbarHostState.showSnackbar("Added +$amount Mzansi Coins!")
               }
             },
             onUnlockPack = { packId, cost ->
               coroutineScope.launch {
-                try {
-                  userRepository.unlockPack(currentUserId, packId, cost)
-                } catch (e: Exception) {
-                  snackbarHostState.showSnackbar("Unlock failed: ${e.localizedMessage}")
-                }
+                localStore.unlockPack(packId, cost)
+                runCatching { userRepository?.unlockPack(currentUserId, packId, cost) }
+                snackbarHostState.showSnackbar("Pack unlocked and ready to play!")
               }
             },
             onRequestZarCheckout = { checkoutSpec ->
@@ -354,22 +429,16 @@ fun MainFeatureScreen(
             customCards = customCards,
             onAddCard = { card ->
               coroutineScope.launch {
-                try {
-                  customCardRepository.addCustomCard(card)
-                  snackbarHostState.showSnackbar("Card '${card.term}' created!")
-                } catch (e: Exception) {
-                  snackbarHostState.showSnackbar("Failed to create card: ${e.localizedMessage}")
-                }
+                val created = localStore.addCustomCard(card)
+                runCatching { customCardRepository?.addCustomCard(created) }
+                snackbarHostState.showSnackbar("Card '${created.term}' saved to your custom deck!")
               }
             },
             onDeleteCard = { cardId ->
               coroutineScope.launch {
-                try {
-                  customCardRepository.deleteCustomCard(cardId)
-                  snackbarHostState.showSnackbar("Card deleted.")
-                } catch (e: Exception) {
-                  snackbarHostState.showSnackbar("Delete failed: ${e.localizedMessage}")
-                }
+                localStore.deleteCustomCard(cardId)
+                runCatching { customCardRepository?.deleteCustomCard(cardId) }
+                snackbarHostState.showSnackbar("Card deleted.")
               }
             }
           )
@@ -383,7 +452,7 @@ fun MainFeatureScreen(
               showPaymentModal = true
             },
             onSignOut = {
-              appSignOut(credentialManager, coroutineScope)
+              appSignOut(context, credentialManager, coroutineScope)
             }
           )
         }
