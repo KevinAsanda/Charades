@@ -1,0 +1,6 @@
+{
+  "name": "Mzansi Charades",
+  "description": "Authentic South African charades party game celebrating early 2000s Mzansi pop culture, history, kwaito, local slang, and iconic nostalgic moments.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

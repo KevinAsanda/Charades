@@ -1,0 +1,206 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net (Default-Deny Catch-All)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Validation helper for UserProfile
+    function isValidUserProfile(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 60 &&
+             (!('email' in data) || data.email == null || (data.email is string && data.email.size() <= 100)) &&
+             (!('photoUrl' in data) || data.photoUrl == null || (data.photoUrl is string && data.photoUrl.size() <= 500)) &&
+             data.coins is int && data.coins >= 0 &&
+             data.unlockedPacks is list && data.unlockedPacks.size() <= 50 &&
+             (data.unlockedPacks.size() == 0 || data.unlockedPacks[0] is string) &&
+             data.gamesPlayed is int && data.gamesPlayed >= 0 &&
+             data.totalCorrect is int && data.totalCorrect >= 0 &&
+             data.highScore is int && data.highScore >= 0 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('updatedAt' in data) || data.updatedAt == null || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    // Validation helper for GameSession
+    function isValidGameSession(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.deckId is string && data.deckId.size() <= 64 &&
+             data.deckName is string && data.deckName.size() <= 100 &&
+             data.gameMode is string && data.gameMode in ['heads_up', 'party_teams', 'quick_play'] &&
+             data.teamAScore is int && data.teamAScore >= 0 &&
+             data.teamBScore is int && data.teamBScore >= 0 &&
+             data.wordsGuessed is list && data.wordsGuessed.size() <= 200 &&
+             (data.wordsGuessed.size() == 0 || data.wordsGuessed[0] is string) &&
+             data.wordsPassed is list && data.wordsPassed.size() <= 200 &&
+             (data.wordsPassed.size() == 0 || data.wordsPassed[0] is string) &&
+             data.durationSeconds is int && data.durationSeconds >= 0 && data.durationSeconds <= 3600 &&
+             data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    // Validation helper for CustomCard
+    function isValidCustomCard(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.term is string && data.term.size() >= 1 && data.term.size() <= 100 &&
+             data.category is string && data.category.size() >= 1 && data.category.size() <= 64 &&
+             data.hints is list && data.hints.size() <= 20 &&
+             (data.hints.size() == 0 || data.hints[0] is string) &&
+             data.culturalEra is string && data.culturalEra.size() <= 64 &&
+             (!('imageUrl' in data) || data.imageUrl == null || (data.imageUrl is string && data.imageUrl.size() <= 1000)) &&
+             data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    // Validation helper for PaymentMethod
+    function isValidPaymentMethod(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.type is string && data.type in ['card', 'payshap', 'snapscan'] &&
+             data.brand is string && data.brand.size() >= 1 && data.brand.size() <= 40 &&
+             data.last4 is string && data.last4.size() >= 2 && data.last4.size() <= 20 &&
+             data.expiryMonth is int && data.expiryMonth >= 1 && data.expiryMonth <= 12 &&
+             data.expiryYear is int && data.expiryYear >= 2024 && data.expiryYear <= 2060 &&
+             data.holderName is string && data.holderName.size() >= 1 && data.holderName.size() <= 80 &&
+             data.isDefault is bool &&
+             data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    // Validation helper for PaymentTransaction
+    function isValidPaymentTransaction(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.itemId is string && data.itemId.size() >= 1 && data.itemId.size() <= 64 &&
+             data.itemTitle is string && data.itemTitle.size() >= 1 && data.itemTitle.size() <= 100 &&
+             data.amountCents is int && data.amountCents >= 0 && data.amountCents <= 1000000 &&
+             data.currency is string && data.currency == 'ZAR' &&
+             data.paymentMethodId is string && data.paymentMethodId.size() >= 1 && data.paymentMethodId.size() <= 128 &&
+             data.paymentMethodSummary is string && data.paymentMethodSummary.size() >= 1 && data.paymentMethodSummary.size() <= 100 &&
+             data.coinsGranted is int && data.coinsGranted >= 0 &&
+             (!('packUnlocked' in data) || data.packUnlocked == null || (data.packUnlocked is string && data.packUnlocked.size() <= 64)) &&
+             data.status is string && data.status in ['succeeded', 'pending', 'failed'] &&
+             data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    // User Profile Collection
+    match /users/{userId} {
+      allow get: if isSignedIn() && request.auth.uid == userId && isValidId(userId);
+      allow list: if isSignedIn() && request.auth.uid == userId;
+
+      allow create: if isSignedIn() &&
+                       request.auth.uid == userId &&
+                       isValidId(userId) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().keys().hasAll(['userId', 'displayName', 'coins', 'unlockedPacks', 'gamesPlayed', 'totalCorrect', 'highScore', 'createdAt']) &&
+                       incoming().keys().hasOnly(['userId', 'displayName', 'email', 'photoUrl', 'coins', 'unlockedPacks', 'gamesPlayed', 'totalCorrect', 'highScore', 'createdAt', 'updatedAt']) &&
+                       isValidUserProfile(incoming());
+
+      allow update: if isSignedIn() &&
+                       request.auth.uid == userId &&
+                       isValidId(userId) &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'email', 'photoUrl', 'coins', 'unlockedPacks', 'gamesPlayed', 'totalCorrect', 'highScore', 'updatedAt']);
+
+      allow delete: if isSignedIn() && request.auth.uid == userId && isValidId(userId);
+
+      // Subcollection: Game Sessions
+      match /game_sessions/{sessionId} {
+        allow get: if isSignedIn() && request.auth.uid == userId && isValidId(sessionId);
+        allow list: if isSignedIn() && request.auth.uid == userId;
+
+        allow create: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         isValidId(sessionId) &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().keys().hasAll(['userId', 'deckId', 'deckName', 'gameMode', 'teamAScore', 'teamBScore', 'wordsGuessed', 'wordsPassed', 'durationSeconds', 'createdAt']) &&
+                         incoming().keys().hasOnly(['sessionId', 'userId', 'deckId', 'deckName', 'gameMode', 'teamAScore', 'teamBScore', 'wordsGuessed', 'wordsPassed', 'durationSeconds', 'createdAt']) &&
+                         isValidGameSession(incoming());
+
+        allow update: if false; // Game history records are immutable
+        allow delete: if isSignedIn() && request.auth.uid == userId && isValidId(sessionId);
+      }
+
+      // Subcollection: Custom Cards
+      match /custom_cards/{cardId} {
+        allow get: if isSignedIn() && request.auth.uid == userId && isValidId(cardId);
+        allow list: if isSignedIn() && request.auth.uid == userId;
+
+        allow create: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         isValidId(cardId) &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().keys().hasAll(['userId', 'term', 'category', 'hints', 'culturalEra', 'createdAt']) &&
+                         incoming().keys().hasOnly(['cardId', 'userId', 'term', 'category', 'hints', 'culturalEra', 'imageUrl', 'createdAt']) &&
+                         isValidCustomCard(incoming());
+
+        allow update: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         isValidId(cardId) &&
+                         isValidCustomCard(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['term', 'category', 'hints', 'culturalEra', 'imageUrl']);
+
+        allow delete: if isSignedIn() && request.auth.uid == userId && isValidId(cardId);
+      }
+
+      // Subcollection: Saved Payment Methods
+      match /payment_methods/{methodId} {
+        allow get: if isSignedIn() && request.auth.uid == userId && isValidId(methodId);
+        allow list: if isSignedIn() && request.auth.uid == userId;
+
+        allow create: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         isValidId(methodId) &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().keys().hasAll(['userId', 'type', 'brand', 'last4', 'expiryMonth', 'expiryYear', 'holderName', 'isDefault', 'createdAt']) &&
+                         incoming().keys().hasOnly(['userId', 'type', 'brand', 'last4', 'expiryMonth', 'expiryYear', 'holderName', 'isDefault', 'createdAt']) &&
+                         isValidPaymentMethod(incoming());
+
+        allow update: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         isValidId(methodId) &&
+                         isValidPaymentMethod(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['isDefault', 'holderName', 'expiryMonth', 'expiryYear']);
+
+        allow delete: if isSignedIn() && request.auth.uid == userId && isValidId(methodId);
+      }
+
+      // Subcollection: Payment Transactions (Immutable Receipts)
+      match /transactions/{transactionId} {
+        allow get: if isSignedIn() && request.auth.uid == userId && isValidId(transactionId);
+        allow list: if isSignedIn() && request.auth.uid == userId;
+
+        allow create: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         isValidId(transactionId) &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().keys().hasAll(['userId', 'itemId', 'itemTitle', 'amountCents', 'currency', 'paymentMethodId', 'paymentMethodSummary', 'coinsGranted', 'status', 'createdAt']) &&
+                         incoming().keys().hasOnly(['userId', 'itemId', 'itemTitle', 'amountCents', 'currency', 'paymentMethodId', 'paymentMethodSummary', 'coinsGranted', 'packUnlocked', 'status', 'createdAt']) &&
+                         isValidPaymentTransaction(incoming());
+
+        allow update: if false; // Payment receipts are strictly immutable
+        allow delete: if false; // Payment receipts cannot be deleted by clients
+      }
+    }
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile containing game progress and unlocked packs",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "coins": { "type": "integer" },
+        "unlockedPacks": { "type": "array" },
+        "gamesPlayed": { "type": "integer" },
+        "totalCorrect": { "type": "integer" },
+        "highScore": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId",
+        "displayName",
+        "coins",
+        "unlockedPacks",
+        "gamesPlayed",
+        "totalCorrect",
+        "highScore",
+        "createdAt"
+      ]
+    },
+    "GameSession": {
+      "title": "GameSession",
+      "description": "Completed charades game session record",
+      "type": "object",
+      "properties": {
+        "sessionId": { "type": "string" },
+        "userId": { "type": "string" },
+        "deckId": { "type": "string" },
+        "deckName": { "type": "string" },
+        "gameMode": { "type": "string" },
+        "teamAScore": { "type": "integer" },
+        "teamBScore": { "type": "integer" },
+        "wordsGuessed": { "type": "array" },
+        "wordsPassed": { "type": "array" },
+        "durationSeconds": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId",
+        "deckId",
+        "deckName",
+        "gameMode",
+        "teamAScore",
+        "teamBScore",
+        "wordsGuessed",
+        "wordsPassed",
+        "durationSeconds",
+        "createdAt"
+      ]
+    },
+    "CustomCard": {
+      "title": "CustomCard",
+      "description": "Player-created South African charades card",
+      "type": "object",
+      "properties": {
+        "cardId": { "type": "string" },
+        "userId": { "type": "string" },
+        "term": { "type": "string" },
+        "category": { "type": "string" },
+        "hints": { "type": "array" },
+        "culturalEra": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId",
+        "term",
+        "category",
+        "hints",
+        "culturalEra",
+        "createdAt"
+      ]
+    },
+    "PaymentMethod": {
+      "title": "PaymentMethod",
+      "description": "Saved payment instrument (Card, PayShap, or SnapScan) for South African ZAR checkout",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "type": { "type": "string", "enum": ["card", "payshap", "snapscan"] },
+        "brand": { "type": "string" },
+        "last4": { "type": "string" },
+        "expiryMonth": { "type": "integer" },
+        "expiryYear": { "type": "integer" },
+        "holderName": { "type": "string" },
+        "isDefault": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId",
+        "type",
+        "brand",
+        "last4",
+        "expiryMonth",
+        "expiryYear",
+        "holderName",
+        "isDefault",
+        "createdAt"
+      ]
+    },
+    "PaymentTransaction": {
+      "title": "PaymentTransaction",
+      "description": "Immutable South African Rand (ZAR) checkout transaction receipt for expansion packs and coin bundles",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "itemId": { "type": "string" },
+        "itemTitle": { "type": "string" },
+        "amountCents": { "type": "integer" },
+        "currency": { "type": "string" },
+        "paymentMethodId": { "type": "string" },
+        "paymentMethodSummary": { "type": "string" },
+        "coinsGranted": { "type": "integer" },
+        "packUnlocked": { "type": "string" },
+        "status": { "type": "string", "enum": ["succeeded", "pending", "failed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId",
+        "itemId",
+        "itemTitle",
+        "amountCents",
+        "currency",
+        "paymentMethodId",
+        "paymentMethodSummary",
+        "coinsGranted",
+        "status",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Player profile and game stats"
+    },
+    "/users/{userId}/game_sessions/{sessionId}": {
+      "schema": { "$ref": "#/entities/GameSession" },
+      "description": "Match history and stats for the user"
+    },
+    "/users/{userId}/custom_cards/{cardId}": {
+      "schema": { "$ref": "#/entities/CustomCard" },
+      "description": "Custom charades cards created by the user"
+    },
+    "/users/{userId}/payment_methods/{methodId}": {
+      "schema": { "$ref": "#/entities/PaymentMethod" },
+      "description": "Saved user payment methods (Card, PayShap, SnapScan)"
+    },
+    "/users/{userId}/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/PaymentTransaction" },
+      "description": "Purchase receipts and ZAR transaction ledger"
+    }
+  }
+}
