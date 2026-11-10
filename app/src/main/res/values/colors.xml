@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
+    <color name="stripi_primary">#FF533AFD</color>
+    <color name="stripi_primary_deep">#FF4434D4</color>
+    <color name="stripi_primary_press">#FF2E2B8C</color>
+    <color name="stripi_brand_dark_900">#FF1C1E54</color>
+    <color name="stripi_ink">#FF0D253D</color>
+    <color name="stripi_canvas">#FFFFFFFF</color>
+    <color name="stripi_canvas_soft">#FFF6F9FC</color>
+    <color name="stripi_canvas_cream">#FFF5E9D4</color>
+    <!-- Legacy compatibility aliases mapped to Stripi tokens -->
+    <color name="purple_200">#FFB9B9F9</color>
+    <color name="purple_500">#FF533AFD</color>
+    <color name="purple_700">#FF4434D4</color>
+    <color name="teal_200">#FF665EFD</color>
+    <color name="teal_700">#FF2E2B8C</color>
+    <color name="black">#FF0D253D</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

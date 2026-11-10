@@ -1,8 +1,6 @@
 package com.example.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,10 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CreditCard
@@ -29,7 +24,6 @@ import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,33 +42,35 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.data.model.PaymentMethod
 import com.example.data.model.PaymentTransaction
 import com.example.data.model.StoreCatalog
 import com.example.data.model.UserProfile
 import com.example.ui.components.StripiCreamCard
+import com.example.ui.components.StripiDarkPillButton
+import com.example.ui.components.StripiDeckIconBadge
 import com.example.ui.components.StripiFeatureCardLight
 import com.example.ui.components.StripiFeaturedDarkCard
 import com.example.ui.components.StripiGradientMeshHero
 import com.example.ui.components.StripiPrimaryPillButton
+import com.example.ui.components.StripiRounded
 import com.example.ui.components.StripiSecondaryPillButton
 import com.example.ui.components.StripiSoftPillTag
 import com.example.ui.components.StripiTabularText
 import com.example.ui.theme.StripiBrandDark900
 import com.example.ui.theme.StripiCanvas
 import com.example.ui.theme.StripiCanvasSoft
-import com.example.ui.theme.StripiEmerald
 import com.example.ui.theme.StripiHairline
 import com.example.ui.theme.StripiInk
 import com.example.ui.theme.StripiInkMute
 import com.example.ui.theme.StripiInkSecondary
-import com.example.ui.theme.StripiLemon
 import com.example.ui.theme.StripiOnPrimary
 import com.example.ui.theme.StripiPrimary
+import com.example.ui.theme.StripiPrimaryDeep
 import com.example.ui.theme.StripiRuby
 import com.example.ui.theme.StripiSubduedHover
+import com.example.ui.theme.StripiTypeTokens
 import kotlinx.coroutines.delay
 
 @Composable
@@ -132,7 +128,7 @@ fun StoreScreen(
               text = "${adCountdown}s",
               color = StripiSubduedHover,
               fontSize = 14,
-              fontWeight = FontWeight.Medium
+              fontWeight = FontWeight.Normal
             )
           }
         }
@@ -143,7 +139,7 @@ fun StoreScreen(
           modifier = Modifier
             .fillMaxWidth()
             .height(150.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(StripiRounded.md)
             .background(
               Brush.linearGradient(
                 listOf(StripiPrimary, StripiRuby)
@@ -157,21 +153,18 @@ fun StoreScreen(
               imageVector = Icons.Default.Tv,
               contentDescription = null,
               tint = StripiOnPrimary,
-              modifier = Modifier.size(40.dp)
+              modifier = Modifier.size(36.dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
               text = "Cremora: 'It's not inside, it's on top!'",
-              style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Medium,
-                color = StripiOnPrimary
-              ),
+              style = StripiTypeTokens.headingSm.copy(color = StripiOnPrimary),
               textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
               text = "Classic 2000s South African TV Commercial Archive",
-              style = MaterialTheme.typography.bodySmall.copy(
+              style = StripiTypeTokens.caption.copy(
                 color = StripiOnPrimary.copy(alpha = 0.85f)
               ),
               textAlign = TextAlign.Center
@@ -184,7 +177,7 @@ fun StoreScreen(
         if (adCountdown > 0) {
           Text(
             text = "Reward unlocks in $adCountdown seconds...",
-            style = MaterialTheme.typography.bodySmall.copy(color = StripiSubduedHover),
+            style = StripiTypeTokens.caption.copy(color = StripiSubduedHover),
             modifier = Modifier.align(Alignment.CenterHorizontally)
           )
         } else {
@@ -209,12 +202,12 @@ fun StoreScreen(
       .fillMaxSize()
       .background(StripiCanvas),
     contentPadding = PaddingValues(bottom = 96.dp),
-    verticalArrangement = Arrangement.spacedBy(18.dp)
+    verticalArrangement = Arrangement.spacedBy(20.dp)
   ) {
     // 1. Stripi Gradient Mesh Hero & Balance Telemetry
     item {
       StripiGradientMeshHero(
-        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 24.dp)
+        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 28.dp)
       ) {
         Row(
           modifier = Modifier.fillMaxWidth(),
@@ -224,7 +217,7 @@ fun StoreScreen(
           StripiSoftPillTag(text = "Spaza Store & ZAR Billing")
 
           Surface(
-            shape = RoundedCornerShape(percent = 50),
+            shape = StripiRounded.pill,
             color = StripiBrandDark900
           ) {
             Row(
@@ -235,43 +228,41 @@ fun StoreScreen(
                 imageVector = Icons.Default.MonetizationOn,
                 contentDescription = null,
                 tint = StripiSubduedHover,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(15.dp)
               )
               Spacer(modifier = Modifier.width(6.dp))
               StripiTabularText(
                 text = "$userCoins Coins",
                 color = StripiOnPrimary,
                 fontSize = 14,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Normal
               )
             }
           }
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text(
           text = "Transparent Mzansi pricing.",
-          style = MaterialTheme.typography.displayMedium.copy(
-            color = StripiInk,
-            fontWeight = FontWeight.Light
-          )
+          style = StripiTypeTokens.displayLg.copy(color = StripiInk)
         )
 
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-          text = "Enjoy our generous ad-supported free tier, or unlock expansion packs instantly with South African Rand via Bank Card, PayShap, or SnapScan.",
-          style = MaterialTheme.typography.bodyMedium.copy(color = StripiInkSecondary)
+          text = "Enjoy our free tier, or unlock expansion packs in South African Rand via Card, PayShap, or SnapScan.",
+          style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary)
         )
 
-        Spacer(modifier = Modifier.height(18.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        // Active Payment Method Banner Card
+        // Active Payment Method Banner Card (`card-feature-light`)
         StripiFeatureCardLight(
           modifier = Modifier
             .fillMaxWidth()
             .testTag("manage_payment_methods_card"),
+          contentPadding = PaddingValues(18.dp),
           onClick = onOpenPaymentMethodsModal
         ) {
           Row(
@@ -286,7 +277,7 @@ fun StoreScreen(
               Box(
                 modifier = Modifier
                   .size(40.dp)
-                  .clip(RoundedCornerShape(8.dp))
+                  .clip(StripiRounded.md)
                   .background(StripiBrandDark900),
                 contentAlignment = Alignment.Center
               ) {
@@ -301,22 +292,19 @@ fun StoreScreen(
               Column {
                 Text(
                   text = if (defaultPaymentMethod != null) {
-                    "Default Method: ${defaultPaymentMethod.summaryLabel()}"
+                    defaultPaymentMethod.summaryLabel()
                   } else {
-                    "No South African payment method configured"
+                    "No ZAR payment method saved"
                   },
-                  style = MaterialTheme.typography.titleSmall.copy(
-                    color = StripiInk,
-                    fontWeight = FontWeight.Medium
-                  )
+                  style = StripiTypeTokens.headingSm.copy(color = StripiInk)
                 )
                 Text(
                   text = if (defaultPaymentMethod != null) {
-                    "Holder: ${defaultPaymentMethod.holderName} • Tap to manage"
+                    "Holder: ${defaultPaymentMethod.holderName}"
                   } else {
-                    "Set up Visa, Mastercard, PayShap, or SnapScan for 1-tap ZAR checkout"
+                    "Add Visa, Mastercard, PayShap, or SnapScan"
                   },
-                  style = MaterialTheme.typography.bodySmall.copy(color = StripiInkMute)
+                  style = StripiTypeTokens.caption.copy(color = StripiInkMute)
                 )
               }
             }
@@ -337,39 +325,36 @@ fun StoreScreen(
         StripiCreamCard(
           modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp),
-          contentPadding = PaddingValues(14.dp)
+            .padding(horizontal = 24.dp),
+          contentPadding = PaddingValues(16.dp)
         ) {
           Text(
             text = statusMessage.orEmpty(),
-            style = MaterialTheme.typography.bodyMedium.copy(
-              color = StripiInk,
-              fontWeight = FontWeight.Medium
-            )
+            style = StripiTypeTokens.bodyMd.copy(color = StripiInk)
           )
         }
       }
     }
 
-    // 2. Featured Dark Pricing Tier (All-Access Pass + Instant Coin Bundles)
+    // 2. Featured Pricing Band (`card-pricing-featured` + 2-up `card-pricing`)
+    // Single-Indigo CTA Rule: Only the featured pass uses `button-primary-pill`;
+    // the 2 coin bundles use `button-secondary`!
     item {
       Column(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+          .padding(horizontal = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
       ) {
         Text(
-          text = "Featured ZAR Bundles & Passes",
-          style = MaterialTheme.typography.titleMedium.copy(
-            color = StripiInk,
-            fontWeight = FontWeight.Medium
-          )
+          text = "ZAR Bundles & Passes",
+          style = StripiTypeTokens.headingMd.copy(color = StripiInk)
         )
 
-        // Featured Dark Card (`card-featured-dark` #1C1E54)
+        // Featured Dark Tier (`card-pricing-featured` #1C1E54)
         StripiFeaturedDarkCard(
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
+          contentPadding = PaddingValues(28.dp)
         ) {
           Row(
             modifier = Modifier.fillMaxWidth(),
@@ -389,27 +374,24 @@ fun StoreScreen(
             )
           }
 
-          Spacer(modifier = Modifier.height(10.dp))
+          Spacer(modifier = Modifier.height(12.dp))
 
           Text(
             text = "All-Access Mzansi Pass",
-            style = MaterialTheme.typography.headlineSmall.copy(
-              color = StripiOnPrimary,
-              fontWeight = FontWeight.Light
-            )
+            style = StripiTypeTokens.headingLg.copy(color = StripiOnPrimary)
           )
-          Spacer(modifier = Modifier.height(4.dp))
+          Spacer(modifier = Modifier.height(6.dp))
           Text(
             text = "Unlocks all 4 Expansion Packs permanently plus +1,500 Gold Coins for AI Studio decks.",
-            style = MaterialTheme.typography.bodySmall.copy(
-              color = StripiSubduedHover.copy(alpha = 0.85f)
+            style = StripiTypeTokens.bodyMd.copy(
+              color = StripiSubduedHover.copy(alpha = 0.88f)
             )
           )
 
-          Spacer(modifier = Modifier.height(16.dp))
+          Spacer(modifier = Modifier.height(20.dp))
 
           StripiPrimaryPillButton(
-            text = "Checkout R99.00 in ZAR",
+            text = "Checkout R99.00",
             modifier = Modifier
               .fillMaxWidth()
               .testTag("buy_all_access_pass_button"),
@@ -428,7 +410,7 @@ fun StoreScreen(
           )
         }
 
-        // Two-Column Light Hairline Coin Bundles
+        // Two-Column Standard Pricing Cards (`card-pricing` on white canvas)
         Row(
           modifier = Modifier.fillMaxWidth(),
           horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -471,25 +453,23 @@ fun StoreScreen(
       }
     }
 
-    // 3. Generous Free Tier Perks (Rewarded Ads & Daily Spaza Gift)
+    // 3. Free Tier Perks (`canvas-soft` band)
     item {
       Column(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+          .padding(horizontal = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
       ) {
         Text(
-          text = "Generous Free Tier Perks (R0.00)",
-          style = MaterialTheme.typography.titleMedium.copy(
-            color = StripiInk,
-            fontWeight = FontWeight.Medium
-          )
+          text = "Free Tier Perks",
+          style = StripiTypeTokens.headingMd.copy(color = StripiInk)
         )
 
         StripiFeatureCardLight(
           modifier = Modifier.fillMaxWidth(),
-          backgroundColor = StripiCanvasSoft
+          backgroundColor = StripiCanvasSoft,
+          contentPadding = PaddingValues(20.dp)
         ) {
           Row(
             modifier = Modifier.fillMaxWidth(),
@@ -499,23 +479,20 @@ fun StoreScreen(
             Column(modifier = Modifier.weight(1f)) {
               Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                  text = "Watch Nostalgic Mzansi Ad",
-                  style = MaterialTheme.typography.titleSmall.copy(
-                    fontWeight = FontWeight.Medium,
-                    color = StripiInk
-                  )
+                  text = "Nostalgic Mzansi Ad",
+                  style = StripiTypeTokens.headingSm.copy(color = StripiInk)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 StripiSoftPillTag(text = "+50 Coins")
               }
-              Spacer(modifier = Modifier.height(2.dp))
+              Spacer(modifier = Modifier.height(4.dp))
               Text(
                 text = "Watch a 5-second classic 2000s SA commercial to earn free coins.",
-                style = MaterialTheme.typography.bodySmall.copy(color = StripiInkMute)
+                style = StripiTypeTokens.bodyMd.copy(color = StripiInkMute)
               )
             }
             Spacer(modifier = Modifier.width(12.dp))
-            StripiPrimaryPillButton(
+            StripiDarkPillButton(
               text = "Watch Ad",
               modifier = Modifier.testTag("watch_ad_button"),
               onClick = {
@@ -526,7 +503,7 @@ fun StoreScreen(
           }
 
           HorizontalDivider(
-            modifier = Modifier.padding(vertical = 14.dp),
+            modifier = Modifier.padding(vertical = 16.dp),
             color = StripiHairline
           )
 
@@ -538,19 +515,16 @@ fun StoreScreen(
             Column(modifier = Modifier.weight(1f)) {
               Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                  text = "Daily Spaza Tuckshop Gift",
-                  style = MaterialTheme.typography.titleSmall.copy(
-                    fontWeight = FontWeight.Medium,
-                    color = StripiInk
-                  )
+                  text = "Daily Spaza Gift",
+                  style = StripiTypeTokens.headingSm.copy(color = StripiInk)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 StripiSoftPillTag(text = "+100 Coins")
               }
-              Spacer(modifier = Modifier.height(2.dp))
+              Spacer(modifier = Modifier.height(4.dp))
               Text(
                 text = "Complimentary daily coin grant for casual players.",
-                style = MaterialTheme.typography.bodySmall.copy(color = StripiInkMute)
+                style = StripiTypeTokens.bodyMd.copy(color = StripiInkMute)
               )
             }
             Spacer(modifier = Modifier.width(12.dp))
@@ -572,20 +546,17 @@ fun StoreScreen(
       Row(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(horizontal = 20.dp),
+          .padding(horizontal = 24.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
       ) {
         Text(
           text = "Expansion Packs",
-          style = MaterialTheme.typography.titleMedium.copy(
-            color = StripiInk,
-            fontWeight = FontWeight.Medium
-          )
+          style = StripiTypeTokens.headingMd.copy(color = StripiInk)
         )
         Text(
-          text = "Redeem coins or pay ZAR",
-          style = MaterialTheme.typography.labelMedium.copy(color = StripiInkMute)
+          text = "Coins or ZAR",
+          style = StripiTypeTokens.caption.copy(color = StripiInkMute)
         )
       }
     }
@@ -598,7 +569,8 @@ fun StoreScreen(
       StripiFeatureCardLight(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(horizontal = 20.dp)
+          .padding(horizontal = 24.dp),
+        contentPadding = PaddingValues(20.dp)
       ) {
         Row(
           modifier = Modifier.fillMaxWidth(),
@@ -609,47 +581,34 @@ fun StoreScreen(
             verticalAlignment = Alignment.Top,
             modifier = Modifier.weight(1f)
           ) {
-            Box(
-              modifier = Modifier
-                .size(44.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(StripiCanvasSoft)
-                .border(1.dp, StripiHairline, RoundedCornerShape(10.dp)),
-              contentAlignment = Alignment.Center
-            ) {
-              Text(text = pack.iconEmoji, fontSize = 22.sp)
-            }
-            Spacer(modifier = Modifier.width(12.dp))
+            StripiDeckIconBadge(deckId = pack.id)
+            Spacer(modifier = Modifier.width(14.dp))
             Column {
               Text(
                 text = pack.name,
-                style = MaterialTheme.typography.titleMedium.copy(
-                  fontWeight = FontWeight.Medium,
-                  color = StripiInk
-                )
+                style = StripiTypeTokens.headingSm.copy(color = StripiInk)
               )
-              Spacer(modifier = Modifier.height(2.dp))
+              Spacer(modifier = Modifier.height(4.dp))
               Text(
                 text = pack.tagLine,
-                style = MaterialTheme.typography.bodySmall.copy(color = StripiInkMute)
+                style = StripiTypeTokens.bodyMd.copy(color = StripiInkMute)
               )
               Spacer(modifier = Modifier.height(6.dp))
               StripiTabularText(
-                text = "${pack.cards.size} cards • $zarFormatted or ${pack.priceCoins} coins",
+                text = "${pack.cards.size} cards · $zarFormatted",
                 color = StripiInkSecondary,
-                fontSize = 12,
-                fontWeight = FontWeight.Medium
+                fontSize = 14
               )
             }
           }
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         if (isUnlocked) {
           Surface(
-            shape = RoundedCornerShape(percent = 50),
-            color = StripiEmerald.copy(alpha = 0.14f)
+            shape = StripiRounded.pill,
+            color = StripiSubduedHover.copy(alpha = 0.4f)
           ) {
             Row(
               modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -658,16 +617,13 @@ fun StoreScreen(
               Icon(
                 imageVector = Icons.Default.Check,
                 contentDescription = null,
-                tint = StripiEmerald,
-                modifier = Modifier.size(16.dp)
+                tint = StripiPrimaryDeep,
+                modifier = Modifier.size(15.dp)
               )
               Spacer(modifier = Modifier.width(6.dp))
               Text(
-                text = "Unlocked in your library",
-                style = MaterialTheme.typography.labelMedium.copy(
-                  fontWeight = FontWeight.Medium,
-                  color = StripiEmerald
-                )
+                text = "Unlocked in library",
+                style = StripiTypeTokens.caption.copy(color = StripiPrimaryDeep)
               )
             }
           }
@@ -713,26 +669,23 @@ fun StoreScreen(
       }
     }
 
-    // 5. Recent ZAR Transactions Ledger (Tabular Numerals)
+    // 5. Recent ZAR Transactions Ledger (Tabular Numerals `tnum`)
     if (transactions.isNotEmpty()) {
       item {
         Column(
           modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp),
-          verticalArrangement = Arrangement.spacedBy(10.dp)
+            .padding(horizontal = 24.dp),
+          verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
           Text(
-            text = "Recent ZAR Settlement Receipts",
-            style = MaterialTheme.typography.titleMedium.copy(
-              color = StripiInk,
-              fontWeight = FontWeight.Medium
-            )
+            text = "Recent ZAR Receipts",
+            style = StripiTypeTokens.headingMd.copy(color = StripiInk)
           )
 
           StripiFeatureCardLight(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(16.dp)
+            contentPadding = PaddingValues(18.dp)
           ) {
             transactions.take(5).forEachIndexed { index, tx ->
               if (index > 0) {
@@ -749,21 +702,18 @@ fun StoreScreen(
                 Column(modifier = Modifier.weight(1f)) {
                   Text(
                     text = tx.itemTitle,
-                    style = MaterialTheme.typography.titleSmall.copy(
-                      color = StripiInk,
-                      fontWeight = FontWeight.Medium
-                    )
+                    style = StripiTypeTokens.bodyMd.copy(color = StripiInk)
                   )
                   Text(
-                    text = "${tx.paymentMethodSummary} • ${tx.status.uppercase()}",
-                    style = MaterialTheme.typography.bodySmall.copy(color = StripiInkMute)
+                    text = tx.paymentMethodSummary,
+                    style = StripiTypeTokens.caption.copy(color = StripiInkMute)
                   )
                 }
                 StripiTabularText(
                   text = tx.formattedAmountZar(),
                   color = StripiInk,
                   fontSize = 15,
-                  fontWeight = FontWeight.Medium
+                  fontWeight = FontWeight.Normal
                 )
               }
             }
@@ -774,6 +724,12 @@ fun StoreScreen(
   }
 }
 
+/**
+ * `card-pricing`:
+ * Background `{colors.canvas}`, rounded `{rounded.lg}`, 1dp `{colors.hairline}` border.
+ * Title `{typography.heading-lg}` (22sp weight 300), price `{typography.display-md}` (26sp weight 300).
+ * Uses `button-secondary` to preserve single-indigo CTA hierarchy alongside the featured pass.
+ */
 @Composable
 private fun CoinStashCard(
   title: String,
@@ -784,27 +740,28 @@ private fun CoinStashCard(
 ) {
   StripiFeatureCardLight(
     modifier = modifier,
-    contentPadding = PaddingValues(16.dp)
+    contentPadding = PaddingValues(20.dp)
   ) {
-    StripiSoftPillTag(text = "ZAR Bundle")
-    Spacer(modifier = Modifier.height(10.dp))
     Text(
       text = title,
-      style = MaterialTheme.typography.titleSmall.copy(
-        fontWeight = FontWeight.Medium,
-        color = StripiInk
-      )
+      style = StripiTypeTokens.headingLg.copy(color = StripiInk)
+    )
+    Spacer(modifier = Modifier.height(6.dp))
+    StripiTabularText(
+      text = price,
+      color = StripiInk,
+      fontSize = 26,
+      fontWeight = FontWeight.Light
     )
     Spacer(modifier = Modifier.height(4.dp))
     StripiTabularText(
-      text = "+$coins Coins",
-      color = StripiPrimary,
-      fontSize = 20,
-      fontWeight = FontWeight.Light
+      text = "+$coins Gold Coins",
+      color = StripiInkMute,
+      fontSize = 14
     )
-    Spacer(modifier = Modifier.height(12.dp))
-    StripiPrimaryPillButton(
-      text = price,
+    Spacer(modifier = Modifier.height(16.dp))
+    StripiSecondaryPillButton(
+      text = "Buy $price",
       modifier = Modifier.fillMaxWidth(),
       onClick = onBuy
     )

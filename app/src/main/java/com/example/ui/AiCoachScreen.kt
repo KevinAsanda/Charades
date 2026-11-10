@@ -1,5 +1,6 @@
 package com.example.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Bolt
@@ -28,7 +28,6 @@ import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,15 +41,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.data.repository.AiRepository
 import com.example.ui.components.StripiCreamCard
 import com.example.ui.components.StripiFeatureCardLight
 import com.example.ui.components.StripiFeaturedDarkCard
 import com.example.ui.components.StripiGradientMeshHero
+import com.example.ui.components.StripiRounded
 import com.example.ui.components.StripiSoftPillTag
 import com.example.ui.components.StripiTextInput
 import com.example.ui.theme.StripiCanvas
@@ -63,6 +61,7 @@ import com.example.ui.theme.StripiOnPrimary
 import com.example.ui.theme.StripiPrimary
 import com.example.ui.theme.StripiRuby
 import com.example.ui.theme.StripiSubduedHover
+import com.example.ui.theme.StripiTypeTokens
 import kotlinx.coroutines.launch
 
 @Composable
@@ -77,32 +76,29 @@ fun AiCoachScreen(
       .background(StripiCanvas)
   ) {
     StripiGradientMeshHero(
-      contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 18.dp)
+      contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 20.dp)
     ) {
       StripiSoftPillTag(text = "Mzansi Cultural Intelligence")
-      Spacer(modifier = Modifier.height(10.dp))
+      Spacer(modifier = Modifier.height(12.dp))
       Text(
         text = "Slang Coach & Referee.",
-        style = MaterialTheme.typography.displaySmall.copy(
-          color = StripiInk,
-          fontWeight = FontWeight.Light
-        )
+        style = StripiTypeTokens.displayLg.copy(color = StripiInk)
       )
-      Spacer(modifier = Modifier.height(4.dp))
+      Spacer(modifier = Modifier.height(6.dp))
       Text(
         text = "Instant acting clues via gemini-3.1-flash-lite and deep cultural dispute adjudication via gemini-4-argon.",
-        style = MaterialTheme.typography.bodySmall.copy(color = StripiInkSecondary)
+        style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary)
       )
 
-      Spacer(modifier = Modifier.height(16.dp))
+      Spacer(modifier = Modifier.height(18.dp))
 
       // Pill Segmented Switcher
       Row(
         modifier = Modifier
           .fillMaxWidth()
-          .clip(RoundedCornerShape(percent = 50))
+          .clip(StripiRounded.pill)
           .background(StripiCanvasSoft)
-          .border(1.dp, StripiHairline, RoundedCornerShape(percent = 50))
+          .border(1.dp, StripiHairline, StripiRounded.pill)
           .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp)
       ) {
@@ -124,7 +120,7 @@ fun AiCoachScreen(
     Box(
       modifier = Modifier
         .fillMaxSize()
-        .padding(horizontal = 20.dp)
+        .padding(horizontal = 24.dp)
     ) {
       if (selectedTab == 0) {
         FastSlangCoachSection(aiRepository)
@@ -144,17 +140,16 @@ private fun SegmentPillTab(
 ) {
   Surface(
     modifier = modifier
-      .clip(RoundedCornerShape(percent = 50))
+      .clip(StripiRounded.pill)
       .clickable { onClick() },
-    shape = RoundedCornerShape(percent = 50),
+    shape = StripiRounded.pill,
     color = if (isSelected) StripiPrimary else StripiCanvasSoft
   ) {
     Text(
       text = title,
       modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp),
       textAlign = TextAlign.Center,
-      style = MaterialTheme.typography.labelMedium.copy(
-        fontWeight = FontWeight.Medium,
+      style = StripiTypeTokens.buttonSm.copy(
         color = if (isSelected) StripiOnPrimary else StripiInkSecondary
       )
     )
@@ -209,7 +204,8 @@ private fun FastSlangCoachSection(aiRepository: AiRepository) {
   ) {
     item {
       StripiFeatureCardLight(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(22.dp)
       ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
           Icon(
@@ -218,22 +214,19 @@ private fun FastSlangCoachSection(aiRepository: AiRepository) {
             tint = StripiPrimary,
             modifier = Modifier.size(18.dp)
           )
-          Spacer(modifier = Modifier.width(6.dp))
+          Spacer(modifier = Modifier.width(8.dp))
           Text(
             text = "Instant Charades Clues & Slang Meaning",
-            style = MaterialTheme.typography.titleMedium.copy(
-              fontWeight = FontWeight.Medium,
-              color = StripiInk
-            )
+            style = StripiTypeTokens.headingMd.copy(color = StripiInk)
           )
         }
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         Text(
           text = "Powered by gemini-3.1-flash-lite for low-latency mime gestures and early 2000s South African context.",
-          style = MaterialTheme.typography.bodySmall.copy(color = StripiInkMute)
+          style = StripiTypeTokens.bodyMd.copy(color = StripiInkMute)
         )
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         StripiTextInput(
           value = inputQuery,
@@ -258,11 +251,8 @@ private fun FastSlangCoachSection(aiRepository: AiRepository) {
         Spacer(modifier = Modifier.height(14.dp))
 
         Text(
-          text = "Quick Mzansi terms:",
-          style = MaterialTheme.typography.labelSmall.copy(
-            fontWeight = FontWeight.Medium,
-            color = StripiInkSecondary
-          )
+          text = "Quick Mzansi terms",
+          style = StripiTypeTokens.caption.copy(color = StripiInkSecondary)
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -270,9 +260,9 @@ private fun FastSlangCoachSection(aiRepository: AiRepository) {
           items(sampleSlang) { slang ->
             val selected = inputQuery == slang
             Surface(
-              shape = RoundedCornerShape(percent = 50),
+              shape = StripiRounded.pill,
               color = if (selected) StripiPrimary else StripiCanvasSoft,
-              border = androidx.compose.foundation.BorderStroke(
+              border = BorderStroke(
                 1.dp,
                 if (selected) StripiPrimary else StripiHairline
               ),
@@ -283,8 +273,8 @@ private fun FastSlangCoachSection(aiRepository: AiRepository) {
             ) {
               Text(
                 text = slang,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                style = MaterialTheme.typography.labelSmall.copy(
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp),
+                style = StripiTypeTokens.caption.copy(
                   color = if (selected) StripiOnPrimary else StripiInk
                 )
               )
@@ -312,7 +302,7 @@ private fun FastSlangCoachSection(aiRepository: AiRepository) {
         StripiCreamCard(modifier = Modifier.fillMaxWidth()) {
           Text(
             text = "Error: $errorMessage",
-            style = MaterialTheme.typography.bodySmall.copy(color = StripiRuby)
+            style = StripiTypeTokens.bodyMd.copy(color = StripiRuby)
           )
         }
       }
@@ -332,20 +322,14 @@ private fun FastSlangCoachSection(aiRepository: AiRepository) {
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-              text = "COACH ANALYSIS & ACTING CUES",
-              style = MaterialTheme.typography.labelSmall.copy(
-                color = StripiSubduedHover,
-                letterSpacing = 0.8.sp
-              )
+              text = "Coach Analysis & Acting Cues",
+              style = StripiTypeTokens.headingSm.copy(color = StripiSubduedHover)
             )
           }
           Spacer(modifier = Modifier.height(10.dp))
           Text(
             text = coachResponse.orEmpty(),
-            style = MaterialTheme.typography.bodyMedium.copy(
-              color = StripiOnPrimary,
-              lineHeight = 22.sp
-            )
+            style = StripiTypeTokens.bodyMd.copy(color = StripiOnPrimary)
           )
         }
       }
@@ -393,7 +377,8 @@ private fun HighThinkingRefereeSection(aiRepository: AiRepository) {
   ) {
     item {
       StripiFeatureCardLight(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(22.dp)
       ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
           Icon(
@@ -405,19 +390,16 @@ private fun HighThinkingRefereeSection(aiRepository: AiRepository) {
           Spacer(modifier = Modifier.width(8.dp))
           Text(
             text = "Cultural Referee & Nostalgia Time Machine",
-            style = MaterialTheme.typography.titleMedium.copy(
-              fontWeight = FontWeight.Medium,
-              color = StripiInk
-            )
+            style = StripiTypeTokens.headingMd.copy(color = StripiInk)
           )
         }
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         Text(
           text = "Settles heated party disputes using gemini-4-argon with high thinking mode (ThinkingLevel.HIGH).",
-          style = MaterialTheme.typography.bodySmall.copy(color = StripiInkMute)
+          style = StripiTypeTokens.bodyMd.copy(color = StripiInkMute)
         )
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         StripiTextInput(
           value = disputeQuery,
@@ -442,20 +424,17 @@ private fun HighThinkingRefereeSection(aiRepository: AiRepository) {
         Spacer(modifier = Modifier.height(14.dp))
 
         Text(
-          text = "Common Mzansi party debates:",
-          style = MaterialTheme.typography.labelSmall.copy(
-            fontWeight = FontWeight.Medium,
-            color = StripiInkSecondary
-          )
+          text = "Common Mzansi party debates",
+          style = StripiTypeTokens.caption.copy(color = StripiInkSecondary)
         )
         Spacer(modifier = Modifier.height(8.dp))
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
           sampleDisputes.forEach { dispute ->
             Surface(
-              shape = RoundedCornerShape(8.dp),
+              shape = StripiRounded.md,
               color = StripiCanvasSoft,
-              border = androidx.compose.foundation.BorderStroke(1.dp, StripiHairline),
+              border = BorderStroke(1.dp, StripiHairline),
               modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
@@ -465,8 +444,8 @@ private fun HighThinkingRefereeSection(aiRepository: AiRepository) {
             ) {
               Text(
                 text = dispute,
-                style = MaterialTheme.typography.bodySmall.copy(color = StripiInk),
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)
+                style = StripiTypeTokens.bodyMd.copy(color = StripiInk),
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
               )
             }
           }
@@ -486,15 +465,12 @@ private fun HighThinkingRefereeSection(aiRepository: AiRepository) {
             CircularProgressIndicator(color = StripiSubduedHover)
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-              text = "Referee is reasoning deeply (gemini-4-argon)...",
-              style = MaterialTheme.typography.titleSmall.copy(
-                fontWeight = FontWeight.Medium,
-                color = StripiOnPrimary
-              )
+              text = "Referee is reasoning deeply...",
+              style = StripiTypeTokens.headingSm.copy(color = StripiOnPrimary)
             )
             Text(
               text = "Cross-checking early 2000s South African broadcast history and township etiquette.",
-              style = MaterialTheme.typography.bodySmall.copy(color = StripiSubduedHover),
+              style = StripiTypeTokens.caption.copy(color = StripiSubduedHover),
               textAlign = TextAlign.Center
             )
           }
@@ -507,7 +483,7 @@ private fun HighThinkingRefereeSection(aiRepository: AiRepository) {
         StripiCreamCard(modifier = Modifier.fillMaxWidth()) {
           Text(
             text = "Error: $errorMessage",
-            style = MaterialTheme.typography.bodySmall.copy(color = StripiRuby)
+            style = StripiTypeTokens.bodyMd.copy(color = StripiRuby)
           )
         }
       }
@@ -527,20 +503,14 @@ private fun HighThinkingRefereeSection(aiRepository: AiRepository) {
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-              text = "OFFICIAL REFEREE VERDICT",
-              style = MaterialTheme.typography.labelSmall.copy(
-                color = StripiSubduedHover,
-                letterSpacing = 0.8.sp
-              )
+              text = "Official Referee Verdict",
+              style = StripiTypeTokens.headingSm.copy(color = StripiSubduedHover)
             )
           }
           Spacer(modifier = Modifier.height(10.dp))
           Text(
             text = refereeVerdict.orEmpty(),
-            style = MaterialTheme.typography.bodyMedium.copy(
-              color = StripiOnPrimary,
-              lineHeight = 22.sp
-            )
+            style = StripiTypeTokens.bodyMd.copy(color = StripiOnPrimary)
           )
         }
       }

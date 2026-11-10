@@ -1,7 +1,7 @@
 package com.example.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Bolt
@@ -30,7 +28,6 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,25 +51,28 @@ import com.example.data.model.PredefinedDecks
 import com.example.data.model.StoreCatalog
 import com.example.data.model.UserProfile
 import com.example.ui.components.StripiCreamCard
+import com.example.ui.components.StripiDeckIconBadge
 import com.example.ui.components.StripiFeatureCardLight
 import com.example.ui.components.StripiFeaturedDarkCard
 import com.example.ui.components.StripiGradientMeshHero
 import com.example.ui.components.StripiPrimaryPillButton
+import com.example.ui.components.StripiRounded
 import com.example.ui.components.StripiSecondaryPillButton
 import com.example.ui.components.StripiSoftPillTag
 import com.example.ui.components.StripiTabularText
+import com.example.ui.components.deckIconForId
 import com.example.ui.theme.StripiBrandDark900
 import com.example.ui.theme.StripiCanvas
 import com.example.ui.theme.StripiCanvasSoft
-import com.example.ui.theme.StripiEmerald
 import com.example.ui.theme.StripiHairline
 import com.example.ui.theme.StripiInk
 import com.example.ui.theme.StripiInkMute
 import com.example.ui.theme.StripiInkSecondary
-import com.example.ui.theme.StripiLemon
 import com.example.ui.theme.StripiOnPrimary
 import com.example.ui.theme.StripiPrimary
+import com.example.ui.theme.StripiPrimaryDeep
 import com.example.ui.theme.StripiSubduedHover
+import com.example.ui.theme.StripiTypeTokens
 
 @Composable
 fun LobbyScreen(
@@ -97,7 +97,7 @@ fun LobbyScreen(
         id = "custom_deck_user",
         name = "My Custom Mzansi Cards",
         tagLine = "Your personal community-created cards",
-        iconEmoji = "✨",
+        iconEmoji = "",
         isFreeTier = true,
         cards = customCards.map {
           CharadesCard(
@@ -119,18 +119,25 @@ fun LobbyScreen(
   val selectedDeck = allDecks.find { it.id == selectedDeckId } ?: PredefinedDecks.CORE_KWAITO
   val isSelectedReady = selectedDeck.isFreeTier || unlockedPacks.contains(selectedDeck.id)
 
+  val modeLabel = when (selectedGameMode) {
+    "party_teams" -> "Party Teams"
+    "quick_play" -> "Quick Play"
+    else -> "Heads-Up"
+  }
+
   LazyColumn(
     modifier = Modifier
       .fillMaxSize()
       .background(StripiCanvas),
     contentPadding = PaddingValues(bottom = 96.dp),
-    verticalArrangement = Arrangement.spacedBy(16.dp)
+    verticalArrangement = Arrangement.spacedBy(20.dp)
   ) {
-    // 1. Stripi Gradient Mesh Hero Header
+    // 1. Stripi Gradient Mesh Hero Header (`nav-bar-on-mesh` + Hero + Featured Dark Deck Console)
     item {
       StripiGradientMeshHero(
-        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 24.dp)
+        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 28.dp)
       ) {
+        // Top Nav Bar on Mesh (`nav-bar-on-mesh`)
         Row(
           modifier = Modifier.fillMaxWidth(),
           horizontalArrangement = Arrangement.SpaceBetween,
@@ -138,42 +145,39 @@ fun LobbyScreen(
         ) {
           StripiSoftPillTag(text = "Mzansi Party Lobby")
 
-          // Coin Balance & Payment Pill
+          // Coin Balance & Payment Pill (`tnum` tabular figures)
           Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
           ) {
             Surface(
-              shape = RoundedCornerShape(percent = 50),
+              shape = StripiRounded.pill,
               color = StripiCanvas,
-              border = androidx.compose.foundation.BorderStroke(1.dp, StripiHairline),
+              border = BorderStroke(1.dp, StripiHairline),
               modifier = Modifier
                 .clickable { onOpenPaymentSetup() }
                 .testTag("lobby_payment_methods_pill")
             ) {
               Row(
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically
               ) {
                 Icon(
                   imageVector = Icons.Default.CreditCard,
                   contentDescription = "Payment Methods",
                   tint = StripiPrimary,
-                  modifier = Modifier.size(15.dp)
+                  modifier = Modifier.size(14.dp)
                 )
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                   text = "ZAR Pay",
-                  style = MaterialTheme.typography.labelSmall.copy(
-                    color = StripiInk,
-                    fontWeight = FontWeight.Medium
-                  )
+                  style = StripiTypeTokens.caption.copy(color = StripiInk)
                 )
               }
             }
 
             Surface(
-              shape = RoundedCornerShape(percent = 50),
+              shape = StripiRounded.pill,
               color = StripiBrandDark900,
               modifier = Modifier.clickable { onNavigateToStore() }
             ) {
@@ -185,81 +189,92 @@ fun LobbyScreen(
                   imageVector = Icons.Default.MonetizationOn,
                   contentDescription = "Coins",
                   tint = StripiSubduedHover,
-                  modifier = Modifier.size(16.dp)
+                  modifier = Modifier.size(15.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 StripiTabularText(
                   text = "$userCoins",
                   color = StripiOnPrimary,
                   fontSize = 14,
-                  fontWeight = FontWeight.Medium
+                  fontWeight = FontWeight.Normal
                 )
               }
             }
           }
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text(
           text = "Sanibonani, ${userProfile?.displayName?.split(" ")?.firstOrNull() ?: "Mzansi"}.",
-          style = MaterialTheme.typography.displayMedium.copy(
-            color = StripiInk,
-            fontWeight = FontWeight.Light
-          )
+          style = StripiTypeTokens.displayLg.copy(color = StripiInk)
         )
 
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-          text = "Select your gameplay mode, set the round clock, and launch a South African charades session.",
-          style = MaterialTheme.typography.bodyMedium.copy(color = StripiInkSecondary)
+          text = "Pick your mode, set the round timer, and start a South African charades match.",
+          style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary)
         )
 
-        Spacer(modifier = Modifier.height(18.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        // Featured Active Deck Summary Card inside Hero
+        // Featured Dark Active Deck Console (`card-pricing-featured` #1C1E54)
         StripiFeaturedDarkCard(
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
+          contentPadding = PaddingValues(24.dp)
         ) {
           Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
           ) {
-            Column(modifier = Modifier.weight(1f)) {
-              Text(
-                text = "SELECTED DECK",
-                style = MaterialTheme.typography.labelSmall.copy(
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier.weight(1f)
+            ) {
+              Box(
+                modifier = Modifier
+                  .size(40.dp)
+                  .clip(StripiRounded.md)
+                  .background(StripiOnPrimary.copy(alpha = 0.10f)),
+                contentAlignment = Alignment.Center
+              ) {
+                Icon(
+                  imageVector = deckIconForId(selectedDeck.id),
+                  contentDescription = null,
+                  tint = StripiSubduedHover,
+                  modifier = Modifier.size(20.dp)
+                )
+              }
+              Spacer(modifier = Modifier.width(12.dp))
+              Column {
+                Text(
+                  text = selectedDeck.name,
+                  style = StripiTypeTokens.headingLg.copy(color = StripiOnPrimary)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                StripiTabularText(
+                  text = "${selectedDeck.cards.size} cards · ${roundDuration}s round",
                   color = StripiSubduedHover,
-                  letterSpacing = 0.8.sp
+                  fontSize = 14
                 )
-              )
-              Spacer(modifier = Modifier.height(4.dp))
-              Text(
-                text = "${selectedDeck.iconEmoji} ${selectedDeck.name}",
-                style = MaterialTheme.typography.titleLarge.copy(
-                  color = StripiOnPrimary,
-                  fontWeight = FontWeight.Normal
-                )
-              )
-              Text(
-                text = "${selectedDeck.cards.size} cards • ${roundDuration}s round • ${selectedGameMode.replace("_", " ").uppercase()}",
-                style = MaterialTheme.typography.bodySmall.copy(
-                  color = StripiSubduedHover.copy(alpha = 0.85f)
-                )
-              )
+              }
             }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            StripiSoftPillTag(
+              text = modeLabel,
+              containerColor = StripiSubduedHover,
+              contentColor = StripiBrandDark900
+            )
           }
 
-          Spacer(modifier = Modifier.height(16.dp))
+          Spacer(modifier = Modifier.height(20.dp))
 
           StripiPrimaryPillButton(
-            text = if (isSelectedReady) {
-              "Start Mzansi Match (${selectedDeck.name})"
-            } else {
-              "Unlock ${selectedDeck.name} in Store"
-            },
+            text = if (isSelectedReady) "Start Match" else "Unlock in Store",
             modifier = Modifier
               .fillMaxWidth()
               .testTag("start_match_button"),
@@ -291,20 +306,17 @@ fun LobbyScreen(
       }
     }
 
-    // 2. Gameplay Mode & Timer Controls
+    // 2. Gameplay Mode & Timer Controls (No section-number prefixes per Section 9.F)
     item {
       Column(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(horizontal = 20.dp),
+          .padding(horizontal = 24.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
       ) {
         Text(
-          text = "1. Gameplay Mode",
-          style = MaterialTheme.typography.titleMedium.copy(
-            color = StripiInk,
-            fontWeight = FontWeight.Medium
-          )
+          text = "Gameplay Mode",
+          style = StripiTypeTokens.headingMd.copy(color = StripiInk)
         )
 
         Row(
@@ -337,11 +349,11 @@ fun LobbyScreen(
           )
         }
 
-        // Round Duration Selector
+        // Round Duration Selector on `canvas-soft`
         StripiFeatureCardLight(
           modifier = Modifier.fillMaxWidth(),
           backgroundColor = StripiCanvasSoft,
-          contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
+          contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp)
         ) {
           Row(
             modifier = Modifier.fillMaxWidth(),
@@ -350,15 +362,12 @@ fun LobbyScreen(
           ) {
             Column {
               Text(
-                text = "2. Round Clock",
-                style = MaterialTheme.typography.titleSmall.copy(
-                  color = StripiInk,
-                  fontWeight = FontWeight.Medium
-                )
+                text = "Round Clock",
+                style = StripiTypeTokens.headingSm.copy(color = StripiInk)
               )
               Text(
-                text = "Tabular countdown timer",
-                style = MaterialTheme.typography.bodySmall.copy(color = StripiInkMute)
+                text = "Tabular countdown",
+                style = StripiTypeTokens.caption.copy(color = StripiInkMute)
               )
             }
 
@@ -366,9 +375,9 @@ fun LobbyScreen(
               listOf(60L, 90L, 120L).forEach { seconds ->
                 val isSelected = roundDuration == seconds
                 Surface(
-                  shape = RoundedCornerShape(percent = 50),
+                  shape = StripiRounded.pill,
                   color = if (isSelected) StripiPrimary else StripiCanvas,
-                  border = androidx.compose.foundation.BorderStroke(
+                  border = BorderStroke(
                     1.dp,
                     if (isSelected) StripiPrimary else StripiHairline
                   ),
@@ -377,9 +386,9 @@ fun LobbyScreen(
                   StripiTabularText(
                     text = "${seconds}s",
                     color = if (isSelected) StripiOnPrimary else StripiInk,
-                    fontSize = 13,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+                    fontSize = 14,
+                    fontWeight = FontWeight.Normal,
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp)
                   )
                 }
               }
@@ -394,26 +403,23 @@ fun LobbyScreen(
       Row(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(horizontal = 20.dp),
+          .padding(horizontal = 24.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
       ) {
         Text(
-          text = "3. Choose Mzansi Deck",
-          style = MaterialTheme.typography.titleMedium.copy(
-            color = StripiInk,
-            fontWeight = FontWeight.Medium
-          )
+          text = "Mzansi Decks",
+          style = StripiTypeTokens.headingMd.copy(color = StripiInk)
         )
         StripiTabularText(
           text = "${allDecks.size} Decks",
           color = StripiInkMute,
-          fontSize = 13
+          fontSize = 14
         )
       }
     }
 
-    // 4. Deck Cards List
+    // 4. Deck Cards List (Vector Icons instead of raw emojis)
     items(allDecks) { deckItem ->
       val isUnlocked = deckItem.isFreeTier || unlockedPacks.contains(deckItem.id)
       val isSelected = selectedDeckId == deckItem.id
@@ -421,10 +427,11 @@ fun LobbyScreen(
       StripiFeatureCardLight(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(horizontal = 20.dp),
+          .padding(horizontal = 24.dp),
         borderColor = if (isSelected) StripiPrimary else StripiHairline,
         borderWidth = if (isSelected) 1.5.dp else 1.dp,
         backgroundColor = if (isSelected) StripiCanvasSoft else StripiCanvas,
+        contentPadding = PaddingValues(20.dp),
         onClick = {
           if (isUnlocked) {
             selectedDeckId = deckItem.id
@@ -442,19 +449,10 @@ fun LobbyScreen(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.weight(1f)
           ) {
-            Box(
-              modifier = Modifier
-                .size(46.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(
-                  if (isSelected) StripiSubduedHover.copy(alpha = 0.45f)
-                  else StripiCanvasSoft
-                )
-                .border(1.dp, StripiHairline, RoundedCornerShape(10.dp)),
-              contentAlignment = Alignment.Center
-            ) {
-              Text(text = deckItem.iconEmoji, fontSize = 22.sp)
-            }
+            StripiDeckIconBadge(
+              deckId = deckItem.id,
+              isSelected = isSelected
+            )
 
             Spacer(modifier = Modifier.width(14.dp))
 
@@ -462,39 +460,35 @@ fun LobbyScreen(
               Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                   text = deckItem.name,
-                  style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Medium,
+                  style = StripiTypeTokens.headingSm.copy(
                     color = if (isSelected) StripiPrimary else StripiInk
                   )
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 if (deckItem.isFreeTier) {
-                  StripiSoftPillTag(
-                    text = "Free Tier"
-                  )
+                  StripiSoftPillTag(text = "Free")
                 } else if (isUnlocked) {
                   StripiSoftPillTag(
                     text = "Owned",
-                    containerColor = StripiEmerald.copy(alpha = 0.15f),
-                    contentColor = StripiEmerald
+                    containerColor = StripiSubduedHover,
+                    contentColor = StripiPrimaryDeep
                   )
                 }
               }
 
-              Spacer(modifier = Modifier.height(2.dp))
+              Spacer(modifier = Modifier.height(4.dp))
 
               Text(
                 text = deckItem.tagLine,
-                style = MaterialTheme.typography.bodySmall.copy(color = StripiInkMute)
+                style = StripiTypeTokens.bodyMd.copy(color = StripiInkMute)
               )
 
-              Spacer(modifier = Modifier.height(4.dp))
+              Spacer(modifier = Modifier.height(6.dp))
 
               StripiTabularText(
                 text = "${deckItem.cards.size} cards",
                 color = StripiInkSecondary,
-                fontSize = 12,
-                fontWeight = FontWeight.Medium
+                fontSize = 14
               )
             }
           }
@@ -502,10 +496,10 @@ fun LobbyScreen(
           if (!isUnlocked) {
             Column(
               horizontalAlignment = Alignment.End,
-              modifier = Modifier.padding(start = 8.dp)
+              modifier = Modifier.padding(start = 10.dp)
             ) {
               Surface(
-                shape = RoundedCornerShape(percent = 50),
+                shape = StripiRounded.pill,
                 color = StripiBrandDark900
               ) {
                 Row(
@@ -516,22 +510,22 @@ fun LobbyScreen(
                     imageVector = Icons.Default.Lock,
                     contentDescription = null,
                     tint = StripiSubduedHover,
-                    modifier = Modifier.size(13.dp)
+                    modifier = Modifier.size(12.dp)
                   )
                   Spacer(modifier = Modifier.width(4.dp))
                   StripiTabularText(
                     text = StoreCatalog.formattedZarForDeck(deckItem),
                     color = StripiOnPrimary,
-                    fontSize = 12,
-                    fontWeight = FontWeight.Medium
+                    fontSize = 13,
+                    fontWeight = FontWeight.Normal
                   )
                 }
               }
-              Spacer(modifier = Modifier.height(2.dp))
+              Spacer(modifier = Modifier.height(4.dp))
               StripiTabularText(
-                text = "or ${deckItem.priceCoins} coins",
+                text = "${deckItem.priceCoins} coins",
                 color = StripiInkMute,
-                fontSize = 11
+                fontSize = 12
               )
             }
           }
@@ -539,12 +533,13 @@ fun LobbyScreen(
       }
     }
 
-    // 5. Editorial Cream Callout for Custom Studio
+    // 5. Warm Cream Band Callout (`card-cream-band` #F5E9D4)
     item {
       StripiCreamCard(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(horizontal = 20.dp),
+          .padding(horizontal = 24.dp),
+        contentPadding = PaddingValues(24.dp),
         onClick = onNavigateToStudio
       ) {
         Row(
@@ -554,16 +549,13 @@ fun LobbyScreen(
         ) {
           Column(modifier = Modifier.weight(1f)) {
             Text(
-              text = "Craft your own Mzansi deck with Gemini",
-              style = MaterialTheme.typography.titleMedium.copy(
-                color = StripiInk,
-                fontWeight = FontWeight.Medium
-              )
+              text = "Craft your own Mzansi deck",
+              style = StripiTypeTokens.headingMd.copy(color = StripiInk)
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-              text = "Open the Studio tab to generate custom cards and 1K, 2K, or 4K artwork.",
-              style = MaterialTheme.typography.bodySmall.copy(color = StripiInkSecondary)
+              text = "Generate custom cards and 1K, 2K, or 4K card art in Studio.",
+              style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary)
             )
           }
           Spacer(modifier = Modifier.width(12.dp))
@@ -591,26 +583,27 @@ private fun ModeCard(
     borderColor = if (isSelected) StripiPrimary else StripiHairline,
     borderWidth = if (isSelected) 1.5.dp else 1.dp,
     backgroundColor = if (isSelected) StripiSubduedHover.copy(alpha = 0.22f) else StripiCanvas,
-    contentPadding = PaddingValues(12.dp),
+    contentPadding = PaddingValues(14.dp),
     onClick = onClick
   ) {
     Icon(
       imageVector = icon,
       contentDescription = null,
       tint = if (isSelected) StripiPrimary else StripiInkMute,
-      modifier = Modifier.size(22.dp)
+      modifier = Modifier.size(20.dp)
     )
-    Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.height(10.dp))
     Text(
       text = title,
-      style = MaterialTheme.typography.titleSmall.copy(
-        fontWeight = FontWeight.Medium,
-        color = if (isSelected) StripiPrimary else StripiInk
+      style = StripiTypeTokens.headingSm.copy(
+        color = if (isSelected) StripiPrimary else StripiInk,
+        fontSize = 16.sp
       )
     )
+    Spacer(modifier = Modifier.height(2.dp))
     Text(
       text = subtitle,
-      style = MaterialTheme.typography.labelSmall.copy(color = StripiInkMute)
+      style = StripiTypeTokens.micro.copy(color = StripiInkMute)
     )
   }
 }

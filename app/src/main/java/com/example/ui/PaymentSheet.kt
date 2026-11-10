@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -32,7 +32,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,13 +46,14 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.data.model.PaymentMethod
+import com.example.ui.components.StripiDarkPillButton
 import com.example.ui.components.StripiFeatureCardLight
 import com.example.ui.components.StripiFeaturedDarkCard
 import com.example.ui.components.StripiPrimaryPillButton
+import com.example.ui.components.StripiRounded
 import com.example.ui.components.StripiSecondaryPillButton
 import com.example.ui.components.StripiSoftPillTag
 import com.example.ui.components.StripiTabularText
@@ -61,15 +61,15 @@ import com.example.ui.components.StripiTextInput
 import com.example.ui.theme.StripiBrandDark900
 import com.example.ui.theme.StripiCanvas
 import com.example.ui.theme.StripiCanvasSoft
-import com.example.ui.theme.StripiEmerald
 import com.example.ui.theme.StripiHairline
 import com.example.ui.theme.StripiInk
 import com.example.ui.theme.StripiInkMute
-import com.example.ui.theme.StripiInkSecondary
 import com.example.ui.theme.StripiOnPrimary
 import com.example.ui.theme.StripiPrimary
+import com.example.ui.theme.StripiPrimaryDeep
 import com.example.ui.theme.StripiRuby
 import com.example.ui.theme.StripiSubduedHover
+import com.example.ui.theme.StripiTypeTokens
 
 data class CheckoutItemSpec(
   val itemId: String,
@@ -128,14 +128,14 @@ fun PaymentCheckoutDialog(
       modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 16.dp, vertical = 24.dp),
-      shape = RoundedCornerShape(16.dp),
+      shape = StripiRounded.xl,
       color = StripiCanvas
     ) {
       Column(
         modifier = Modifier
           .fillMaxWidth()
           .verticalScroll(rememberScrollState())
-          .padding(20.dp),
+          .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
       ) {
         // Top Header Bar
@@ -145,24 +145,13 @@ fun PaymentCheckoutDialog(
           verticalAlignment = Alignment.CenterVertically
         ) {
           Column {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-              StripiSoftPillTag(
-                text = if (checkoutItem != null) "ZAR Checkout" else "Payment Methods"
-              )
-              Spacer(modifier = Modifier.width(8.dp))
-              Text(
-                text = "3D Secure 2.0",
-                style = MaterialTheme.typography.labelSmall,
-                color = StripiInkMute
-              )
-            }
-            Spacer(modifier = Modifier.height(6.dp))
+            StripiSoftPillTag(
+              text = if (checkoutItem != null) "ZAR Checkout" else "Payment Methods"
+            )
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
               text = if (checkoutItem != null) "Complete your purchase" else "Manage Mzansi payment rails",
-              style = MaterialTheme.typography.headlineSmall.copy(
-                fontWeight = FontWeight.Light,
-                color = StripiInk
-              )
+              style = StripiTypeTokens.headingLg.copy(color = StripiInk)
             )
           }
 
@@ -181,7 +170,8 @@ fun PaymentCheckoutDialog(
         // Order Summary Card (Featured Dark #1C1E54) when checking out an item
         if (checkoutItem != null) {
           StripiFeaturedDarkCard(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(20.dp)
           ) {
             Row(
               modifier = Modifier.fillMaxWidth(),
@@ -190,23 +180,13 @@ fun PaymentCheckoutDialog(
             ) {
               Column(modifier = Modifier.weight(1f)) {
                 Text(
-                  text = "ORDER SUMMARY",
-                  style = MaterialTheme.typography.labelSmall.copy(
-                    color = StripiSubduedHover,
-                    letterSpacing = 0.8.sp
-                  )
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
                   text = checkoutItem.title,
-                  style = MaterialTheme.typography.titleLarge.copy(
-                    color = StripiOnPrimary,
-                    fontWeight = FontWeight.Normal
-                  )
+                  style = StripiTypeTokens.headingMd.copy(color = StripiOnPrimary)
                 )
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                   text = checkoutItem.subtitle,
-                  style = MaterialTheme.typography.bodySmall.copy(
+                  style = StripiTypeTokens.caption.copy(
                     color = StripiSubduedHover.copy(alpha = 0.85f)
                   )
                 )
@@ -221,7 +201,7 @@ fun PaymentCheckoutDialog(
                 )
                 Text(
                   text = "incl. 15% VAT",
-                  style = MaterialTheme.typography.labelSmall.copy(
+                  style = StripiTypeTokens.micro.copy(
                     color = StripiSubduedHover.copy(alpha = 0.7f)
                   )
                 )
@@ -239,16 +219,13 @@ fun PaymentCheckoutDialog(
           ) {
             Text(
               text = "Saved Payment Methods",
-              style = MaterialTheme.typography.titleSmall.copy(
-                color = StripiInk,
-                fontWeight = FontWeight.Medium
-              )
+              style = StripiTypeTokens.headingSm.copy(color = StripiInk)
             )
             if (!showAddForm) {
               Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                  .clip(RoundedCornerShape(percent = 50))
+                  .clip(StripiRounded.pill)
                   .clickable { showAddForm = true }
                   .padding(horizontal = 8.dp, vertical = 4.dp)
                   .testTag("show_add_payment_method_button")
@@ -261,11 +238,8 @@ fun PaymentCheckoutDialog(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                  text = "Add new method",
-                  style = MaterialTheme.typography.labelMedium.copy(
-                    color = StripiPrimary,
-                    fontWeight = FontWeight.Medium
-                  )
+                  text = "Add Method",
+                  style = StripiTypeTokens.buttonSm.copy(color = StripiPrimary)
                 )
               }
             }
@@ -281,7 +255,7 @@ fun PaymentCheckoutDialog(
                 borderColor = if (isSelected) StripiPrimary else StripiHairline,
                 borderWidth = if (isSelected) 1.5.dp else 1.dp,
                 backgroundColor = if (isSelected) StripiCanvasSoft else StripiCanvas,
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(14.dp),
+                contentPadding = PaddingValues(14.dp),
                 onClick = {
                   selectedMethodId = method.id
                   onSetDefaultMethod(method.id)
@@ -299,7 +273,7 @@ fun PaymentCheckoutDialog(
                     Box(
                       modifier = Modifier
                         .size(36.dp)
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(StripiRounded.md)
                         .background(if (isSelected) StripiPrimary else StripiBrandDark900),
                       contentAlignment = Alignment.Center
                     ) {
@@ -321,7 +295,7 @@ fun PaymentCheckoutDialog(
                           text = method.summaryLabel(),
                           color = StripiInk,
                           fontSize = 14,
-                          fontWeight = FontWeight.Medium
+                          fontWeight = FontWeight.Normal
                         )
                         if (method.isDefault) {
                           Spacer(modifier = Modifier.width(8.dp))
@@ -330,11 +304,11 @@ fun PaymentCheckoutDialog(
                       }
                       Text(
                         text = if (method.type == "card") {
-                          "${method.holderName} • Expires ${String.format("%02d/%d", method.expiryMonth, method.expiryYear)}"
+                          "${method.holderName} · Exp ${String.format("%02d/%d", method.expiryMonth, method.expiryYear)}"
                         } else {
                           "Holder: ${method.holderName}"
                         },
-                        style = MaterialTheme.typography.bodySmall.copy(color = StripiInkMute)
+                        style = StripiTypeTokens.caption.copy(color = StripiInkMute)
                       )
                     }
                   }
@@ -362,7 +336,7 @@ fun PaymentCheckoutDialog(
                     ) {
                       Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Remove payment method",
+                        contentDescription = "Delete",
                         tint = StripiInkMute,
                         modifier = Modifier.size(16.dp)
                       )
@@ -378,7 +352,8 @@ fun PaymentCheckoutDialog(
         if (showAddForm) {
           StripiFeatureCardLight(
             modifier = Modifier.fillMaxWidth(),
-            backgroundColor = StripiCanvasSoft
+            backgroundColor = StripiCanvasSoft,
+            contentPadding = PaddingValues(18.dp)
           ) {
             Row(
               modifier = Modifier.fillMaxWidth(),
@@ -386,16 +361,13 @@ fun PaymentCheckoutDialog(
               verticalAlignment = Alignment.CenterVertically
             ) {
               Text(
-                text = "Set up a South African payment method",
-                style = MaterialTheme.typography.titleSmall.copy(
-                  color = StripiInk,
-                  fontWeight = FontWeight.Medium
-                )
+                text = "Add South African payment method",
+                style = StripiTypeTokens.headingSm.copy(color = StripiInk)
               )
               if (savedMethods.isNotEmpty()) {
                 Text(
                   text = "Cancel",
-                  style = MaterialTheme.typography.labelMedium.copy(color = StripiPrimary),
+                  style = StripiTypeTokens.buttonSm.copy(color = StripiPrimary),
                   modifier = Modifier.clickable { showAddForm = false }
                 )
               }
@@ -469,7 +441,7 @@ fun PaymentCheckoutDialog(
                 StripiTextInput(
                   value = expiryMonthText,
                   onValueChange = { expiryMonthText = it.filter { ch -> ch.isDigit() }.take(2) },
-                  label = "Expiry Month",
+                  label = "Month",
                   placeholder = "08",
                   keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                   modifier = Modifier.weight(1f)
@@ -477,7 +449,7 @@ fun PaymentCheckoutDialog(
                 StripiTextInput(
                   value = expiryYearText,
                   onValueChange = { expiryYearText = it.filter { ch -> ch.isDigit() }.take(4) },
-                  label = "Expiry Year",
+                  label = "Year",
                   placeholder = "2029",
                   keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                   modifier = Modifier.weight(1f)
@@ -513,25 +485,19 @@ fun PaymentCheckoutDialog(
               Spacer(modifier = Modifier.height(8.dp))
               Text(
                 text = formError.orEmpty(),
-                style = MaterialTheme.typography.bodySmall.copy(color = StripiRuby)
+                style = StripiTypeTokens.caption.copy(color = StripiRuby)
               )
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            StripiPrimaryPillButton(
-              text = "Save Payment Method",
-              modifier = Modifier
-                .fillMaxWidth()
-                .testTag("save_payment_method_button"),
-              onClick = {
-                val cleanName = holderName.trim().ifBlank { "Mzansi Player" }
-                if (selectedMethodType == "card") {
-                  val digits = cardNumberRaw.filter { it.isDigit() }
-                  if (digits.length < 4) {
-                    formError = "Please enter at least the last 4 digits of your card."
-                    return@StripiPrimaryPillButton
-                  }
+            val saveAction = {
+              val cleanName = holderName.trim().ifBlank { "Mzansi Player" }
+              if (selectedMethodType == "card") {
+                val digits = cardNumberRaw.filter { it.isDigit() }
+                if (digits.length < 4) {
+                  formError = "Please enter at least the last 4 digits of your card."
+                } else {
                   val brand = when {
                     digits.startsWith("4") -> "Visa"
                     digits.startsWith("5") || digits.startsWith("2") -> "Mastercard"
@@ -553,12 +519,12 @@ fun PaymentCheckoutDialog(
                   showAddForm = false
                   cardNumberRaw = ""
                   cvcText = ""
+                }
+              } else {
+                val cleanPhone = payshapId.filter { it.isDigit() }
+                if (cleanPhone.length < 4) {
+                  formError = "Please enter a valid SA mobile number or ShapID."
                 } else {
-                  val cleanPhone = payshapId.filter { it.isDigit() }
-                  if (cleanPhone.length < 4) {
-                    formError = "Please enter a valid SA mobile number or ShapID."
-                    return@StripiPrimaryPillButton
-                  }
                   val brand = if (selectedMethodType == "payshap") "PayShap" else "SnapScan"
                   val newMethod = PaymentMethod(
                     type = selectedMethodType,
@@ -574,7 +540,25 @@ fun PaymentCheckoutDialog(
                   payshapId = ""
                 }
               }
-            )
+            }
+
+            if (checkoutItem != null) {
+              StripiDarkPillButton(
+                text = "Save Payment Method",
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .testTag("save_payment_method_button"),
+                onClick = saveAction
+              )
+            } else {
+              StripiPrimaryPillButton(
+                text = "Save Payment Method",
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .testTag("save_payment_method_button"),
+                onClick = saveAction
+              )
+            }
           }
         }
 
@@ -590,13 +574,13 @@ fun PaymentCheckoutDialog(
             Icon(
               imageVector = Icons.Default.VerifiedUser,
               contentDescription = null,
-              tint = StripiEmerald,
+              tint = StripiPrimaryDeep,
               modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-              text = "Encrypted South African ZAR settlement",
-              style = MaterialTheme.typography.labelSmall.copy(color = StripiInkMute)
+              text = "Encrypted South African ZAR settlement · 3D Secure 2.0",
+              style = StripiTypeTokens.micro.copy(color = StripiInkMute)
             )
           }
           Icon(
@@ -607,16 +591,16 @@ fun PaymentCheckoutDialog(
           )
         }
 
-        // Primary Pay CTA when checking out
+        // Primary Pay CTA when checking out (`button-primary-pill` #533AFD)
         if (checkoutItem != null) {
           val activeMethod = savedMethods.find { it.id == selectedMethodId } ?: savedMethods.firstOrNull()
           StripiPrimaryPillButton(
             text = if (isProcessing) {
-              "Processing ZAR settlement..."
+              "Processing ZAR..."
             } else if (activeMethod != null) {
-              "Pay ${checkoutItem.formattedZar()} with ${activeMethod.summaryLabel()}"
+              "Pay ${checkoutItem.formattedZar()}"
             } else {
-              "Save a payment method above to pay ${checkoutItem.formattedZar()}"
+              "Save a Method to Pay ${checkoutItem.formattedZar()}"
             },
             enabled = activeMethod != null && !isProcessing,
             modifier = Modifier
@@ -659,12 +643,12 @@ private fun PaymentRailOption(
 ) {
   Box(
     modifier = modifier
-      .clip(RoundedCornerShape(8.dp))
+      .clip(StripiRounded.md)
       .background(if (isSelected) StripiSubduedHover.copy(alpha = 0.35f) else StripiCanvas)
       .border(
         width = if (isSelected) 1.5.dp else 1.dp,
         color = if (isSelected) StripiPrimary else StripiHairline,
-        shape = RoundedCornerShape(8.dp)
+        shape = StripiRounded.md
       )
       .clickable { onClick() }
       .padding(horizontal = 10.dp, vertical = 8.dp)
@@ -672,17 +656,14 @@ private fun PaymentRailOption(
     Column {
       Text(
         text = title,
-        style = MaterialTheme.typography.labelMedium.copy(
-          color = if (isSelected) StripiPrimary else StripiInk,
-          fontWeight = FontWeight.Medium
+        style = StripiTypeTokens.buttonSm.copy(
+          color = if (isSelected) StripiPrimary else StripiInk
         )
       )
+      Spacer(modifier = Modifier.height(2.dp))
       Text(
         text = subtitle,
-        style = MaterialTheme.typography.labelSmall.copy(
-          color = StripiInkMute,
-          fontSize = 10.sp
-        )
+        style = StripiTypeTokens.micro.copy(color = StripiInkMute)
       )
     }
   }

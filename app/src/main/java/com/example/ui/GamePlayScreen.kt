@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -35,13 +34,9 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,11 +57,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.data.model.Deck
 import com.example.data.model.GameSession
 import com.example.ui.components.StripiCreamCard
-import com.example.ui.components.StripiFeatureCardLight
 import com.example.ui.components.StripiFeaturedDarkCard
 import com.example.ui.components.StripiGradientMeshHero
 import com.example.ui.components.StripiPrimaryPillButton
@@ -76,7 +69,6 @@ import com.example.ui.components.StripiTabularText
 import com.example.ui.theme.StripiBrandDark900
 import com.example.ui.theme.StripiCanvas
 import com.example.ui.theme.StripiCanvasSoft
-import com.example.ui.theme.StripiEmerald
 import com.example.ui.theme.StripiHairline
 import com.example.ui.theme.StripiInk
 import com.example.ui.theme.StripiInkMute
@@ -85,6 +77,7 @@ import com.example.ui.theme.StripiOnPrimary
 import com.example.ui.theme.StripiPrimary
 import com.example.ui.theme.StripiRuby
 import com.example.ui.theme.StripiSubduedHover
+import com.example.ui.theme.StripiTypeTokens
 import kotlinx.coroutines.delay
 
 @Composable
@@ -246,16 +239,13 @@ fun GamePlayScreen(
           Spacer(modifier = Modifier.height(16.dp))
           Text(
             text = if (gameMode == "heads_up") "Place phone on forehead" else "Get ready to act",
-            style = MaterialTheme.typography.headlineLarge.copy(
-              color = StripiInk,
-              fontWeight = FontWeight.Light
-            ),
+            style = StripiTypeTokens.displayLg.copy(color = StripiInk),
             textAlign = TextAlign.Center
           )
           Spacer(modifier = Modifier.height(6.dp))
           Text(
             text = deck.name,
-            style = MaterialTheme.typography.titleMedium.copy(color = StripiInkSecondary)
+            style = StripiTypeTokens.bodyLg.copy(color = StripiInkSecondary)
           )
           Spacer(modifier = Modifier.height(32.dp))
           Box(
@@ -323,18 +313,15 @@ fun GamePlayScreen(
           Spacer(modifier = Modifier.height(12.dp))
           Text(
             text = "Round Complete.",
-            style = MaterialTheme.typography.displayMedium.copy(
-              color = StripiInk,
-              fontWeight = FontWeight.Light
-            )
+            style = StripiTypeTokens.displayLg.copy(color = StripiInk)
           )
           Text(
             text = deck.name,
-            style = MaterialTheme.typography.bodyMedium.copy(color = StripiInkMute)
+            style = StripiTypeTokens.bodyMd.copy(color = StripiInkMute)
           )
         }
 
-        // Featured Dark Score Telemetry Card
+        // Featured Dark Score Telemetry Card (`card-pricing-featured` #1C1E54)
         StripiFeaturedDarkCard(
           modifier = Modifier.fillMaxWidth()
         ) {
@@ -348,7 +335,7 @@ fun GamePlayScreen(
                 horizontalArrangement = Arrangement.SpaceAround
               ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                  Text("Team A", color = StripiSubduedHover, style = MaterialTheme.typography.labelMedium)
+                  Text("Team A", color = StripiSubduedHover, style = StripiTypeTokens.caption)
                   StripiTabularText(
                     text = "$teamAScore",
                     color = StripiOnPrimary,
@@ -357,7 +344,7 @@ fun GamePlayScreen(
                   )
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                  Text("Team B", color = StripiSubduedHover, style = MaterialTheme.typography.labelMedium)
+                  Text("Team B", color = StripiSubduedHover, style = StripiTypeTokens.caption)
                   StripiTabularText(
                     text = "$teamBScore",
                     color = StripiOnPrimary,
@@ -368,11 +355,8 @@ fun GamePlayScreen(
               }
             } else {
               Text(
-                text = "WORDS GUESSED",
-                style = MaterialTheme.typography.labelSmall.copy(
-                  color = StripiSubduedHover,
-                  letterSpacing = 0.8.sp
-                )
+                text = "Words Guessed",
+                style = StripiTypeTokens.caption.copy(color = StripiSubduedHover)
               )
               Spacer(modifier = Modifier.height(4.dp))
               StripiTabularText(
@@ -381,9 +365,9 @@ fun GamePlayScreen(
                 fontSize = 48,
                 fontWeight = FontWeight.Light
               )
-              Spacer(modifier = Modifier.height(6.dp))
+              Spacer(modifier = Modifier.height(8.dp))
               StripiSoftPillTag(
-                text = "+${10 + (guessedWords.size * 5)} Gold Coins Earned",
+                text = "+${10 + (guessedWords.size * 5)} Coins Earned",
                 containerColor = StripiPrimary,
                 contentColor = StripiOnPrimary
               )
@@ -402,19 +386,19 @@ fun GamePlayScreen(
                 text = "Correct: ${guessedWords.size}",
                 color = StripiSubduedHover,
                 fontSize = 14,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Normal
               )
               StripiTabularText(
                 text = "Passed: ${passedWords.size}",
                 color = StripiRuby,
                 fontSize = 14,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Normal
               )
             }
           }
         }
 
-        // Action Pill Buttons
+        // Action Pill Buttons (1 Secondary + 1 Primary per Stripi single-CTA rule)
         Row(
           modifier = Modifier.fillMaxWidth(),
           horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -492,7 +476,7 @@ fun GamePlayScreen(
               text = "${timeLeft}s",
               color = if (timeLeft <= 10) StripiRuby else StripiInk,
               fontSize = 20,
-              fontWeight = FontWeight.Medium
+              fontWeight = FontWeight.Normal
             )
           }
 
@@ -501,15 +485,7 @@ fun GamePlayScreen(
           )
         }
 
-        val progress = (timeLeft.toFloat() / roundDurationSeconds.toFloat()).coerceIn(0f, 1f)
-        LinearProgressIndicator(
-          progress = { progress },
-          modifier = Modifier
-            .fillMaxWidth()
-            .height(4.dp),
-          color = if (timeLeft <= 10) StripiRuby else StripiPrimary,
-          trackColor = StripiHairline
-        )
+        HorizontalDivider(color = StripiHairline)
 
         // Main Prompt Stage Card (Deep Navy #1C1E54 for crisp legibility across the room)
         Box(
@@ -550,11 +526,8 @@ fun GamePlayScreen(
               ) {
                 Text(
                   text = currentCard?.term.orEmpty(),
-                  style = MaterialTheme.typography.displayMedium.copy(
-                    fontWeight = FontWeight.Light,
-                    color = StripiOnPrimary,
-                    fontSize = 34.sp,
-                    lineHeight = 40.sp
+                  style = StripiTypeTokens.displayLg.copy(
+                    color = StripiOnPrimary
                   ),
                   textAlign = TextAlign.Center
                 )
@@ -563,7 +536,7 @@ fun GamePlayScreen(
                   Spacer(modifier = Modifier.height(12.dp))
                   Text(
                     text = currentCard?.culturalTrivia.orEmpty(),
-                    style = MaterialTheme.typography.bodySmall.copy(
+                    style = StripiTypeTokens.bodyMd.copy(
                       color = StripiSubduedHover.copy(alpha = 0.85f)
                     ),
                     textAlign = TextAlign.Center,
@@ -587,20 +560,17 @@ fun GamePlayScreen(
                 AnimatedVisibility(visible = showHints) {
                   StripiCreamCard(
                     modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(14.dp)
+                    contentPadding = PaddingValues(16.dp)
                   ) {
                     Text(
-                      text = "Silent Acting Clues:",
-                      style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Medium,
-                        color = StripiInk
-                      )
+                      text = "Silent Acting Clues",
+                      style = StripiTypeTokens.caption.copy(color = StripiInk)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     currentCard?.hints?.forEach { hint ->
                       Text(
-                        text = "• $hint",
-                        style = MaterialTheme.typography.bodySmall.copy(color = StripiInkSecondary)
+                        text = "- $hint",
+                        style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary)
                       )
                     }
                   }
@@ -610,7 +580,8 @@ fun GamePlayScreen(
           }
         }
 
-        // Bottom Controls (Pill Shaped)
+        // Bottom Controls: Pass uses `button-secondary` (Ruby is NEVER a button per Stripi spec),
+        // Correct uses `button-primary-pill` (#533AFD).
         Row(
           modifier = Modifier
             .fillMaxWidth()
@@ -619,39 +590,39 @@ fun GamePlayScreen(
             .padding(horizontal = 20.dp, vertical = 14.dp),
           horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-          Button(
-            onClick = { onPass() },
+          StripiSecondaryPillButton(
+            text = "Pass Card",
             modifier = Modifier
               .weight(1f)
-              .height(54.dp)
+              .height(50.dp)
               .testTag("pass_card_button"),
-            shape = RoundedCornerShape(percent = 50),
-            colors = ButtonDefaults.buttonColors(
-              containerColor = StripiRuby,
-              contentColor = StripiOnPrimary
-            )
-          ) {
-            Icon(Icons.Default.Close, contentDescription = "Pass", modifier = Modifier.size(20.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Pass Card", style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium))
-          }
+            leadingIcon = {
+              Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Pass",
+                tint = StripiPrimary,
+                modifier = Modifier.size(18.dp)
+              )
+            },
+            onClick = { onPass() }
+          )
 
-          Button(
-            onClick = { onCorrect() },
+          StripiPrimaryPillButton(
+            text = "Correct",
             modifier = Modifier
               .weight(1f)
-              .height(54.dp)
+              .height(50.dp)
               .testTag("correct_card_button"),
-            shape = RoundedCornerShape(percent = 50),
-            colors = ButtonDefaults.buttonColors(
-              containerColor = StripiPrimary,
-              contentColor = StripiOnPrimary
-            )
-          ) {
-            Icon(Icons.Default.Check, contentDescription = "Correct", modifier = Modifier.size(20.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Correct!", style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium))
-          }
+            leadingIcon = {
+              Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = "Correct",
+                tint = StripiOnPrimary,
+                modifier = Modifier.size(18.dp)
+              )
+            },
+            onClick = { onCorrect() }
+          )
         }
       }
     }

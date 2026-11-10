@@ -18,8 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -27,11 +25,9 @@ import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.SportsSoccer
-import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,7 +45,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -57,14 +52,16 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import com.example.R
 import com.example.ui.components.StripiCreamCard
+import com.example.ui.components.StripiDashboardMockupCard
 import com.example.ui.components.StripiFeatureCardLight
-import com.example.ui.components.StripiFeaturedDarkCard
 import com.example.ui.components.StripiGradientMeshHero
 import com.example.ui.components.StripiPrimaryPillButton
+import com.example.ui.components.StripiRounded
 import com.example.ui.components.StripiSoftPillTag
 import com.example.ui.components.StripiTabularText
 import com.example.ui.theme.StripiBrandDark900
 import com.example.ui.theme.StripiCanvas
+import com.example.ui.theme.StripiCanvasSoft
 import com.example.ui.theme.StripiHairline
 import com.example.ui.theme.StripiInk
 import com.example.ui.theme.StripiInkMute
@@ -73,6 +70,7 @@ import com.example.ui.theme.StripiOnPrimary
 import com.example.ui.theme.StripiPrimary
 import com.example.ui.theme.StripiRuby
 import com.example.ui.theme.StripiSubduedHover
+import com.example.ui.theme.StripiTypeTokens
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -121,38 +119,27 @@ fun AuthScreen(
         .fillMaxSize()
         .verticalScroll(rememberScrollState())
     ) {
-      // Stripi Atmospheric Gradient Mesh Hero Section
+      // 1. Stripi Atmospheric Gradient Mesh Hero (Strict 4-element Hero Stack Discipline)
       StripiGradientMeshHero(
-        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 48.dp, bottom = 32.dp)
+        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 40.dp, bottom = 28.dp)
       ) {
-        Row(
-          verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-          StripiSoftPillTag(text = "South African Edition")
-          Text(
-            text = "2000s Culture • Kwaito • Slang",
-            style = MaterialTheme.typography.labelMedium.copy(color = StripiInkSecondary)
-          )
-        }
+        // Element 1: Eyebrow pill tag (`pill-tag-soft`)
+        StripiSoftPillTag(text = "South African Edition")
 
-        Spacer(modifier = Modifier.height(18.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
+        // Element 2: Thin Display Headline (weight 300, negative tracking)
         Text(
           text = "Mzansi Charades.",
-          style = MaterialTheme.typography.displayLarge.copy(
-            color = StripiInk,
-            fontWeight = FontWeight.Light
-          )
+          style = StripiTypeTokens.displayMobileHero.copy(color = StripiInk)
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
+        // Element 3: Subtext (17 words, <= 20 words rule, body-lg weight 300)
         Text(
-          text = "Act out iconic early 2000s South African television, Kwaito anthems, tuckshop classics, and local township slang with your crew.",
-          style = MaterialTheme.typography.bodyLarge.copy(
-            color = StripiInkSecondary
-          )
+          text = "Act out early 2000s South African TV, Kwaito anthems, tuckshop classics, and township slang with your crew.",
+          style = StripiTypeTokens.bodyLg.copy(color = StripiInkSecondary)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -161,13 +148,14 @@ fun AuthScreen(
           Text(
             text = errorMessage.orEmpty(),
             color = StripiRuby,
-            style = MaterialTheme.typography.bodySmall,
+            style = StripiTypeTokens.caption,
             modifier = Modifier.padding(bottom = 12.dp)
           )
         }
 
+        // Element 4: Single Primary Pill CTA (`button-primary-pill`)
         StripiPrimaryPillButton(
-          text = if (isLoading) "Signing in with Google..." else "Sign in with Google",
+          text = if (isLoading) "Signing in..." else "Sign in with Google",
           enabled = !isLoading,
           modifier = Modifier
             .fillMaxWidth()
@@ -175,14 +163,14 @@ fun AuthScreen(
           leadingIcon = {
             if (isLoading) {
               CircularProgressIndicator(
-                modifier = Modifier.size(18.dp),
+                modifier = Modifier.size(16.dp),
                 color = StripiOnPrimary,
                 strokeWidth = 2.dp
               )
             } else {
               Icon(
                 imageVector = Icons.Default.Lock,
-                contentDescription = "Sign In Lock Icon",
+                contentDescription = "Sign In",
                 modifier = Modifier.size(16.dp),
                 tint = StripiOnPrimary
               )
@@ -221,145 +209,224 @@ fun AuthScreen(
         )
       }
 
-      // Main Architectural Content Band
+      // 2. Composited Dashboard Mockup (`card-dashboard-mockup` floating on canvas)
       Column(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(horizontal = 24.dp, vertical = 12.dp),
+          .padding(horizontal = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+      ) {
+        StripiDashboardMockupCard(
+          modifier = Modifier.fillMaxWidth(),
+          contentPadding = PaddingValues(20.dp)
+        ) {
+          // Dark-app console panel composited inside the mockup card
+          Column(
+            modifier = Modifier
+              .fillMaxWidth()
+              .clip(StripiRounded.md)
+              .background(StripiBrandDark900)
+              .padding(16.dp)
+          ) {
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Column {
+                Text(
+                  text = "Starter Stash",
+                  style = StripiTypeTokens.caption.copy(color = StripiSubduedHover)
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                StripiTabularText(
+                  text = "150 Coins",
+                  color = StripiOnPrimary,
+                  fontSize = 22,
+                  fontWeight = FontWeight.Light
+                )
+              }
+              Column(horizontalAlignment = Alignment.End) {
+                Text(
+                  text = "Expansion Packs",
+                  style = StripiTypeTokens.caption.copy(color = StripiSubduedHover)
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                StripiTabularText(
+                  text = "R19.99",
+                  color = StripiOnPrimary,
+                  fontSize = 22,
+                  fontWeight = FontWeight.Light
+                )
+              }
+            }
+          }
+
+          Spacer(modifier = Modifier.height(16.dp))
+
+          // Tabular Deck Telemetry Rows (`body-tabular` with `tnum`)
+          MockupDeckRow(
+            deckTitle = "Kwaito & 2000s Grooves",
+            era = "2000-2005",
+            cardCount = "12 cards",
+            tierStatus = "Included"
+          )
+          HorizontalDivider(
+            modifier = Modifier.padding(vertical = 10.dp),
+            color = StripiHairline
+          )
+          MockupDeckRow(
+            deckTitle = "2000s TV & Nostalgic Jingles",
+            era = "1998-2006",
+            cardCount = "10 cards",
+            tierStatus = "Included"
+          )
+          HorizontalDivider(
+            modifier = Modifier.padding(vertical = 10.dp),
+            color = StripiHairline
+          )
+          MockupDeckRow(
+            deckTitle = "Pure SA Slang & Phrases",
+            era = "All Eras",
+            cardCount = "10 cards",
+            tierStatus = "Included"
+          )
+        }
+      }
+
+      Spacer(modifier = Modifier.height(28.dp))
+
+      // 3. Asymmetric Bento Feature Band on `canvas-soft` (#F6F9FC) with Cream Band Interlude
+      Column(
+        modifier = Modifier
+          .fillMaxWidth()
+          .background(StripiCanvasSoft)
+          .padding(horizontal = 24.dp, vertical = 32.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
       ) {
-        // Featured Dark Dashboard Preview Card
-        StripiFeaturedDarkCard(
-          modifier = Modifier.fillMaxWidth()
-        ) {
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-          ) {
-            Text(
-              text = "LIVE DECK TELEMETRY",
-              style = MaterialTheme.typography.labelSmall.copy(
-                color = StripiSubduedHover,
-                letterSpacing = 0.8.sp
-              )
-            )
-            StripiSoftPillTag(
-              text = "5 Free Core Decks",
-              containerColor = StripiPrimary,
-              contentColor = StripiOnPrimary
-            )
-          }
+        Text(
+          text = "Built for South African game nights.",
+          style = StripiTypeTokens.displayMd.copy(color = StripiInk)
+        )
 
-          Spacer(modifier = Modifier.height(14.dp))
-
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-          ) {
-            Column {
-              Text(
-                text = "Starter Stash",
-                style = MaterialTheme.typography.bodySmall.copy(color = StripiSubduedHover)
-              )
-              StripiTabularText(
-                text = "150 Coins",
-                color = StripiOnPrimary,
-                fontSize = 22,
-                fontWeight = FontWeight.Light
-              )
-            }
-            Column(horizontalAlignment = Alignment.End) {
-              Text(
-                text = "Expansion Packs",
-                style = MaterialTheme.typography.bodySmall.copy(color = StripiSubduedHover)
-              )
-              StripiTabularText(
-                text = "From R19.99",
-                color = StripiOnPrimary,
-                fontSize = 22,
-                fontWeight = FontWeight.Light
-              )
-            }
-          }
-        }
-
-        // Hairline Feature Grid Card
+        // Bento Cell 1: Full-width light feature card
         StripiFeatureCardLight(
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
+          contentPadding = PaddingValues(20.dp)
         ) {
-          FeatureRow(
+          FeatureTileContent(
             icon = Icons.Default.MusicNote,
             title = "Kwaito & 2000s TV Anthems",
-            subtitle = "Mandoza Nkalakatha, TKZee Shibobo, Queen Moroka & Tata Ma Millions."
-          )
-          HorizontalDivider(
-            modifier = Modifier.padding(vertical = 14.dp),
-            color = StripiHairline
-          )
-          FeatureRow(
-            icon = Icons.Default.SportsSoccer,
-            title = "Authentic Local Slang & Moments",
-            subtitle = "2010 World Cup Vuvuzelas, Eish, Sharp Fede, Voetstoots & Spatlo Kotas."
-          )
-          HorizontalDivider(
-            modifier = Modifier.padding(vertical = 14.dp),
-            color = StripiHairline
-          )
-          FeatureRow(
-            icon = Icons.Default.CreditCard,
-            title = "Generous Free Tier & ZAR Checkout",
-            subtitle = "Play 5 core decks free, watch nostalgically themed ads, or unlock packs via Card, PayShap, or SnapScan."
+            subtitle = "Mandoza Nkalakatha, TKZee Shibobo, Queen Moroka, and Saturday night Tata Ma Millions."
           )
         }
 
-        // Warm Cream Editorial Callout Card
-        StripiCreamCard(
-          modifier = Modifier.fillMaxWidth()
+        // Bento Cells 2 & 3: Asymmetric 2-column split (Light Card + Warm Cream Interlude Card)
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-          Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+          StripiFeatureCardLight(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(18.dp)
           ) {
-            Column(modifier = Modifier.weight(1f)) {
-              Text(
-                text = "Built for Mzansi game nights",
-                style = MaterialTheme.typography.titleMedium.copy(
-                  color = StripiInk,
-                  fontWeight = FontWeight.Medium
-                )
-              )
-              Spacer(modifier = Modifier.height(4.dp))
-              Text(
-                text = "Cloud syncs your custom AI cards, match history, and saved ZAR payment methods across devices.",
-                style = MaterialTheme.typography.bodySmall.copy(color = StripiInkSecondary)
-              )
-            }
+            FeatureTileContent(
+              icon = Icons.Default.SportsSoccer,
+              title = "Local Slang",
+              subtitle = "2010 World Cup vuvuzelas, Sharp Fede, Voetstoots, and Spatlo Kotas."
+            )
+          }
+
+          StripiCreamCard(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(18.dp)
+          ) {
+            FeatureTileContent(
+              icon = Icons.Default.CreditCard,
+              title = "ZAR Settlement",
+              subtitle = "5 free core decks plus instant unlocks via Card, PayShap, or SnapScan."
+            )
           }
         }
+      }
 
-        Spacer(modifier = Modifier.height(24.dp))
+      // 4. Footer Light (`footer-light`: #FFFFFF canvas, #64748D ink-mute, caption 13sp tnum)
+      Column(
+        modifier = Modifier
+          .fillMaxWidth()
+          .background(StripiCanvas)
+          .padding(horizontal = 24.dp, vertical = 32.dp)
+      ) {
+        HorizontalDivider(color = StripiHairline)
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.SpaceBetween,
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Text(
+            text = "Mzansi Charades",
+            style = StripiTypeTokens.caption.copy(color = StripiInkSecondary)
+          )
+          Text(
+            text = "5 Core Decks · ZAR Billing",
+            style = StripiTypeTokens.caption.copy(color = StripiInkMute)
+          )
+        }
       }
     }
   }
 }
 
 @Composable
-private fun FeatureRow(
+private fun MockupDeckRow(
+  deckTitle: String,
+  era: String,
+  cardCount: String,
+  tierStatus: String
+) {
+  Row(
+    modifier = Modifier.fillMaxWidth(),
+    horizontalArrangement = Arrangement.SpaceBetween,
+    verticalAlignment = Alignment.CenterVertically
+  ) {
+    Column(modifier = Modifier.weight(1f)) {
+      Text(
+        text = deckTitle,
+        style = StripiTypeTokens.bodyMd.copy(color = StripiInk)
+      )
+      Text(
+        text = era,
+        style = StripiTypeTokens.bodyTabular.copy(color = StripiInkMute)
+      )
+    }
+    Row(
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+      StripiTabularText(
+        text = cardCount,
+        color = StripiInkSecondary,
+        fontSize = 14
+      )
+      StripiSoftPillTag(text = tierStatus)
+    }
+  }
+}
+
+@Composable
+private fun FeatureTileContent(
   icon: ImageVector,
   title: String,
   subtitle: String
 ) {
-  Row(
-    verticalAlignment = Alignment.Top
-  ) {
+  Column {
     Box(
       modifier = Modifier
         .size(36.dp)
-        .clip(RoundedCornerShape(8.dp))
+        .clip(StripiRounded.md)
         .background(StripiSubduedHover.copy(alpha = 0.35f))
-        .border(1.dp, StripiHairline, RoundedCornerShape(8.dp)),
+        .border(1.dp, StripiHairline, StripiRounded.md),
       contentAlignment = Alignment.Center
     ) {
       Icon(
@@ -369,21 +436,16 @@ private fun FeatureRow(
         modifier = Modifier.size(18.dp)
       )
     }
-    Spacer(modifier = Modifier.width(14.dp))
-    Column {
-      Text(
-        text = title,
-        style = MaterialTheme.typography.titleSmall.copy(
-          fontWeight = FontWeight.Medium,
-          color = StripiInk
-        )
-      )
-      Spacer(modifier = Modifier.height(2.dp))
-      Text(
-        text = subtitle,
-        style = MaterialTheme.typography.bodySmall.copy(color = StripiInkMute)
-      )
-    }
+    Spacer(modifier = Modifier.height(12.dp))
+    Text(
+      text = title,
+      style = StripiTypeTokens.headingSm.copy(color = StripiInk)
+    )
+    Spacer(modifier = Modifier.height(4.dp))
+    Text(
+      text = subtitle,
+      style = StripiTypeTokens.bodyMd.copy(color = StripiInkMute)
+    )
   }
 }
 

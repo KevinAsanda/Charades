@@ -46,9 +46,10 @@ import com.example.data.repository.UserRepository
 import com.example.ui.theme.StripiCanvas
 import com.example.ui.theme.StripiHairline
 import com.example.ui.theme.StripiInk
-import com.example.ui.theme.StripiInkMute
+import com.example.ui.theme.StripiInkMute2
 import com.example.ui.theme.StripiPrimary
 import com.example.ui.theme.StripiSubduedHover
+import com.example.ui.theme.StripiTypeTokens
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.launch
@@ -141,9 +142,9 @@ fun MainFeatureScreen(
         coroutineScope.launch {
           try {
             paymentRepository.deletePaymentMethod(methodId)
-            snackbarHostState.showSnackbar("Payment method removed.")
+            snackbarHostState.showSnackbar("Payment method deleted.")
           } catch (e: Exception) {
-            snackbarHostState.showSnackbar("Failed to remove method: ${e.localizedMessage}")
+            snackbarHostState.showSnackbar("Failed to delete method: ${e.localizedMessage}")
           }
         }
       },
@@ -222,12 +223,12 @@ fun MainFeatureScreen(
               selected = currentTab == 0,
               onClick = { currentTab = 0 },
               icon = { Icon(Icons.Default.PlayArrow, contentDescription = "Play") },
-              label = { Text("Play") },
+              label = { Text("Play", style = StripiTypeTokens.micro) },
               colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = StripiPrimary,
                 selectedTextColor = StripiPrimary,
-                unselectedIconColor = StripiInkMute,
-                unselectedTextColor = StripiInkMute,
+                unselectedIconColor = StripiInkMute2,
+                unselectedTextColor = StripiInkMute2,
                 indicatorColor = StripiSubduedHover.copy(alpha = 0.45f)
               ),
               modifier = Modifier.testTag("nav_tab_play")
@@ -236,12 +237,12 @@ fun MainFeatureScreen(
               selected = currentTab == 1,
               onClick = { currentTab = 1 },
               icon = { Icon(Icons.Default.ShoppingBag, contentDescription = "Store") },
-              label = { Text("Store") },
+              label = { Text("Store", style = StripiTypeTokens.micro) },
               colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = StripiPrimary,
                 selectedTextColor = StripiPrimary,
-                unselectedIconColor = StripiInkMute,
-                unselectedTextColor = StripiInkMute,
+                unselectedIconColor = StripiInkMute2,
+                unselectedTextColor = StripiInkMute2,
                 indicatorColor = StripiSubduedHover.copy(alpha = 0.45f)
               ),
               modifier = Modifier.testTag("nav_tab_store")
@@ -250,12 +251,12 @@ fun MainFeatureScreen(
               selected = currentTab == 2,
               onClick = { currentTab = 2 },
               icon = { Icon(Icons.Default.AutoAwesome, contentDescription = "AI Coach") },
-              label = { Text("AI Coach") },
+              label = { Text("AI Coach", style = StripiTypeTokens.micro) },
               colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = StripiPrimary,
                 selectedTextColor = StripiPrimary,
-                unselectedIconColor = StripiInkMute,
-                unselectedTextColor = StripiInkMute,
+                unselectedIconColor = StripiInkMute2,
+                unselectedTextColor = StripiInkMute2,
                 indicatorColor = StripiSubduedHover.copy(alpha = 0.45f)
               ),
               modifier = Modifier.testTag("nav_tab_ai")
@@ -264,12 +265,12 @@ fun MainFeatureScreen(
               selected = currentTab == 3,
               onClick = { currentTab = 3 },
               icon = { Icon(Icons.Default.Palette, contentDescription = "Studio") },
-              label = { Text("Studio") },
+              label = { Text("Studio", style = StripiTypeTokens.micro) },
               colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = StripiPrimary,
                 selectedTextColor = StripiPrimary,
-                unselectedIconColor = StripiInkMute,
-                unselectedTextColor = StripiInkMute,
+                unselectedIconColor = StripiInkMute2,
+                unselectedTextColor = StripiInkMute2,
                 indicatorColor = StripiSubduedHover.copy(alpha = 0.45f)
               ),
               modifier = Modifier.testTag("nav_tab_studio")
@@ -278,12 +279,12 @@ fun MainFeatureScreen(
               selected = currentTab == 4,
               onClick = { currentTab = 4 },
               icon = { Icon(Icons.Default.Person, contentDescription = "Profile") },
-              label = { Text("Profile") },
+              label = { Text("Profile", style = StripiTypeTokens.micro) },
               colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = StripiPrimary,
                 selectedTextColor = StripiPrimary,
-                unselectedIconColor = StripiInkMute,
-                unselectedTextColor = StripiInkMute,
+                unselectedIconColor = StripiInkMute2,
+                unselectedTextColor = StripiInkMute2,
                 indicatorColor = StripiSubduedHover.copy(alpha = 0.45f)
               ),
               modifier = Modifier.testTag("nav_tab_profile")

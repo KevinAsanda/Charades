@@ -1,6 +1,7 @@
 package com.example.ui
 
 import android.graphics.Bitmap
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,8 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -30,7 +31,6 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,7 +46,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -59,8 +58,10 @@ import com.example.ui.components.StripiFeatureCardLight
 import com.example.ui.components.StripiFeaturedDarkCard
 import com.example.ui.components.StripiGradientMeshHero
 import com.example.ui.components.StripiPrimaryPillButton
+import com.example.ui.components.StripiRounded
 import com.example.ui.components.StripiSecondaryPillButton
 import com.example.ui.components.StripiSoftPillTag
+import com.example.ui.components.StripiTabularText
 import com.example.ui.components.StripiTextInput
 import com.example.ui.theme.StripiCanvas
 import com.example.ui.theme.StripiCanvasSoft
@@ -72,6 +73,7 @@ import com.example.ui.theme.StripiOnPrimary
 import com.example.ui.theme.StripiPrimary
 import com.example.ui.theme.StripiRuby
 import com.example.ui.theme.StripiSubduedHover
+import com.example.ui.theme.StripiTypeTokens
 import kotlinx.coroutines.launch
 
 @Composable
@@ -89,31 +91,28 @@ fun DeckStudioScreen(
       .background(StripiCanvas)
   ) {
     StripiGradientMeshHero(
-      contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 18.dp)
+      contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 20.dp)
     ) {
       StripiSoftPillTag(text = "Mzansi Creative Studio")
-      Spacer(modifier = Modifier.height(10.dp))
+      Spacer(modifier = Modifier.height(12.dp))
       Text(
         text = "Custom Decks & Card Art.",
-        style = MaterialTheme.typography.displaySmall.copy(
-          color = StripiInk,
-          fontWeight = FontWeight.Light
-        )
+        style = StripiTypeTokens.displayLg.copy(color = StripiInk)
       )
-      Spacer(modifier = Modifier.height(4.dp))
+      Spacer(modifier = Modifier.height(6.dp))
       Text(
         text = "Generate structured decks with gemini-3.8-flash and 1K, 2K, or 4K artwork with gemini-3-pro-image-preview.",
-        style = MaterialTheme.typography.bodySmall.copy(color = StripiInkSecondary)
+        style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary)
       )
 
-      Spacer(modifier = Modifier.height(16.dp))
+      Spacer(modifier = Modifier.height(18.dp))
 
       Row(
         modifier = Modifier
           .fillMaxWidth()
-          .clip(RoundedCornerShape(percent = 50))
+          .clip(StripiRounded.pill)
           .background(StripiCanvasSoft)
-          .border(1.dp, StripiHairline, RoundedCornerShape(percent = 50))
+          .border(1.dp, StripiHairline, StripiRounded.pill)
           .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
       ) {
@@ -141,7 +140,7 @@ fun DeckStudioScreen(
     Box(
       modifier = Modifier
         .fillMaxSize()
-        .padding(horizontal = 20.dp)
+        .padding(horizontal = 24.dp)
     ) {
       when (selectedTab) {
         0 -> AiDeckGeneratorTab(aiRepository, onAddCard)
@@ -161,17 +160,16 @@ private fun StudioTabPill(
 ) {
   Surface(
     modifier = modifier
-      .clip(RoundedCornerShape(percent = 50))
+      .clip(StripiRounded.pill)
       .clickable { onClick() },
-    shape = RoundedCornerShape(percent = 50),
+    shape = StripiRounded.pill,
     color = if (isSelected) StripiPrimary else StripiCanvasSoft
   ) {
     Text(
       text = title,
       modifier = Modifier.padding(vertical = 8.dp, horizontal = 6.dp),
       textAlign = TextAlign.Center,
-      style = MaterialTheme.typography.labelSmall.copy(
-        fontWeight = FontWeight.Medium,
+      style = StripiTypeTokens.caption.copy(
         color = if (isSelected) StripiOnPrimary else StripiInkSecondary
       )
     )
@@ -193,8 +191,8 @@ private fun AiDeckGeneratorTab(
   val sampleThemes = listOf(
     "Durban July 2000s High Fashion",
     "Soweto Derby Legends 2002",
-    "SABC 2000s Kids Cartoons & Shows",
-    "Cape Town Minstrel Tweede Nuwejaar",
+    "SABC 2000s Kids Cartoons",
+    "Cape Town Tweede Nuwejaar",
     "Sunday Jazz & Braai Anthems"
   )
 
@@ -223,7 +221,10 @@ private fun AiDeckGeneratorTab(
     verticalArrangement = Arrangement.spacedBy(16.dp)
   ) {
     item {
-      StripiFeatureCardLight(modifier = Modifier.fillMaxWidth()) {
+      StripiFeatureCardLight(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(22.dp)
+      ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
           Icon(
             imageVector = Icons.Default.AutoAwesome,
@@ -234,19 +235,16 @@ private fun AiDeckGeneratorTab(
           Spacer(modifier = Modifier.width(8.dp))
           Text(
             text = "Generate Custom Themed Deck",
-            style = MaterialTheme.typography.titleMedium.copy(
-              fontWeight = FontWeight.Medium,
-              color = StripiInk
-            )
+            style = StripiTypeTokens.headingMd.copy(color = StripiInk)
           )
         }
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         Text(
           text = "Uses gemini-3.8-flash structured JSON schema to build 6 playable Mzansi cards.",
-          style = MaterialTheme.typography.bodySmall.copy(color = StripiInkMute)
+          style = StripiTypeTokens.bodyMd.copy(color = StripiInkMute)
         )
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         StripiTextInput(
           value = themeInput,
@@ -256,42 +254,42 @@ private fun AiDeckGeneratorTab(
           modifier = Modifier.testTag("theme_input_field")
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
         Text(
-          text = "Suggested Mzansi themes:",
-          style = MaterialTheme.typography.labelSmall.copy(
-            fontWeight = FontWeight.Medium,
-            color = StripiInkSecondary
-          )
+          text = "Suggested Mzansi themes",
+          style = StripiTypeTokens.caption.copy(color = StripiInkSecondary)
         )
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-        sampleThemes.forEach { theme ->
-          Surface(
-            shape = RoundedCornerShape(8.dp),
-            color = StripiCanvasSoft,
-            border = androidx.compose.foundation.BorderStroke(1.dp, StripiHairline),
-            modifier = Modifier
-              .fillMaxWidth()
-              .padding(vertical = 3.dp)
-              .clickable {
+        // Horizontal scroll-snap pills (Section 4.9)
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+          items(sampleThemes) { theme ->
+            val selected = themeInput == theme
+            Surface(
+              shape = StripiRounded.pill,
+              color = if (selected) StripiPrimary else StripiCanvasSoft,
+              border = BorderStroke(1.dp, if (selected) StripiPrimary else StripiHairline),
+              modifier = Modifier.clickable {
                 themeInput = theme
                 generateDeck(theme)
               }
-          ) {
-            Text(
-              text = theme,
-              style = MaterialTheme.typography.bodySmall.copy(color = StripiInk),
-              modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-            )
+            ) {
+              Text(
+                text = theme,
+                style = StripiTypeTokens.caption.copy(
+                  color = if (selected) StripiOnPrimary else StripiInk
+                ),
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
+              )
+            }
           }
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         StripiPrimaryPillButton(
-          text = if (isGenerating) "Creating Deck with Gemini..." else "Generate Themed Deck",
+          text = if (isGenerating) "Creating Deck..." else "Generate Themed Deck",
           enabled = themeInput.isNotBlank() && !isGenerating,
           modifier = Modifier
             .fillMaxWidth()
@@ -315,7 +313,7 @@ private fun AiDeckGeneratorTab(
         StripiCreamCard(modifier = Modifier.fillMaxWidth()) {
           Text(
             text = "Error: $errorMessage",
-            style = MaterialTheme.typography.bodySmall.copy(color = StripiRuby)
+            style = StripiTypeTokens.bodyMd.copy(color = StripiRuby)
           )
         }
       }
@@ -326,10 +324,7 @@ private fun AiDeckGeneratorTab(
         StripiCreamCard(modifier = Modifier.fillMaxWidth()) {
           Text(
             text = savedNotification.orEmpty(),
-            style = MaterialTheme.typography.bodyMedium.copy(
-              fontWeight = FontWeight.Medium,
-              color = StripiInk
-            )
+            style = StripiTypeTokens.bodyMd.copy(color = StripiInk)
           )
         }
       }
@@ -345,14 +340,11 @@ private fun AiDeckGeneratorTab(
           Column(modifier = Modifier.weight(1f)) {
             Text(
               text = deck.title,
-              style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Medium,
-                color = StripiInk
-              )
+              style = StripiTypeTokens.headingLg.copy(color = StripiInk)
             )
             Text(
               text = deck.description,
-              style = MaterialTheme.typography.bodySmall.copy(color = StripiInkMute)
+              style = StripiTypeTokens.bodyMd.copy(color = StripiInkMute)
             )
           }
           Spacer(modifier = Modifier.width(12.dp))
@@ -386,7 +378,7 @@ private fun AiDeckGeneratorTab(
       items(deck.cards) { card ->
         StripiFeatureCardLight(
           modifier = Modifier.fillMaxWidth(),
-          contentPadding = PaddingValues(16.dp)
+          contentPadding = PaddingValues(18.dp)
         ) {
           Row(
             modifier = Modifier.fillMaxWidth(),
@@ -395,25 +387,22 @@ private fun AiDeckGeneratorTab(
           ) {
             Text(
               text = card.term,
-              style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Medium,
-                color = StripiInk
-              )
+              style = StripiTypeTokens.headingSm.copy(color = StripiInk)
             )
             StripiSoftPillTag(text = card.category)
           }
           Spacer(modifier = Modifier.height(6.dp))
           card.hints.forEach { hint ->
             Text(
-              text = "• $hint",
-              style = MaterialTheme.typography.bodySmall.copy(color = StripiInkSecondary)
+              text = "- $hint",
+              style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary)
             )
           }
           if (card.culturalTrivia.isNotBlank()) {
             Spacer(modifier = Modifier.height(6.dp))
             Text(
               text = "Trivia: ${card.culturalTrivia}",
-              style = MaterialTheme.typography.labelSmall.copy(color = StripiInkMute)
+              style = StripiTypeTokens.caption.copy(color = StripiInkMute)
             )
           }
         }
@@ -466,7 +455,10 @@ private fun AiCardArtGeneratorTab(aiRepository: AiRepository) {
     verticalArrangement = Arrangement.spacedBy(16.dp)
   ) {
     item {
-      StripiFeatureCardLight(modifier = Modifier.fillMaxWidth()) {
+      StripiFeatureCardLight(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(22.dp)
+      ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
           Icon(
             imageVector = Icons.Default.Image,
@@ -477,19 +469,16 @@ private fun AiCardArtGeneratorTab(aiRepository: AiRepository) {
           Spacer(modifier = Modifier.width(8.dp))
           Text(
             text = "Generate High-Resolution Card Art",
-            style = MaterialTheme.typography.titleMedium.copy(
-              fontWeight = FontWeight.Medium,
-              color = StripiInk
-            )
+            style = StripiTypeTokens.headingMd.copy(color = StripiInk)
           )
         }
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         Text(
           text = "Powered by gemini-3-pro-image-preview with selectable 1K, 2K, and 4K output sizes.",
-          style = MaterialTheme.typography.bodySmall.copy(color = StripiInkMute)
+          style = StripiTypeTokens.bodyMd.copy(color = StripiInkMute)
         )
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         StripiTextInput(
           value = imagePrompt,
@@ -502,11 +491,8 @@ private fun AiCardArtGeneratorTab(aiRepository: AiRepository) {
         Spacer(modifier = Modifier.height(14.dp))
 
         Text(
-          text = "Select Image Resolution (1K, 2K, 4K):",
-          style = MaterialTheme.typography.labelSmall.copy(
-            fontWeight = FontWeight.Medium,
-            color = StripiInkSecondary
-          )
+          text = "Image Resolution",
+          style = StripiTypeTokens.caption.copy(color = StripiInkSecondary)
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -517,9 +503,9 @@ private fun AiCardArtGeneratorTab(aiRepository: AiRepository) {
           CardImageSize.values().forEach { sizeOption ->
             val selected = selectedSizeOption == sizeOption
             Surface(
-              shape = RoundedCornerShape(percent = 50),
+              shape = StripiRounded.pill,
               color = if (selected) StripiPrimary else StripiCanvasSoft,
-              border = androidx.compose.foundation.BorderStroke(
+              border = BorderStroke(
                 1.dp,
                 if (selected) StripiPrimary else StripiHairline
               ),
@@ -531,47 +517,46 @@ private fun AiCardArtGeneratorTab(aiRepository: AiRepository) {
                 text = sizeOption.label,
                 modifier = Modifier.padding(vertical = 8.dp, horizontal = 6.dp),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelSmall.copy(
-                  color = if (selected) StripiOnPrimary else StripiInk,
-                  fontWeight = FontWeight.Medium
+                style = StripiTypeTokens.caption.copy(
+                  color = if (selected) StripiOnPrimary else StripiInk
                 )
               )
             }
           }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
         Text(
-          text = "Prompt inspiration:",
-          style = MaterialTheme.typography.labelSmall.copy(color = StripiInkMute)
+          text = "Prompt inspiration",
+          style = StripiTypeTokens.caption.copy(color = StripiInkMute)
         )
-        Spacer(modifier = Modifier.height(6.dp))
-        sampleImagePrompts.forEach { sample ->
-          Surface(
-            shape = RoundedCornerShape(8.dp),
-            color = StripiCanvasSoft,
-            border = androidx.compose.foundation.BorderStroke(1.dp, StripiHairline),
-            modifier = Modifier
-              .fillMaxWidth()
-              .padding(vertical = 3.dp)
-              .clickable { imagePrompt = sample }
-          ) {
-            Text(
-              text = sample,
-              style = MaterialTheme.typography.bodySmall.copy(color = StripiInk),
-              modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-            )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+          items(sampleImagePrompts) { sample ->
+            Surface(
+              shape = StripiRounded.pill,
+              color = StripiCanvasSoft,
+              border = BorderStroke(1.dp, StripiHairline),
+              modifier = Modifier.clickable { imagePrompt = sample }
+            ) {
+              Text(
+                text = sample,
+                style = StripiTypeTokens.caption.copy(color = StripiInk),
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
+              )
+            }
           }
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         StripiPrimaryPillButton(
           text = if (isGeneratingImage) {
-            "Synthesizing (${selectedSizeOption.name})..."
+            "Synthesizing..."
           } else {
-            "Generate Card Art (${selectedSizeOption.name.replace("SIZE_", "")})"
+            "Generate Art (${selectedSizeOption.name.replace("SIZE_", "")})"
           },
           enabled = imagePrompt.isNotBlank() && !isGeneratingImage,
           modifier = Modifier
@@ -596,7 +581,7 @@ private fun AiCardArtGeneratorTab(aiRepository: AiRepository) {
         StripiCreamCard(modifier = Modifier.fillMaxWidth()) {
           Text(
             text = "Error: $errorMessage",
-            style = MaterialTheme.typography.bodySmall.copy(color = StripiRuby)
+            style = StripiTypeTokens.bodyMd.copy(color = StripiRuby)
           )
         }
       }
@@ -606,7 +591,7 @@ private fun AiCardArtGeneratorTab(aiRepository: AiRepository) {
       item {
         StripiFeaturedDarkCard(modifier = Modifier.fillMaxWidth()) {
           StripiSoftPillTag(
-            text = "Generated Artwork (${selectedSizeOption.name})",
+            text = "Generated Artwork (${selectedSizeOption.name.replace("SIZE_", "")})",
             containerColor = StripiPrimary,
             contentColor = StripiOnPrimary
           )
@@ -617,13 +602,13 @@ private fun AiCardArtGeneratorTab(aiRepository: AiRepository) {
             modifier = Modifier
               .fillMaxWidth()
               .aspectRatio(1f)
-              .clip(RoundedCornerShape(10.dp)),
+              .clip(StripiRounded.md),
             contentScale = ContentScale.Crop
           )
           Spacer(modifier = Modifier.height(10.dp))
           Text(
             text = imagePrompt,
-            style = MaterialTheme.typography.bodySmall.copy(color = StripiSubduedHover)
+            style = StripiTypeTokens.bodyMd.copy(color = StripiSubduedHover)
           )
         }
       }
@@ -657,14 +642,12 @@ private fun MyCustomCardsTab(
         Column {
           Text(
             text = "Personal Mzansi Cards",
-            style = MaterialTheme.typography.titleMedium.copy(
-              fontWeight = FontWeight.Medium,
-              color = StripiInk
-            )
+            style = StripiTypeTokens.headingMd.copy(color = StripiInk)
           )
-          Text(
+          StripiTabularText(
             text = "${customCards.size} cards synced to Firestore",
-            style = MaterialTheme.typography.bodySmall.copy(color = StripiInkMute)
+            color = StripiInkMute,
+            fontSize = 14
           )
         }
 
@@ -688,15 +671,12 @@ private fun MyCustomCardsTab(
         StripiCreamCard(modifier = Modifier.fillMaxWidth()) {
           Text(
             text = "Your custom deck is empty",
-            style = MaterialTheme.typography.titleSmall.copy(
-              fontWeight = FontWeight.Medium,
-              color = StripiInk
-            )
+            style = StripiTypeTokens.headingSm.copy(color = StripiInk)
           )
           Spacer(modifier = Modifier.height(4.dp))
           Text(
             text = "Use the AI Deck Maker tab or tap Add Card to build your own South African charades cards.",
-            style = MaterialTheme.typography.bodySmall.copy(color = StripiInkSecondary)
+            style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary)
           )
         }
       }
@@ -705,7 +685,7 @@ private fun MyCustomCardsTab(
     items(customCards) { card ->
       StripiFeatureCardLight(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(16.dp)
+        contentPadding = PaddingValues(18.dp)
       ) {
         Row(
           modifier = Modifier.fillMaxWidth(),
@@ -716,10 +696,7 @@ private fun MyCustomCardsTab(
             Row(verticalAlignment = Alignment.CenterVertically) {
               Text(
                 text = card.term,
-                style = MaterialTheme.typography.titleMedium.copy(
-                  fontWeight = FontWeight.Medium,
-                  color = StripiInk
-                )
+                style = StripiTypeTokens.headingSm.copy(color = StripiInk)
               )
               Spacer(modifier = Modifier.width(8.dp))
               StripiSoftPillTag(text = card.category)
@@ -727,13 +704,13 @@ private fun MyCustomCardsTab(
             Spacer(modifier = Modifier.height(4.dp))
             Text(
               text = "Era: ${card.culturalEra}",
-              style = MaterialTheme.typography.labelSmall.copy(color = StripiInkMute)
+              style = StripiTypeTokens.caption.copy(color = StripiInkMute)
             )
             if (card.hints.isNotEmpty()) {
               Spacer(modifier = Modifier.height(4.dp))
               Text(
                 text = "Clues: ${card.hints.joinToString(", ")}",
-                style = MaterialTheme.typography.bodySmall.copy(color = StripiInkSecondary)
+                style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary)
               )
             }
           }
@@ -753,19 +730,16 @@ private fun MyCustomCardsTab(
   if (showNewCardDialog) {
     Dialog(onDismissRequest = { showNewCardDialog = false }) {
       Surface(
-        shape = RoundedCornerShape(16.dp),
+        shape = StripiRounded.xl,
         color = StripiCanvas
       ) {
         Column(
-          modifier = Modifier.padding(20.dp),
+          modifier = Modifier.padding(24.dp),
           verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
           Text(
             text = "Add New Mzansi Card",
-            style = MaterialTheme.typography.titleLarge.copy(
-              fontWeight = FontWeight.Light,
-              color = StripiInk
-            )
+            style = StripiTypeTokens.headingLg.copy(color = StripiInk)
           )
 
           StripiTextInput(
@@ -795,6 +769,8 @@ private fun MyCustomCardsTab(
             label = "Cultural Era",
             placeholder = "e.g. Early 2000s"
           )
+
+          Spacer(modifier = Modifier.height(4.dp))
 
           Row(
             modifier = Modifier.fillMaxWidth(),
