@@ -199,6 +199,15 @@ fun GamePlayScreen(
     }
   }
 
+  // Single shared ToneGenerator for the whole match (creating one per card leaks native
+  // audio tracks and makes sound stop working after a few rounds on real devices)
+  val toneGenerator = remember {
+    runCatching { ToneGenerator(AudioManager.STREAM_MUSIC, 75) }.getOrNull()
+  }
+  DisposableEffect(toneGenerator) {
+    onDispose { runCatching { toneGenerator?.release() } }
+  }
+
   fun triggerHapticAndSound(success: Boolean, isTierOneSkip: Boolean = false) {
     try {
       val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -219,7 +228,7 @@ fun GamePlayScreen(
 
     // Synthesize audio cue for Skip Penalty / Roast Pack or Correct chime
     try {
-      val toneGen = ToneGenerator(AudioManager.STREAM_MUSIC, 75)
+      val toneGen = toneGenerator ?: return
       if (success) {
         toneGen.startTone(ToneGenerator.TONE_PROP_ACK, 140)
       } else if (isTierOneSkip) {
