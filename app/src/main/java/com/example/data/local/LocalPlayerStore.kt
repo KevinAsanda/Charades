@@ -43,6 +43,27 @@ class LocalPlayerStore(context: Context) {
   private val _transactions = MutableStateFlow(loadTransactions())
   val transactions: StateFlow<List<PaymentTransaction>> = _transactions.asStateFlow()
 
+  private val _lastDailyClaimTimestamp = MutableStateFlow(prefs.getLong(KEY_LAST_DAILY_CLAIM, 0L))
+  val lastDailyClaimTimestamp: StateFlow<Long> = _lastDailyClaimTimestamp.asStateFlow()
+
+  fun isDailyGiftClaimable(): Boolean {
+    val lastClaim = _lastDailyClaimTimestamp.value
+    if (lastClaim <= 0L) return true
+    val lastCal = java.util.Calendar.getInstance().apply { timeInMillis = lastClaim }
+    val nowCal = java.util.Calendar.getInstance()
+    return nowCal.get(java.util.Calendar.YEAR) > lastCal.get(java.util.Calendar.YEAR) ||
+           nowCal.get(java.util.Calendar.DAY_OF_YEAR) > lastCal.get(java.util.Calendar.DAY_OF_YEAR)
+  }
+
+  fun claimDailyGift(coins: Long = 100L): Boolean {
+    if (!isDailyGiftClaimable()) return false
+    val now = System.currentTimeMillis()
+    prefs.edit().putLong(KEY_LAST_DAILY_CLAIM, now).apply()
+    _lastDailyClaimTimestamp.value = now
+    addCoins(coins)
+    return true
+  }
+
   fun signInLocalUser(
     uid: String = prefs.getString(KEY_SAVED_UID, null) ?: "mzansi_player_${UUID.randomUUID().toString().take(8)}",
     displayName: String = "Mzansi Star",
@@ -453,6 +474,7 @@ class LocalPlayerStore(context: Context) {
     private const val KEY_CARDS_JSON = "cards_json"
     private const val KEY_METHODS_JSON = "methods_json"
     private const val KEY_TX_JSON = "transactions_json"
+    private const val KEY_LAST_DAILY_CLAIM = "last_daily_claim_timestamp"
 
     @Volatile
     private var instance: LocalPlayerStore? = null

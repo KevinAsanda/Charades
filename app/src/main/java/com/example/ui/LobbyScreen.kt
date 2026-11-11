@@ -146,7 +146,7 @@ fun LobbyScreen(
   customCards: List<CustomCard>,
   onStartGame: (Deck, String, Long) -> Unit,
   onNavigateToStore: () -> Unit,
-  onNavigateToStudio: () -> Unit,
+  onNavigateToStudio: () -> Unit = {},
   onOpenPaymentSetup: () -> Unit = {}
 ) {
   val unlockedPacks = userProfile?.unlockedPacks ?: PredefinedDecks.FREE_DECK_IDS
@@ -678,14 +678,14 @@ fun LobbyScreen(
       }
     }
 
-    // 5. Minimalist Creative Studio Link Card
+    // 5. Spaza Store Card (`card-cream-band` #F5E9D4)
     item {
       StripiCreamCard(
         modifier = Modifier
           .fillMaxWidth()
           .padding(horizontal = 24.dp),
         contentPadding = PaddingValues(18.dp),
-        onClick = onNavigateToStudio
+        onClick = onNavigateToStore
       ) {
         Row(
           modifier = Modifier.fillMaxWidth(),
@@ -694,19 +694,19 @@ fun LobbyScreen(
         ) {
           Column(modifier = Modifier.weight(1f)) {
             Text(
-              text = "Custom Mzansi Decks",
+              text = "Unlock More Mzansi Decks",
               style = StripiTypeTokens.headingSm.copy(color = StripiInk)
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-              text = "Build personal cards or generate AI artwork in Studio.",
+              text = "Visit the Spaza Store for Pantsula, 2000s TV, and all-access passes.",
               style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary)
             )
           }
           Spacer(modifier = Modifier.width(12.dp))
           StripiSecondaryPillButton(
-            text = "Studio",
-            onClick = onNavigateToStudio
+            text = "Store",
+            onClick = onNavigateToStore
           )
         }
       }

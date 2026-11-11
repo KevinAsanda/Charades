@@ -30,6 +30,9 @@ class MainActivity : ComponentActivity() {
     // Configure App Check safely before UI or Firebase operations
     configureAppCheck(this, intent)
 
+    // Initialize Google Mobile Ads (AdMob)
+    com.example.util.AdMobManager.initialize(this)
+
     enableEdgeToEdge()
 
     setContent {

@@ -78,10 +78,13 @@ fun StoreScreen(
   userProfile: UserProfile?,
   savedPaymentMethods: List<PaymentMethod> = emptyList(),
   transactions: List<PaymentTransaction> = emptyList(),
+  isDailyGiftClaimable: Boolean = true,
   onAddCoins: (Long) -> Unit,
   onUnlockPack: (String, Long) -> Unit,
   onRequestZarCheckout: (CheckoutItemSpec) -> Unit = {},
-  onOpenPaymentMethodsModal: () -> Unit = {}
+  onOpenPaymentMethodsModal: () -> Unit = {},
+  onClaimDailyGift: () -> Boolean = { onAddCoins(100L); true },
+  onWatchRewardedAd: (((coinsEarned: Long) -> Unit) -> Unit)? = null
 ) {
   val userCoins = userProfile?.coins ?: 150L
   val unlockedPacks = userProfile?.unlockedPacks ?: emptyList()
@@ -497,7 +500,14 @@ fun StoreScreen(
               modifier = Modifier.testTag("watch_ad_button"),
               onClick = {
                 currentAdRewardCoins = 50L
-                isSimulatingAd = true
+                if (onWatchRewardedAd != null) {
+                  onWatchRewardedAd { earned ->
+                    onAddCoins(earned)
+                    statusMessage = "Ke a leboga! +$earned Gold Coins credited for watching."
+                  }
+                } else {
+                  isSimulatingAd = true
+                }
               }
             )
           }
@@ -523,17 +533,25 @@ fun StoreScreen(
               }
               Spacer(modifier = Modifier.height(4.dp))
               Text(
-                text = "Complimentary daily coin grant for casual players.",
+                text = if (isDailyGiftClaimable) "Complimentary daily coin grant for casual players."
+                       else "You have claimed today's gift! Resets tomorrow.",
                 style = StripiTypeTokens.bodyMd.copy(color = StripiInkMute)
               )
             }
             Spacer(modifier = Modifier.width(12.dp))
             StripiSecondaryPillButton(
-              text = "Claim Free",
+              text = if (isDailyGiftClaimable) "Claim Free" else "Claimed",
+              enabled = isDailyGiftClaimable,
               modifier = Modifier.testTag("claim_daily_button"),
               onClick = {
-                onAddCoins(100L)
-                statusMessage = "Sharp! You claimed +100 complimentary Daily Spaza coins."
+                if (isDailyGiftClaimable) {
+                  val claimed = onClaimDailyGift()
+                  if (claimed) {
+                    statusMessage = "Sharp! You claimed +100 complimentary Daily Spaza coins."
+                  } else {
+                    statusMessage = "You already claimed your free gift today! Come back tomorrow."
+                  }
+                }
               }
             )
           }

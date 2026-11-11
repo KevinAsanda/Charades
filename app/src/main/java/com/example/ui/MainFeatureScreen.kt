@@ -1,5 +1,6 @@
 package com.example.ui
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.ShoppingBag
@@ -22,6 +21,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -38,7 +38,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.local.LocalPlayerStore
 import com.example.data.model.Deck
 import com.example.data.model.StoreCatalog
-import com.example.data.repository.AiRepository
 import com.example.data.repository.CustomCardRepository
 import com.example.data.repository.GameSessionRepository
 import com.example.data.repository.PaymentRepository
@@ -50,6 +49,8 @@ import com.example.ui.theme.StripiInkMute2
 import com.example.ui.theme.StripiPrimary
 import com.example.ui.theme.StripiSubduedHover
 import com.example.ui.theme.StripiTypeTokens
+import com.example.util.AdMobManager
+import com.example.util.GooglePlayBillingManager
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.flow.catch
@@ -65,7 +66,43 @@ fun MainFeatureScreen(
   val credentialManager = remember { CredentialManager.create(context) }
 
   val localStore = remember { LocalPlayerStore.getInstance(context) }
-  val aiRepository = remember { AiRepository() }
+  val activity = context as? Activity
+
+  // Google Play Billing Manager (1-tap payments, airtime billing, zero monthly fees)
+  val billingManager = remember {
+    GooglePlayBillingManager(
+      context = context,
+      coroutineScope = coroutineScope,
+      onPurchaseCompleted = { productId, _ ->
+        coroutineScope.launch {
+          when (productId) {
+            StoreCatalog.ALL_ACCESS_PASS.id -> {
+              localStore.addCoins(StoreCatalog.ALL_ACCESS_PASS.rewardCoins)
+              StoreCatalog.EXPANSION_PACKS.forEach { pack ->
+                localStore.unlockPack(pack.id, 0L)
+              }
+              snackbarHostState.showSnackbar("Halala! All-Access Mzansi Pass unlocked via Google Play!")
+            }
+            StoreCatalog.COIN_BUNDLE_SMALL.id -> {
+              localStore.addCoins(StoreCatalog.COIN_BUNDLE_SMALL.rewardCoins)
+              snackbarHostState.showSnackbar("+300 Coins added via Google Play!")
+            }
+            StoreCatalog.COIN_BUNDLE_LARGE.id -> {
+              localStore.addCoins(StoreCatalog.COIN_BUNDLE_LARGE.rewardCoins)
+              snackbarHostState.showSnackbar("+1,000 Coins added via Google Play!")
+            }
+            else -> {
+              localStore.unlockPack(productId, 0L)
+              snackbarHostState.showSnackbar("Pack unlocked via Google Play!")
+            }
+          }
+        }
+      }
+    )
+  }
+  DisposableEffect(Unit) {
+    onDispose { billingManager.destroy() }
+  }
 
   // Lazily and safely create cloud repositories so missing google-services.json never crashes the app
   val userRepository = remember { runCatching { UserRepository(context) }.getOrNull() }
@@ -79,6 +116,8 @@ fun MainFeatureScreen(
   val localCustomCards by localStore.customCards.collectAsStateWithLifecycle()
   val localPaymentMethods by localStore.paymentMethods.collectAsStateWithLifecycle()
   val localTransactions by localStore.transactions.collectAsStateWithLifecycle()
+  val lastDailyClaim by localStore.lastDailyClaimTimestamp.collectAsStateWithLifecycle()
+  val isDailyGiftClaimable = remember(lastDailyClaim) { localStore.isDailyGiftClaimable() }
 
   // Also keep track of any remote items if Firestore is active
   var remoteSessions by remember { mutableStateOf<List<com.example.data.model.GameSession>>(emptyList()) }
@@ -178,8 +217,8 @@ fun MainFeatureScreen(
   var pendingCheckoutItem by remember { mutableStateOf<CheckoutItemSpec?>(null) }
   var isProcessingPayment by remember { mutableStateOf(false) }
 
-  // Navigation tab
-  var currentTab by remember { mutableIntStateOf(0) } // 0: Play, 1: Store, 2: AI Coach, 3: Studio, 4: Profile
+  // Navigation tab: 0 = Play, 1 = Store, 2 = Profile
+  var currentTab by remember { mutableIntStateOf(0) }
 
   if (showPaymentModal) {
     PaymentCheckoutDialog(
@@ -329,34 +368,6 @@ fun MainFeatureScreen(
             NavigationBarItem(
               selected = currentTab == 2,
               onClick = { currentTab = 2 },
-              icon = { Icon(Icons.Default.AutoAwesome, contentDescription = "AI Coach") },
-              label = { Text("AI Coach", style = StripiTypeTokens.micro) },
-              colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = StripiPrimary,
-                selectedTextColor = StripiPrimary,
-                unselectedIconColor = StripiInkMute2,
-                unselectedTextColor = StripiInkMute2,
-                indicatorColor = StripiSubduedHover.copy(alpha = 0.45f)
-              ),
-              modifier = Modifier.testTag("nav_tab_ai")
-            )
-            NavigationBarItem(
-              selected = currentTab == 3,
-              onClick = { currentTab = 3 },
-              icon = { Icon(Icons.Default.Palette, contentDescription = "Studio") },
-              label = { Text("Studio", style = StripiTypeTokens.micro) },
-              colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = StripiPrimary,
-                selectedTextColor = StripiPrimary,
-                unselectedIconColor = StripiInkMute2,
-                unselectedTextColor = StripiInkMute2,
-                indicatorColor = StripiSubduedHover.copy(alpha = 0.45f)
-              ),
-              modifier = Modifier.testTag("nav_tab_studio")
-            )
-            NavigationBarItem(
-              selected = currentTab == 4,
-              onClick = { currentTab = 4 },
               icon = { Icon(Icons.Default.Person, contentDescription = "Profile") },
               label = { Text("Profile", style = StripiTypeTokens.micro) },
               colors = NavigationBarItemDefaults.colors(
@@ -388,7 +399,6 @@ fun MainFeatureScreen(
               activeRoundDuration = duration
             },
             onNavigateToStore = { currentTab = 1 },
-            onNavigateToStudio = { currentTab = 3 },
             onOpenPaymentSetup = {
               pendingCheckoutItem = null
               showPaymentModal = true
@@ -398,6 +408,7 @@ fun MainFeatureScreen(
             userProfile = userProfile,
             savedPaymentMethods = savedPaymentMethods,
             transactions = transactions,
+            isDailyGiftClaimable = isDailyGiftClaimable,
             onAddCoins = { amount ->
               coroutineScope.launch {
                 localStore.addCoins(amount)
@@ -413,36 +424,59 @@ fun MainFeatureScreen(
               }
             },
             onRequestZarCheckout = { checkoutSpec ->
-              pendingCheckoutItem = checkoutSpec
-              showPaymentModal = true
+              val act = activity
+              if (act != null && billingManager.isConnected.value && billingManager.availableProducts.value.containsKey(checkoutSpec.itemId)) {
+                billingManager.launchPurchase(
+                  activity = act,
+                  productId = checkoutSpec.itemId,
+                  onResult = { success, msg ->
+                    if (!success && msg != null && msg != "Purchase cancelled") {
+                      snackbarHostState.showSnackbar(msg)
+                    }
+                  },
+                  onFallbackSimulation = {
+                    pendingCheckoutItem = checkoutSpec
+                    showPaymentModal = true
+                  }
+                )
+              } else {
+                pendingCheckoutItem = checkoutSpec
+                showPaymentModal = true
+              }
             },
             onOpenPaymentMethodsModal = {
               pendingCheckoutItem = null
               showPaymentModal = true
-            }
-          )
-          2 -> AiCoachScreen(
-            aiRepository = aiRepository
-          )
-          3 -> DeckStudioScreen(
-            aiRepository = aiRepository,
-            customCards = customCards,
-            onAddCard = { card ->
-              coroutineScope.launch {
-                val created = localStore.addCustomCard(card)
-                runCatching { customCardRepository?.addCustomCard(created) }
-                snackbarHostState.showSnackbar("Card '${created.term}' saved to your custom deck!")
-              }
             },
-            onDeleteCard = { cardId ->
-              coroutineScope.launch {
-                localStore.deleteCustomCard(cardId)
-                runCatching { customCardRepository?.deleteCustomCard(cardId) }
-                snackbarHostState.showSnackbar("Card deleted.")
+            onClaimDailyGift = {
+              val success = localStore.claimDailyGift(100L)
+              if (success) {
+                coroutineScope.launch {
+                  runCatching { userRepository?.addCoins(currentUserId, 100L) }
+                }
+              }
+              success
+            },
+            onWatchRewardedAd = { onRewardEarned ->
+              val act = activity
+              if (act != null) {
+                AdMobManager.showRewardedAd(
+                  activity = act,
+                  rewardCoins = 50L,
+                  onUserEarnedReward = { coins ->
+                    onRewardEarned(coins)
+                  },
+                  onAdDismissed = {},
+                  onFallback = {
+                    onRewardEarned(50L)
+                  }
+                )
+              } else {
+                onRewardEarned(50L)
               }
             }
           )
-          4 -> ProfileScreen(
+          2 -> ProfileScreen(
             userProfile = userProfile,
             gameSessions = gameSessions,
             savedPaymentMethods = savedPaymentMethods,
