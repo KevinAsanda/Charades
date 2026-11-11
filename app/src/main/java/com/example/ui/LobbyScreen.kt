@@ -33,12 +33,12 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,7 +67,6 @@ import com.example.ui.components.StripiRounded
 import com.example.ui.components.StripiSecondaryPillButton
 import com.example.ui.components.StripiSoftPillTag
 import com.example.ui.components.StripiTabularText
-import com.example.ui.components.deckIconForId
 import com.example.ui.theme.StripiBrandDark900
 import com.example.ui.theme.StripiCanvas
 import com.example.ui.theme.StripiCanvasSoft
@@ -95,7 +94,7 @@ private val BLUEPRINT_GAME_MODES = listOf(
     id = "act_it_out",
     title = "Act It Out",
     subtitle = "Silent Mime",
-    ruleSummary = "Pure physical comedy, SASL gestures, and body mime. Zero spoken words or humming allowed.",
+    ruleSummary = "Pure physical mime and body comedy. Zero spoken words or sounds.",
     defaultSeconds = 60L,
     icon = Icons.AutoMirrored.Filled.DirectionsRun
   ),
@@ -103,23 +102,23 @@ private val BLUEPRINT_GAME_MODES = listOf(
     id = "hit_the_beat",
     title = "Hit the Beat",
     subtitle = "Dance & Hum",
-    ruleSummary = "Perform Amapiano, 3-Step, Lekompo, or Bacardi choreography and hum the bassline without lyrics.",
+    ruleSummary = "Amapiano, 3-Step, or Bacardi moves. Hum the bassline, no lyrics.",
     defaultSeconds = 60L,
     icon = Icons.Default.MusicNote
   ),
   GameplayModeSpec(
     id = "mzansi_30_seconds",
-    title = "Mzansi 30-Seconds",
+    title = "30-Seconds",
     subtitle = "Verbal Blitz",
-    ruleSummary = "Rapid 30-second verbal clues! Describe the prompt without saying any of the Forbidden Root Words.",
+    ruleSummary = "Fast verbal clues! Never say the forbidden root words on the card.",
     defaultSeconds = 30L,
     icon = Icons.Default.RecordVoiceOver
   ),
   GameplayModeSpec(
     id = "my_reaction",
     title = "My Reaction",
-    subtitle = "Oct 2026 Trend",
-    ruleSummary = "Inspired by the Oct 2026 TikTok trend: point to ranks 1 to 5 in the air using ONLY facial expressions.",
+    subtitle = "Facial Ranking",
+    ruleSummary = "Point to ranks 1 to 5 in the air using only facial expressions.",
     defaultSeconds = 60L,
     icon = Icons.Default.Face
   ),
@@ -127,7 +126,7 @@ private val BLUEPRINT_GAME_MODES = listOf(
     id = "party_teams",
     title = "Party Teams",
     subtitle = "Team A vs B",
-    ruleSummary = "Two-team braai showdown with halftime switch so Team B can chase Team A's score.",
+    ruleSummary = "Head-to-head team showdown with halftime switch for Team B.",
     defaultSeconds = 60L,
     icon = Icons.Default.Group
   ),
@@ -135,7 +134,7 @@ private val BLUEPRINT_GAME_MODES = listOf(
     id = "heads_up",
     title = "Heads-Up",
     subtitle = "Forehead Tilt",
-    ruleSummary = "Hold phone upright on your forehead. Tilt forward/down for Correct, tilt back/up to Pass.",
+    ruleSummary = "Phone on forehead. Tilt down for Correct, tilt up to Pass.",
     defaultSeconds = 60L,
     icon = Icons.Default.ScreenRotation
   )
@@ -156,11 +155,7 @@ fun LobbyScreen(
   var selectedGameMode by remember { mutableStateOf("act_it_out") }
   var selectedDeckId by remember { mutableStateOf("deck_trending_apps") }
   var roundDuration by remember { mutableLongStateOf(60L) }
-
-  // Blueprint Section 1 & 9.2 Filters: Festive Groove, Era Tag, and Difficulty Tier
-  var festiveGrooveOnly by remember { mutableStateOf(false) }
-  var selectedEraFilter by remember { mutableStateOf("All Eras") }
-  var selectedTierFilter by remember { mutableIntStateOf(0) } // 0 = All, 1 = Easy, 2 = Medium, 3 = Hard
+  var selectedDeckCategory by remember { mutableStateOf("All") } // All, Free, Expansions, Festive
 
   val customDeck = remember(customCards) {
     if (customCards.isNotEmpty()) {
@@ -190,47 +185,40 @@ fun LobbyScreen(
     if (customDeck != null) listOf(customDeck) + base else base
   }
 
-  val baseSelectedDeck = allDecks.find { it.id == selectedDeckId } ?: PredefinedDecks.CORE_TRENDING_APPS
-  val isSelectedReady = baseSelectedDeck.isFreeTier || unlockedPacks.contains(baseSelectedDeck.id)
-
-  // Apply Era, Difficulty Tier, and Festive Groove filters dynamically; fallback to full deck if filter combination is empty
-  val activeFilteredDeck = remember(baseSelectedDeck, festiveGrooveOnly, selectedEraFilter, selectedTierFilter) {
-    val filteredCards = baseSelectedDeck.cards.filter { card ->
-      val matchesFestive = !festiveGrooveOnly || card.isFestiveGroove
-      val matchesEra = selectedEraFilter == "All Eras" || card.eraTag == selectedEraFilter
-      val matchesTier = selectedTierFilter == 0 || card.difficultyTier == selectedTierFilter
-      matchesFestive && matchesEra && matchesTier
-    }
-    if (filteredCards.isNotEmpty()) {
-      baseSelectedDeck.copy(cards = filteredCards)
-    } else {
-      baseSelectedDeck
+  val displayedDecks = remember(allDecks, selectedDeckCategory) {
+    when (selectedDeckCategory) {
+      "Free" -> allDecks.filter { it.isFreeTier && it.id != "deck_festive_groove" }
+      "Expansions" -> allDecks.filter { !it.isFreeTier }
+      "Festive" -> allDecks.filter { it.id == "deck_festive_groove" }
+      else -> allDecks
     }
   }
 
+  val activeDeck = allDecks.find { it.id == selectedDeckId } ?: PredefinedDecks.CORE_TRENDING_APPS
+  val isSelectedReady = activeDeck.isFreeTier || unlockedPacks.contains(activeDeck.id)
   val activeModeSpec = BLUEPRINT_GAME_MODES.find { it.id == selectedGameMode } ?: BLUEPRINT_GAME_MODES.first()
 
   LazyColumn(
     modifier = Modifier
       .fillMaxSize()
       .background(StripiCanvas),
-    contentPadding = PaddingValues(bottom = 96.dp),
+    contentPadding = PaddingValues(bottom = 100.dp),
     verticalArrangement = Arrangement.spacedBy(20.dp)
   ) {
-    // 1. Stripi Gradient Mesh Hero Header (`nav-bar-on-mesh` + Hero + Featured Dark Deck Console)
+    // 1. Clean Atmospheric Hero Section
     item {
       StripiGradientMeshHero(
-        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 28.dp)
+        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 24.dp)
       ) {
-        // Top Nav Bar on Mesh (`nav-bar-on-mesh`)
+        // Minimalist Top Utility Bar
         Row(
           modifier = Modifier.fillMaxWidth(),
           horizontalArrangement = Arrangement.SpaceBetween,
           verticalAlignment = Alignment.CenterVertically
         ) {
-          StripiSoftPillTag(text = "2000-2026 Mzansi Edition")
+          StripiSoftPillTag(text = "Mzansi Charades")
 
-          // Coin Balance & Payment Pill (`tnum` tabular figures)
+          // Wallet & Billing Pill
           Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -244,19 +232,19 @@ fun LobbyScreen(
                 .testTag("lobby_payment_methods_pill")
             ) {
               Row(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                 verticalAlignment = Alignment.CenterVertically
               ) {
                 Icon(
                   imageVector = Icons.Default.CreditCard,
                   contentDescription = "Payment Methods",
                   tint = StripiPrimary,
-                  modifier = Modifier.size(14.dp)
+                  modifier = Modifier.size(13.dp)
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                  text = "ZAR Pay",
-                  style = StripiTypeTokens.caption.copy(color = StripiInk)
+                  text = "ZAR",
+                  style = StripiTypeTokens.caption.copy(color = StripiInk, fontWeight = FontWeight.Medium)
                 )
               }
             }
@@ -267,21 +255,21 @@ fun LobbyScreen(
               modifier = Modifier.clickable { onNavigateToStore() }
             ) {
               Row(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                 verticalAlignment = Alignment.CenterVertically
               ) {
                 Icon(
                   imageVector = Icons.Default.MonetizationOn,
                   contentDescription = "Coins",
                   tint = StripiSubduedHover,
-                  modifier = Modifier.size(15.dp)
+                  modifier = Modifier.size(14.dp)
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(5.dp))
                 StripiTabularText(
                   text = "$userCoins",
                   color = StripiOnPrimary,
-                  fontSize = 14,
-                  fontWeight = FontWeight.Normal
+                  fontSize = 13,
+                  fontWeight = FontWeight.Medium
                 )
               }
             }
@@ -295,80 +283,71 @@ fun LobbyScreen(
           style = StripiTypeTokens.displayLg.copy(color = StripiInk)
         )
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-          text = "Act It Out, Hit the Beat, Mzansi 30-Seconds, or rank with My Reaction across 2000-2026 SA culture.",
+          text = "Select a deck, choose your party mode, and start acting.",
           style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary)
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
-        // Featured Dark Active Deck Console (`card-pricing-featured` #1C1E54)
+        // Featured Active Deck Showcase Card
         StripiFeaturedDarkCard(
           modifier = Modifier.fillMaxWidth(),
-          contentPadding = PaddingValues(24.dp)
+          contentPadding = PaddingValues(20.dp)
         ) {
           Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
+            verticalAlignment = Alignment.CenterVertically
           ) {
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              modifier = Modifier.weight(1f)
-            ) {
-              Box(
-                modifier = Modifier
-                  .size(40.dp)
-                  .clip(StripiRounded.md)
-                  .background(StripiOnPrimary.copy(alpha = 0.10f)),
-                contentAlignment = Alignment.Center
+            StripiDeckIconBadge(
+              deckId = activeDeck.id,
+              isSelected = true,
+              modifier = Modifier.size(46.dp)
+            )
+
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+              Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
               ) {
-                Icon(
-                  imageVector = deckIconForId(activeFilteredDeck.id),
-                  contentDescription = null,
-                  tint = StripiSubduedHover,
-                  modifier = Modifier.size(20.dp)
-                )
-              }
-              Spacer(modifier = Modifier.width(12.dp))
-              Column {
                 Text(
-                  text = activeFilteredDeck.name,
-                  style = StripiTypeTokens.headingLg.copy(color = StripiOnPrimary)
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                StripiTabularText(
-                  text = "${activeFilteredDeck.cards.size} cards · ${roundDuration}s round",
-                  color = StripiSubduedHover,
-                  fontSize = 14
+                  text = activeDeck.name,
+                  style = StripiTypeTokens.headingMd.copy(color = StripiOnPrimary),
+                  maxLines = 1
                 )
               }
+              Spacer(modifier = Modifier.height(3.dp))
+              Text(
+                text = "${activeDeck.cards.size} cards · ${activeModeSpec.title} (${roundDuration}s)",
+                style = StripiTypeTokens.caption.copy(color = StripiSubduedHover)
+              )
             }
 
-            Spacer(modifier = Modifier.width(8.dp))
-
             StripiSoftPillTag(
-              text = activeModeSpec.title,
-              containerColor = StripiSubduedHover,
-              contentColor = StripiBrandDark900
+              text = if (isSelectedReady) "Ready" else "Locked",
+              containerColor = if (isSelectedReady) StripiPrimary else StripiSubduedHover,
+              contentColor = if (isSelectedReady) StripiOnPrimary else StripiBrandDark900
             )
           }
 
-          Spacer(modifier = Modifier.height(10.dp))
+          Spacer(modifier = Modifier.height(12.dp))
 
           Text(
             text = activeModeSpec.ruleSummary,
-            style = StripiTypeTokens.caption.copy(color = StripiOnPrimary.copy(alpha = 0.82f))
+            style = StripiTypeTokens.caption.copy(color = StripiOnPrimary.copy(alpha = 0.78f))
           )
 
-          Spacer(modifier = Modifier.height(18.dp))
+          Spacer(modifier = Modifier.height(16.dp))
 
           StripiPrimaryPillButton(
             text = if (isSelectedReady) "Start ${activeModeSpec.title}" else "Unlock in Store",
             modifier = Modifier
               .fillMaxWidth()
+              .height(48.dp)
               .testTag("start_match_button"),
             leadingIcon = {
               Icon(
@@ -388,7 +367,7 @@ fun LobbyScreen(
             },
             onClick = {
               if (isSelectedReady) {
-                onStartGame(activeFilteredDeck, selectedGameMode, roundDuration)
+                onStartGame(activeDeck, selectedGameMode, roundDuration)
               } else {
                 onNavigateToStore()
               }
@@ -398,7 +377,7 @@ fun LobbyScreen(
       }
     }
 
-    // 2. Gameplay Mode Grid (4 Blueprint Modes + Party Teams + Heads-Up)
+    // 2. Intentional Game Modes Section
     item {
       Column(
         modifier = Modifier
@@ -412,106 +391,99 @@ fun LobbyScreen(
           verticalAlignment = Alignment.CenterVertically
         ) {
           Text(
-            text = "Gameplay Mode",
+            text = "Game Mode",
             style = StripiTypeTokens.headingMd.copy(color = StripiInk)
           )
-          StripiSoftPillTag(text = "4 New Modes")
-        }
 
-        // Row 1: Act It Out, Hit the Beat, Mzansi 30-Seconds
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-          BLUEPRINT_GAME_MODES.take(3).forEach { mode ->
-            ModeCard(
-              title = mode.title,
-              subtitle = mode.subtitle,
-              icon = mode.icon,
-              isSelected = selectedGameMode == mode.id,
-              modifier = Modifier
-                .weight(1f)
-                .testTag("mode_card_${mode.id}"),
-              onClick = {
-                selectedGameMode = mode.id
-                roundDuration = mode.defaultSeconds
-              }
-            )
-          }
-        }
-
-        // Row 2: My Reaction (Oct 2026 Trend), Party Teams, Heads-Up
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-          BLUEPRINT_GAME_MODES.drop(3).forEach { mode ->
-            ModeCard(
-              title = mode.title,
-              subtitle = mode.subtitle,
-              icon = mode.icon,
-              isSelected = selectedGameMode == mode.id,
-              modifier = Modifier
-                .weight(1f)
-                .testTag("mode_card_${mode.id}"),
-              onClick = {
-                selectedGameMode = mode.id
-                roundDuration = mode.defaultSeconds
-              }
-            )
-          }
-        }
-
-        // Round Duration Selector on `canvas-soft` (Includes 30s for Mzansi 30-Seconds!)
-        StripiFeatureCardLight(
-          modifier = Modifier.fillMaxWidth(),
-          backgroundColor = StripiCanvasSoft,
-          contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp)
-        ) {
+          // Sleek Round Duration Selector
           Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
           ) {
-            Column {
-              Text(
-                text = "Round Clock",
-                style = StripiTypeTokens.headingSm.copy(color = StripiInk)
-              )
-              Text(
-                text = if (selectedGameMode == "mzansi_30_seconds") "30s rapid verbal blitz" else "Tabular countdown",
-                style = StripiTypeTokens.caption.copy(color = StripiInkMute)
-              )
-            }
-
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-              listOf(30L, 60L, 90L, 120L).forEach { seconds ->
-                val isSelected = roundDuration == seconds
-                Surface(
-                  shape = StripiRounded.pill,
-                  color = if (isSelected) StripiPrimary else StripiCanvas,
-                  border = BorderStroke(
-                    1.dp,
-                    if (isSelected) StripiPrimary else StripiHairline
+            Icon(
+              imageVector = Icons.Default.Timer,
+              contentDescription = null,
+              tint = StripiInkMute,
+              modifier = Modifier.size(14.dp)
+            )
+            listOf(30L, 60L, 90L).forEach { secs ->
+              val isSecSelected = roundDuration == secs
+              Surface(
+                shape = StripiRounded.pill,
+                color = if (isSecSelected) StripiBrandDark900 else StripiCanvasSoft,
+                modifier = Modifier.clickable { roundDuration = secs }
+              ) {
+                Text(
+                  text = "${secs}s",
+                  style = StripiTypeTokens.micro.copy(
+                    color = if (isSecSelected) StripiOnPrimary else StripiInkMute,
+                    fontWeight = if (isSecSelected) FontWeight.Medium else FontWeight.Normal
                   ),
-                  modifier = Modifier.clickable { roundDuration = seconds }
-                ) {
-                  StripiTabularText(
-                    text = "${seconds}s",
-                    color = if (isSelected) StripiOnPrimary else StripiInk,
-                    fontSize = 13,
-                    fontWeight = FontWeight.Normal,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                  )
-                }
+                  modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
               }
+            }
+          }
+        }
+
+        // Horizontal Mode Carousel: Spacious, clean cards that never squish text
+        Row(
+          modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+          horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+          BLUEPRINT_GAME_MODES.forEach { mode ->
+            val isSelected = selectedGameMode == mode.id
+            StripiFeatureCardLight(
+              modifier = Modifier
+                .width(132.dp)
+                .testTag("mode_card_${mode.id}"),
+              borderColor = if (isSelected) StripiPrimary else StripiHairline,
+              borderWidth = if (isSelected) 1.5.dp else 1.dp,
+              backgroundColor = if (isSelected) StripiSubduedHover.copy(alpha = 0.20f) else StripiCanvas,
+              contentPadding = PaddingValues(12.dp),
+              onClick = {
+                selectedGameMode = mode.id
+                roundDuration = mode.defaultSeconds
+              }
+            ) {
+              Box(
+                modifier = Modifier
+                  .size(34.dp)
+                  .clip(StripiRounded.sm)
+                  .background(if (isSelected) StripiPrimary else StripiCanvasSoft),
+                contentAlignment = Alignment.Center
+              ) {
+                Icon(
+                  imageVector = mode.icon,
+                  contentDescription = null,
+                  tint = if (isSelected) StripiOnPrimary else StripiInk,
+                  modifier = Modifier.size(18.dp)
+                )
+              }
+              Spacer(modifier = Modifier.height(10.dp))
+              Text(
+                text = mode.title,
+                style = StripiTypeTokens.bodyMd.copy(
+                  color = if (isSelected) StripiPrimary else StripiInk,
+                  fontWeight = FontWeight.Medium
+                ),
+                maxLines = 1
+              )
+              Spacer(modifier = Modifier.height(2.dp))
+              Text(
+                text = mode.subtitle,
+                style = StripiTypeTokens.caption.copy(color = StripiInkMute),
+                maxLines = 1
+              )
             }
           }
         }
       }
     }
 
-    // 3. Blueprint Cultural Filters: Festive Groove, Era Tags & Difficulty Tiers (Section 1 & 9.2)
+    // 3. Clean Deck Category Navigation
     item {
       Column(
         modifier = Modifier
@@ -525,127 +497,69 @@ fun LobbyScreen(
           verticalAlignment = Alignment.CenterVertically
         ) {
           Text(
-            text = "Era, Tier & Groove Filters",
-            style = StripiTypeTokens.headingSm.copy(color = StripiInk)
+            text = "Mzansi Decks",
+            style = StripiTypeTokens.headingMd.copy(color = StripiInk)
           )
+          StripiTabularText(
+            text = "${displayedDecks.size} available",
+            color = StripiInkMute,
+            fontSize = 13
+          )
+        }
 
-          Surface(
-            shape = StripiRounded.pill,
-            color = if (festiveGrooveOnly) StripiPrimary else StripiCanvasSoft,
-            border = BorderStroke(1.dp, if (festiveGrooveOnly) StripiPrimary else StripiHairline),
-            modifier = Modifier
-              .clickable { festiveGrooveOnly = !festiveGrooveOnly }
-              .testTag("festive_groove_filter_chip")
-          ) {
-            Row(
-              modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-              verticalAlignment = Alignment.CenterVertically
-            ) {
-              Icon(
-                imageVector = Icons.Default.Celebration,
-                contentDescription = null,
-                tint = if (festiveGrooveOnly) StripiOnPrimary else StripiPrimary,
-                modifier = Modifier.size(14.dp)
-              )
-              Spacer(modifier = Modifier.width(6.dp))
-              Text(
-                text = if (festiveGrooveOnly) "Festive Groove: ON" else "Festive Groove Filter",
-                style = StripiTypeTokens.caption.copy(
-                  color = if (festiveGrooveOnly) StripiOnPrimary else StripiInk
+        // Clean Segmented Category Tabs
+        Row(
+          modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+          horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+          listOf("All", "Free", "Expansions", "Festive").forEach { cat ->
+            val isCatSelected = selectedDeckCategory == cat
+            Surface(
+              shape = StripiRounded.pill,
+              color = if (isCatSelected) StripiBrandDark900 else StripiCanvasSoft,
+              border = BorderStroke(1.dp, if (isCatSelected) StripiBrandDark900 else StripiHairline),
+              modifier = Modifier
+                .clickable { selectedDeckCategory = cat }
+                .then(
+                  if (cat == "Festive") Modifier.testTag("festive_groove_filter_chip") else Modifier
                 )
-              )
-            }
-          }
-        }
-
-        // Era Tag Horizontal Filter Bar
-        Row(
-          modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
-          horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-          listOf(
-            "All Eras",
-            "2025-2026 Current",
-            "2021-2024 Piano Boom",
-            "2020 Lockdown",
-            "2000s-2010s Heritage"
-          ).forEach { era ->
-            val isSelected = selectedEraFilter == era
-            Surface(
-              shape = StripiRounded.pill,
-              color = if (isSelected) StripiBrandDark900 else StripiCanvas,
-              border = BorderStroke(1.dp, if (isSelected) StripiBrandDark900 else StripiHairline),
-              modifier = Modifier.clickable { selectedEraFilter = era }
             ) {
-              Text(
-                text = era,
-                style = StripiTypeTokens.caption.copy(
-                  color = if (isSelected) StripiOnPrimary else StripiInkSecondary
-                ),
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-              )
-            }
-          }
-        }
-
-        // Difficulty Tier Filter Bar (Tier 1 Easy, Tier 2 Medium, Tier 3 Hard)
-        Row(
-          modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
-          horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-          listOf(
-            0 to "All Tiers",
-            1 to "Tier 1: Universal Mzansi",
-            2 to "Tier 2: Timeline Regulars",
-            3 to "Tier 3: Chronically Online"
-          ).forEach { (tierCode, label) ->
-            val isSelected = selectedTierFilter == tierCode
-            Surface(
-              shape = StripiRounded.pill,
-              color = if (isSelected) StripiSubduedHover.copy(alpha = 0.45f) else StripiCanvas,
-              border = BorderStroke(1.dp, if (isSelected) StripiPrimary else StripiHairline),
-              modifier = Modifier.clickable { selectedTierFilter = tierCode }
-            ) {
-              Text(
-                text = label,
-                style = StripiTypeTokens.caption.copy(
-                  color = if (isSelected) StripiPrimaryDeep else StripiInkSecondary
-                ),
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-              )
+              Row(
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+              ) {
+                if (cat == "Festive") {
+                  Icon(
+                    imageVector = Icons.Default.Celebration,
+                    contentDescription = null,
+                    tint = if (isCatSelected) StripiOnPrimary else StripiPrimary,
+                    modifier = Modifier.size(13.dp)
+                  )
+                  Spacer(modifier = Modifier.width(4.dp))
+                }
+                Text(
+                  text = when (cat) {
+                    "Free" -> "Free Core"
+                    "Expansions" -> "Expansions"
+                    "Festive" -> "Dezemba Groove"
+                    else -> "All Decks"
+                  },
+                  style = StripiTypeTokens.caption.copy(
+                    color = if (isCatSelected) StripiOnPrimary else StripiInkSecondary,
+                    fontWeight = if (isCatSelected) FontWeight.Medium else FontWeight.Normal
+                  )
+                )
+              }
             }
           }
         }
       }
     }
 
-    // 4. Deck Catalog Section Header
-    item {
-      Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(horizontal = 24.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-      ) {
-        Text(
-          text = "Mzansi Cultural Decks (2000-2026)",
-          style = StripiTypeTokens.headingMd.copy(color = StripiInk)
-        )
-        StripiTabularText(
-          text = "${allDecks.size} Decks",
-          color = StripiInkMute,
-          fontSize = 14
-        )
-      }
-    }
-
-    // 5. Deck Cards List (Vector Icons instead of raw emojis)
-    items(allDecks) { deckItem ->
+    // 4. Polished Deck Cards List
+    items(displayedDecks) { deckItem ->
       val isUnlocked = deckItem.isFreeTier || unlockedPacks.contains(deckItem.id)
       val isSelected = selectedDeckId == deckItem.id
 
@@ -655,8 +569,8 @@ fun LobbyScreen(
           .padding(horizontal = 24.dp),
         borderColor = if (isSelected) StripiPrimary else StripiHairline,
         borderWidth = if (isSelected) 1.5.dp else 1.dp,
-        backgroundColor = if (isSelected) StripiCanvasSoft else StripiCanvas,
-        contentPadding = PaddingValues(20.dp),
+        backgroundColor = if (isSelected) StripiSubduedHover.copy(alpha = 0.16f) else StripiCanvas,
+        contentPadding = PaddingValues(16.dp),
         onClick = {
           if (isUnlocked) {
             selectedDeckId = deckItem.id
@@ -667,90 +581,96 @@ fun LobbyScreen(
       ) {
         Row(
           modifier = Modifier.fillMaxWidth(),
-          verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.SpaceBetween
+          verticalAlignment = Alignment.CenterVertically
         ) {
-          Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.weight(1f)
-          ) {
-            StripiDeckIconBadge(
-              deckId = deckItem.id,
-              isSelected = isSelected
+          StripiDeckIconBadge(
+            deckId = deckItem.id,
+            isSelected = isSelected,
+            modifier = Modifier.size(42.dp)
+          )
+
+          Spacer(modifier = Modifier.width(14.dp))
+
+          Column(modifier = Modifier.weight(1f)) {
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+              Text(
+                text = deckItem.name,
+                style = StripiTypeTokens.bodyLg.copy(
+                  color = if (isSelected) StripiPrimary else StripiInk,
+                  fontWeight = FontWeight.Medium
+                ),
+                maxLines = 1
+              )
+            }
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+              text = deckItem.tagLine,
+              style = StripiTypeTokens.caption.copy(color = StripiInkMute),
+              maxLines = 1
             )
 
-            Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-            Column {
-              Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                  text = deckItem.name,
-                  style = StripiTypeTokens.headingSm.copy(
-                    color = if (isSelected) StripiPrimary else StripiInk
-                  )
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                if (deckItem.isFreeTier) {
-                  StripiSoftPillTag(text = "Free")
-                } else if (isUnlocked) {
-                  StripiSoftPillTag(
-                    text = "Owned",
-                    containerColor = StripiSubduedHover,
-                    contentColor = StripiPrimaryDeep
-                  )
-                }
-              }
-
-              Spacer(modifier = Modifier.height(4.dp))
-
-              Text(
-                text = deckItem.tagLine,
-                style = StripiTypeTokens.bodyMd.copy(color = StripiInkMute)
-              )
-
-              Spacer(modifier = Modifier.height(6.dp))
-
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
               StripiTabularText(
                 text = "${deckItem.cards.size} cards",
                 color = StripiInkSecondary,
-                fontSize = 14
+                fontSize = 12
               )
+              if (deckItem.isFreeTier) {
+                StripiSoftPillTag(text = "Included")
+              } else if (isUnlocked) {
+                StripiSoftPillTag(
+                  text = "Owned",
+                  containerColor = StripiSubduedHover,
+                  contentColor = StripiPrimaryDeep
+                )
+              }
             }
           }
 
           if (!isUnlocked) {
-            Column(
-              horizontalAlignment = Alignment.End,
-              modifier = Modifier.padding(start = 10.dp)
+            Surface(
+              shape = StripiRounded.pill,
+              color = StripiCanvasSoft,
+              border = BorderStroke(1.dp, StripiHairline)
             ) {
-              Surface(
-                shape = StripiRounded.pill,
-                color = StripiBrandDark900
+              Row(
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
               ) {
-                Row(
-                  modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                  verticalAlignment = Alignment.CenterVertically
-                ) {
-                  Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = null,
-                    tint = StripiSubduedHover,
-                    modifier = Modifier.size(12.dp)
-                  )
-                  Spacer(modifier = Modifier.width(4.dp))
-                  StripiTabularText(
-                    text = StoreCatalog.formattedZarForDeck(deckItem),
-                    color = StripiOnPrimary,
-                    fontSize = 13,
-                    fontWeight = FontWeight.Normal
-                  )
-                }
+                Icon(
+                  imageVector = Icons.Default.Lock,
+                  contentDescription = null,
+                  tint = StripiInkMute,
+                  modifier = Modifier.size(11.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                StripiTabularText(
+                  text = StoreCatalog.formattedZarForDeck(deckItem),
+                  color = StripiInk,
+                  fontSize = 12,
+                  fontWeight = FontWeight.Medium
+                )
               }
-              Spacer(modifier = Modifier.height(4.dp))
-              StripiTabularText(
-                text = "${deckItem.priceCoins} coins",
-                color = StripiInkMute,
-                fontSize = 12
+            }
+          } else if (isSelected) {
+            Surface(
+              shape = StripiRounded.pill,
+              color = StripiPrimary
+            ) {
+              Text(
+                text = "Selected",
+                style = StripiTypeTokens.micro.copy(color = StripiOnPrimary, fontWeight = FontWeight.Medium),
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
               )
             }
           }
@@ -758,13 +678,13 @@ fun LobbyScreen(
       }
     }
 
-    // 6. Warm Cream Band Callout (`card-cream-band` #F5E9D4)
+    // 5. Minimalist Creative Studio Link Card
     item {
       StripiCreamCard(
         modifier = Modifier
           .fillMaxWidth()
           .padding(horizontal = 24.dp),
-        contentPadding = PaddingValues(24.dp),
+        contentPadding = PaddingValues(18.dp),
         onClick = onNavigateToStudio
       ) {
         Row(
@@ -774,61 +694,22 @@ fun LobbyScreen(
         ) {
           Column(modifier = Modifier.weight(1f)) {
             Text(
-              text = "Craft your own Mzansi deck",
-              style = StripiTypeTokens.headingMd.copy(color = StripiInk)
+              text = "Custom Mzansi Decks",
+              style = StripiTypeTokens.headingSm.copy(color = StripiInk)
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
-              text = "Generate custom cards and 1K, 2K, or 4K card art in Studio.",
+              text = "Build personal cards or generate AI artwork in Studio.",
               style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary)
             )
           }
           Spacer(modifier = Modifier.width(12.dp))
           StripiSecondaryPillButton(
-            text = "Open Studio",
+            text = "Studio",
             onClick = onNavigateToStudio
           )
         }
       }
     }
-  }
-}
-
-@Composable
-private fun ModeCard(
-  title: String,
-  subtitle: String,
-  icon: ImageVector,
-  isSelected: Boolean,
-  modifier: Modifier = Modifier,
-  onClick: () -> Unit
-) {
-  StripiFeatureCardLight(
-    modifier = modifier,
-    borderColor = if (isSelected) StripiPrimary else StripiHairline,
-    borderWidth = if (isSelected) 1.5.dp else 1.dp,
-    backgroundColor = if (isSelected) StripiSubduedHover.copy(alpha = 0.22f) else StripiCanvas,
-    contentPadding = PaddingValues(14.dp),
-    onClick = onClick
-  ) {
-    Icon(
-      imageVector = icon,
-      contentDescription = null,
-      tint = if (isSelected) StripiPrimary else StripiInkMute,
-      modifier = Modifier.size(20.dp)
-    )
-    Spacer(modifier = Modifier.height(10.dp))
-    Text(
-      text = title,
-      style = StripiTypeTokens.headingSm.copy(
-        color = if (isSelected) StripiPrimary else StripiInk,
-        fontSize = 15.sp
-      )
-    )
-    Spacer(modifier = Modifier.height(2.dp))
-    Text(
-      text = subtitle,
-      style = StripiTypeTokens.micro.copy(color = StripiInkMute)
-    )
   }
 }

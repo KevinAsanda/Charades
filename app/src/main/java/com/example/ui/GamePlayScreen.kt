@@ -22,6 +22,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -83,6 +84,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -851,20 +853,29 @@ fun GamePlayScreen(
               )
             }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-              Icon(
-                imageVector = Icons.Default.Timer,
-                contentDescription = null,
-                tint = StripiOnPrimary.copy(alpha = 0.85f),
-                modifier = Modifier.size(18.dp)
-              )
-              Spacer(modifier = Modifier.width(6.dp))
-              StripiTabularText(
-                text = "${timeLeft}s",
-                color = if (timeLeft <= 10) StripiSubduedHover else StripiOnPrimary,
-                fontSize = 22,
-                fontWeight = FontWeight.Normal
-              )
+            Surface(
+              shape = StripiRounded.pill,
+              color = if (timeLeft <= 10) StripiRuby.copy(alpha = 0.28f) else StripiOnPrimary.copy(alpha = 0.12f),
+              border = BorderStroke(1.dp, if (timeLeft <= 10) StripiRuby else StripiOnPrimary.copy(alpha = 0.2f))
+            ) {
+              Row(
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+              ) {
+                Icon(
+                  imageVector = Icons.Default.Timer,
+                  contentDescription = null,
+                  tint = if (timeLeft <= 10) StripiRuby else StripiOnPrimary,
+                  modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                StripiTabularText(
+                  text = "${timeLeft}s",
+                  color = if (timeLeft <= 10) StripiRuby else StripiOnPrimary,
+                  fontSize = 18,
+                  fontWeight = FontWeight.Medium
+                )
+              }
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -887,7 +898,7 @@ fun GamePlayScreen(
             }
           }
 
-          // Giant prompt stage (or instant Correct / Skip Roast Penalty feedback)
+          // Center Prompt Stage (Hero word dominates the screen with clean breathing room)
           Box(
             modifier = Modifier
               .weight(1f)
@@ -916,138 +927,200 @@ fun GamePlayScreen(
             } else {
               Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.verticalScroll(rememberScrollState())
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.Center
               ) {
-                // Era Tag + Difficulty Tier + Category Badges
+                // Category & Tier Badges
                 Row(
                   horizontalArrangement = Arrangement.spacedBy(8.dp),
                   verticalAlignment = Alignment.CenterVertically
                 ) {
-                  StripiSoftPillTag(
-                    text = currentCard?.category.orEmpty(),
-                    containerColor = StripiPrimary,
-                    contentColor = StripiOnPrimary
-                  )
-                  if (currentCard != null) {
-                    StripiSoftPillTag(
-                      text = currentCard.tierLabel(),
-                      containerColor = StripiOnPrimary.copy(alpha = 0.16f),
-                      contentColor = StripiSubduedHover
+                  Surface(
+                    shape = StripiRounded.pill,
+                    color = StripiPrimary
+                  ) {
+                    Text(
+                      text = currentCard?.category.orEmpty().uppercase(),
+                      style = StripiTypeTokens.microCap.copy(color = StripiOnPrimary),
+                      modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp)
                     )
+                  }
+                  if (currentCard != null) {
+                    Surface(
+                      shape = StripiRounded.pill,
+                      color = StripiOnPrimary.copy(alpha = 0.16f)
+                    ) {
+                      Text(
+                        text = currentCard.tierLabel(),
+                        style = StripiTypeTokens.microCap.copy(color = StripiSubduedHover),
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                      )
+                    }
                   }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
+                // Hero Prompt Word with responsive font size based on length
+                val term = currentCard?.term.orEmpty()
+                val termFontSize = when {
+                  term.length > 28 -> 32.sp
+                  term.length > 16 -> 40.sp
+                  else -> 50.sp
+                }
                 Text(
-                  text = currentCard?.term.orEmpty(),
-                  style = StripiTypeTokens.displayXxl.copy(color = StripiOnPrimary),
-                  textAlign = TextAlign.Center
+                  text = term,
+                  style = StripiTypeTokens.displayXxl.copy(
+                    fontSize = termFontSize,
+                    lineHeight = termFontSize * 1.15f,
+                    color = StripiOnPrimary
+                  ),
+                  textAlign = TextAlign.Center,
+                  modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
                 )
 
                 if (!currentCard?.culturalTrivia.isNullOrBlank()) {
                   Spacer(modifier = Modifier.height(12.dp))
                   Text(
                     text = currentCard?.culturalTrivia.orEmpty(),
-                    style = StripiTypeTokens.bodyMd.copy(
+                    style = StripiTypeTokens.caption.copy(
                       color = StripiSubduedHover.copy(alpha = 0.85f)
                     ),
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 12.dp)
+                    maxLines = 2,
+                    modifier = Modifier.padding(horizontal = 20.dp)
                   )
                 }
 
-                // Mode-Specific Stage Helper:
-                // 1) Mzansi 30-Seconds: Forbidden Root Words Banner
+                // 1) Mzansi 30-Seconds: Forbidden Root Words Capsule (Clean chips, no harsh block)
                 if (gameMode == "mzansi_30_seconds" && currentCard != null) {
-                  Spacer(modifier = Modifier.height(16.dp))
-                  Column(
-                    modifier = Modifier
-                      .fillMaxWidth()
-                      .clip(StripiRounded.md)
-                      .background(StripiRuby.copy(alpha = 0.24f))
-                      .border(1.dp, StripiRuby, StripiRounded.md)
-                      .padding(12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                  Spacer(modifier = Modifier.height(18.dp))
+                  Surface(
+                    shape = StripiRounded.lg,
+                    color = StripiCanvas.copy(alpha = 0.08f),
+                    border = BorderStroke(1.dp, StripiRuby.copy(alpha = 0.45f)),
+                    modifier = Modifier.padding(horizontal = 8.dp)
                   ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                      Icon(
-                        imageVector = Icons.Default.Block,
-                        contentDescription = null,
-                        tint = StripiOnPrimary,
-                        modifier = Modifier.size(14.dp)
-                      )
-                      Spacer(modifier = Modifier.width(6.dp))
-                      Text(
-                        text = "FORBIDDEN ROOT WORDS (DO NOT SAY):",
-                        style = StripiTypeTokens.microCap.copy(color = StripiOnPrimary)
-                      )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                      text = currentCard.effectiveForbiddenWords().joinToString(" · "),
-                      style = StripiTypeTokens.headingSm.copy(color = StripiOnPrimary),
-                      textAlign = TextAlign.Center
-                    )
-                  }
-                }
-
-                // 2) My Reaction (Oct 2026 TikTok Trend): 1-to-5 Facial Expression Ranking Bar
-                if (gameMode == "my_reaction") {
-                  Spacer(modifier = Modifier.height(16.dp))
-                  Column(
-                    modifier = Modifier
-                      .fillMaxWidth()
-                      .clip(StripiRounded.md)
-                      .background(StripiOnPrimary.copy(alpha = 0.10f))
-                      .padding(12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                  ) {
-                    Text(
-                      text = "OCT 2026 TREND: POINT TO RANK 1-5 WITH YOUR FACE ONLY",
-                      style = StripiTypeTokens.microCap.copy(color = StripiSubduedHover)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(
-                      modifier = Modifier.fillMaxWidth(),
-                      horizontalArrangement = Arrangement.SpaceEvenly
+                    Column(
+                      modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                      horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                      listOf(
-                        1 to "1: Eish",
-                        2 to "2: Meh",
-                        3 to "3: Sharp",
-                        4 to "4: Vibe",
-                        5 to "5: Lit"
-                      ).forEach { (rank, label) ->
-                        val isRankSelected = selectedReactionRank == rank
-                        Surface(
-                          shape = StripiRounded.pill,
-                          color = if (isRankSelected) StripiPrimary else StripiBrandDark900,
-                          border = BorderStroke(
-                            1.dp,
-                            if (isRankSelected) StripiSubduedHover else StripiOnPrimary.copy(alpha = 0.25f)
-                          ),
-                          modifier = Modifier.clickable { selectedReactionRank = rank }
-                        ) {
-                          Text(
-                            text = label,
-                            style = StripiTypeTokens.caption.copy(color = StripiOnPrimary),
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                          )
+                      Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                          modifier = Modifier
+                            .size(6.dp)
+                            .clip(CircleShape)
+                            .background(StripiRuby)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                          text = "FORBIDDEN WORDS (DO NOT SAY)",
+                          style = StripiTypeTokens.microCap.copy(color = StripiRuby, letterSpacing = 0.5.sp)
+                        )
+                      }
+                      Spacer(modifier = Modifier.height(8.dp))
+                      Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.horizontalScroll(rememberScrollState())
+                      ) {
+                        currentCard.effectiveForbiddenWords().forEach { word ->
+                          Surface(
+                            shape = StripiRounded.pill,
+                            color = StripiRuby.copy(alpha = 0.18f),
+                            border = BorderStroke(1.dp, StripiRuby.copy(alpha = 0.35f))
+                          ) {
+                            Text(
+                              text = word,
+                              style = StripiTypeTokens.caption.copy(color = StripiOnPrimary),
+                              modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp)
+                            )
+                          }
                         }
                       }
                     }
                   }
                 }
 
-                // 3) Hit the Beat: Rhythm & Choreography Cue Banner
+                // 2) My Reaction: 1-to-5 Facial Expression Ranking Bar
+                if (gameMode == "my_reaction") {
+                  Spacer(modifier = Modifier.height(18.dp))
+                  Surface(
+                    shape = StripiRounded.lg,
+                    color = StripiOnPrimary.copy(alpha = 0.08f),
+                    border = BorderStroke(1.dp, StripiOnPrimary.copy(alpha = 0.15f)),
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                  ) {
+                    Column(
+                      modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                      horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                      Text(
+                        text = "POINT TO RANK 1-5 WITH YOUR FACE ONLY",
+                        style = StripiTypeTokens.microCap.copy(color = StripiSubduedHover)
+                      )
+                      Spacer(modifier = Modifier.height(8.dp))
+                      Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                      ) {
+                        listOf(
+                          1 to "1: Eish",
+                          2 to "2: Meh",
+                          3 to "3: Sharp",
+                          4 to "4: Vibe",
+                          5 to "5: Lit"
+                        ).forEach { (rank, label) ->
+                          val isRankSelected = selectedReactionRank == rank
+                          Surface(
+                            shape = StripiRounded.pill,
+                            color = if (isRankSelected) StripiPrimary else StripiBrandDark900,
+                            border = BorderStroke(
+                              1.dp,
+                              if (isRankSelected) StripiSubduedHover else StripiOnPrimary.copy(alpha = 0.25f)
+                            ),
+                            modifier = Modifier.clickable { selectedReactionRank = rank }
+                          ) {
+                            Text(
+                              text = label,
+                              style = StripiTypeTokens.caption.copy(color = StripiOnPrimary),
+                              modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                            )
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+
+                // 3) Hit the Beat: Rhythm & Choreography Cue
                 if (gameMode == "hit_the_beat") {
-                  Spacer(modifier = Modifier.height(14.dp))
-                  StripiSoftPillTag(
-                    text = "Dance choreography & humming allowed (No lyrics!)",
-                    containerColor = StripiOnPrimary.copy(alpha = 0.14f),
-                    contentColor = StripiSubduedHover
-                  )
+                  Spacer(modifier = Modifier.height(16.dp))
+                  Surface(
+                    shape = StripiRounded.pill,
+                    color = StripiOnPrimary.copy(alpha = 0.12f),
+                    border = BorderStroke(1.dp, StripiOnPrimary.copy(alpha = 0.2f))
+                  ) {
+                    Row(
+                      modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                      verticalAlignment = Alignment.CenterVertically
+                    ) {
+                      Icon(
+                        imageVector = Icons.Default.MusicNote,
+                        contentDescription = null,
+                        tint = StripiSubduedHover,
+                        modifier = Modifier.size(14.dp)
+                      )
+                      Spacer(modifier = Modifier.width(6.dp))
+                      Text(
+                        text = "Dance & hum the rhythm (No spoken lyrics!)",
+                        style = StripiTypeTokens.caption.copy(color = StripiSubduedHover)
+                      )
+                    }
+                  }
                 }
               }
             }
@@ -1079,132 +1152,121 @@ fun GamePlayScreen(
             }
           }
 
-          // Bottom controls: Both Tilt status pills (when accelerometer exists) AND Pass/Correct buttons
+          // Bottom controls: Clean unified Tilt HUD capsule when sensor is present, or Buttons fallback
           if (hasAccelerometer) {
+            Surface(
+              shape = StripiRounded.pill,
+              color = StripiCanvas.copy(alpha = 0.10f),
+              border = BorderStroke(1.dp, StripiOnPrimary.copy(alpha = 0.18f)),
+              modifier = Modifier.padding(bottom = 10.dp)
+            ) {
+              Row(
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+              ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                  Icon(
+                    imageVector = Icons.Default.ArrowDownward,
+                    contentDescription = null,
+                    tint = StripiSubduedHover,
+                    modifier = Modifier.size(15.dp)
+                  )
+                  Spacer(modifier = Modifier.width(4.dp))
+                  Text(
+                    text = "Down: Correct",
+                    style = StripiTypeTokens.caption.copy(color = StripiOnPrimary)
+                  )
+                }
+
+                Box(
+                  modifier = Modifier
+                    .width(1.dp)
+                    .height(12.dp)
+                    .background(StripiOnPrimary.copy(alpha = 0.25f))
+                )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                  Box(
+                    modifier = Modifier
+                      .size(6.dp)
+                      .clip(CircleShape)
+                      .background(if (isTiltArmed) StripiSubduedHover else StripiRuby)
+                  )
+                  Spacer(modifier = Modifier.width(5.dp))
+                  Text(
+                    text = if (isTiltArmed) "Forehead Ready" else "Hold Upright",
+                    style = StripiTypeTokens.caption.copy(
+                      color = if (isTiltArmed) StripiSubduedHover else StripiOnPrimary.copy(alpha = 0.7f)
+                    )
+                  )
+                }
+
+                Box(
+                  modifier = Modifier
+                    .width(1.dp)
+                    .height(12.dp)
+                    .background(StripiOnPrimary.copy(alpha = 0.25f))
+                )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                  Icon(
+                    imageVector = Icons.Default.ArrowUpward,
+                    contentDescription = null,
+                    tint = StripiOnPrimary.copy(alpha = 0.85f),
+                    modifier = Modifier.size(15.dp)
+                  )
+                  Spacer(modifier = Modifier.width(4.dp))
+                  Text(
+                    text = "Up: Pass",
+                    style = StripiTypeTokens.caption.copy(color = StripiOnPrimary.copy(alpha = 0.85f))
+                  )
+                }
+              }
+            }
+          } else {
             Row(
               modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp),
-              horizontalArrangement = Arrangement.SpaceEvenly,
-              verticalAlignment = Alignment.CenterVertically
+                .padding(bottom = 6.dp),
+              horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-              TiltHintPill(icon = Icons.Default.ArrowDownward, text = "Tilt down: Correct")
-              TiltHintPill(
-                icon = Icons.Default.PhoneAndroid,
-                text = if (isTiltArmed) "Tilt Armed" else "Hold upright",
-                highlighted = isTiltArmed
+              StripiSecondaryPillButton(
+                text = "Pass (Skip)",
+                modifier = Modifier
+                  .weight(1f)
+                  .height(48.dp)
+                  .testTag("pass_card_button"),
+                leadingIcon = {
+                  Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Pass",
+                    tint = StripiPrimary,
+                    modifier = Modifier.size(18.dp)
+                  )
+                },
+                onClick = { onPass() }
               )
-              TiltHintPill(icon = Icons.Default.ArrowUpward, text = "Tilt up: Pass")
+              StripiPrimaryPillButton(
+                text = "Correct (+1)",
+                modifier = Modifier
+                  .weight(1f)
+                  .height(48.dp)
+                  .testTag("correct_card_button"),
+                leadingIcon = {
+                  Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "Correct",
+                    tint = StripiOnPrimary,
+                    modifier = Modifier.size(18.dp)
+                  )
+                },
+                onClick = { onCorrect() }
+              )
             }
-          }
-
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
-          ) {
-            StripiSecondaryPillButton(
-              text = "Pass (Roast)",
-              modifier = Modifier
-                .weight(1f)
-                .height(48.dp)
-                .testTag("pass_card_button"),
-              leadingIcon = {
-                Icon(
-                  imageVector = Icons.Default.Close,
-                  contentDescription = "Pass",
-                  tint = StripiPrimary,
-                  modifier = Modifier.size(18.dp)
-                )
-              },
-              onClick = { onPass() }
-            )
-            StripiPrimaryPillButton(
-              text = "Correct (+1)",
-              modifier = Modifier
-                .weight(1f)
-                .height(48.dp)
-                .testTag("correct_card_button"),
-              leadingIcon = {
-                Icon(
-                  imageVector = Icons.Default.Check,
-                  contentDescription = "Correct",
-                  tint = StripiOnPrimary,
-                  modifier = Modifier.size(18.dp)
-                )
-              },
-              onClick = { onCorrect() }
-            )
           }
         }
       }
-    }
-  }
-}
-
-@Composable
-private fun TiltHintPill(
-  icon: ImageVector,
-  text: String,
-  highlighted: Boolean = false
-) {
-  Row(
-    modifier = Modifier
-      .clip(CircleShape)
-      .background(
-        if (highlighted) StripiOnPrimary.copy(alpha = 0.28f) else StripiOnPrimary.copy(alpha = 0.14f)
-      )
-      .padding(horizontal = 12.dp, vertical = 6.dp),
-    verticalAlignment = Alignment.CenterVertically
-  ) {
-    Icon(
-      imageVector = icon,
-      contentDescription = null,
-      tint = StripiOnPrimary,
-      modifier = Modifier.size(14.dp)
-    )
-    Spacer(modifier = Modifier.width(6.dp))
-    Text(
-      text = text,
-      style = StripiTypeTokens.caption.copy(color = StripiOnPrimary),
-      maxLines = 1
-    )
-  }
-}
-
-@Composable
-private fun TiltGuideStep(
-  icon: ImageVector,
-  title: String,
-  body: String
-) {
-  Row(
-    modifier = Modifier
-      .fillMaxWidth()
-      .clip(StripiRounded.lg)
-      .background(StripiCanvas)
-      .border(1.dp, StripiHairline, StripiRounded.lg)
-      .padding(16.dp),
-    verticalAlignment = Alignment.CenterVertically
-  ) {
-    Box(
-      modifier = Modifier
-        .size(44.dp)
-        .clip(CircleShape)
-        .background(StripiSubduedHover.copy(alpha = 0.45f)),
-      contentAlignment = Alignment.Center
-    ) {
-      Icon(
-        imageVector = icon,
-        contentDescription = null,
-        tint = StripiPrimary,
-        modifier = Modifier.size(24.dp)
-      )
-    }
-    Spacer(modifier = Modifier.width(14.dp))
-    Column(modifier = Modifier.weight(1f)) {
-      Text(text = title, style = StripiTypeTokens.headingSm.copy(color = StripiInk))
-      Spacer(modifier = Modifier.height(2.dp))
-      Text(text = body, style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary))
     }
   }
 }
@@ -1227,80 +1289,245 @@ private fun TiltGuideScreen(
         .fillMaxSize()
         .windowInsetsPadding(WindowInsets.safeDrawing)
         .verticalScroll(rememberScrollState()),
-      horizontalAlignment = Alignment.CenterHorizontally
+      horizontalAlignment = Alignment.CenterHorizontally,
+      verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-      StripiSoftPillTag(text = modeDisplayTitle(gameMode))
-      Spacer(modifier = Modifier.height(12.dp))
-      Text(
-        text = when (gameMode) {
-          "hit_the_beat" -> "Dance, rhythm & hum."
-          "mzansi_30_seconds" -> "30-Seconds verbal blitz."
-          "my_reaction" -> "Rank 1-5 with your face."
-          "act_it_out" -> "Act It Out (Silent mime)."
-          else -> "Tilt or tap to answer."
-        },
-        style = StripiTypeTokens.displayLg.copy(color = StripiInk),
-        textAlign = TextAlign.Center
-      )
-      Spacer(modifier = Modifier.height(6.dp))
-      Text(
-        text = deckName,
-        style = StripiTypeTokens.bodyLg.copy(color = StripiInkSecondary),
-        textAlign = TextAlign.Center
-      )
-      Spacer(modifier = Modifier.height(20.dp))
-
-      // Mode-specific primary instruction step
-      when (gameMode) {
-        "hit_the_beat" -> {
-          TiltGuideStep(
-            icon = Icons.Default.MusicNote,
-            title = "1. Hit the choreography & hum",
-            body = "Perform Amapiano, 3-Step, Lekompo, or Bacardi footwork and hum the bassline without singing any words."
-          )
-        }
-        "mzansi_30_seconds" -> {
-          TiltGuideStep(
-            icon = Icons.Default.RecordVoiceOver,
-            title = "1. Rapid 30s verbal description",
-            body = "Describe as many Mzansi prompts as possible before the 30s buzzer, without saying any Forbidden Root Words on the card."
-          )
-        }
-        "my_reaction" -> {
-          TiltGuideStep(
-            icon = Icons.Default.Face,
-            title = "1. Oct 2026 'My Reaction' Ranking",
-            body = "Point to invisible ranks 1 to 5 in the air and shift your face from disgust to joy with zero spoken words."
-          )
-        }
-        else -> {
-          TiltGuideStep(
-            icon = Icons.AutoMirrored.Filled.DirectionsRun,
-            title = "1. Physical comedy & SASL gestures",
-            body = "Use pure physical mime, SASL youth signs ('Sharp sharp', 'Vibe'), and body language to get your crew shouting the answer."
-          )
-        }
-      }
-
-      Spacer(modifier = Modifier.height(10.dp))
-
-      if (hasAccelerometer) {
-        TiltGuideStep(
-          icon = Icons.Default.ArrowDownward,
-          title = "2. Tilt DOWN or Tap Correct (+1)",
-          body = "Nod the phone forward toward the floor (or tap Correct) when your crew guesses the card."
-        )
+      Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        StripiSoftPillTag(text = modeDisplayTitle(gameMode))
         Spacer(modifier = Modifier.height(10.dp))
-        TiltGuideStep(
-          icon = Icons.Default.ArrowUpward,
-          title = "3. Tilt UP or Tap Pass (Skip Roast!)",
-          body = "Tip the phone back toward the ceiling to skip, but watch out for the Mzansi Skip Roast penalty on easy cards!"
+        Text(
+          text = when (gameMode) {
+            "hit_the_beat" -> "Dance, rhythm & hum."
+            "mzansi_30_seconds" -> "30-Seconds verbal blitz."
+            "my_reaction" -> "Rank 1-5 with your face."
+            "act_it_out" -> "Act It Out (Silent mime)."
+            else -> "Tilt to guess."
+          },
+          style = StripiTypeTokens.displayLg.copy(color = StripiInk),
+          textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+          text = deckName,
+          style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary),
+          textAlign = TextAlign.Center
         )
       }
 
-      Spacer(modifier = Modifier.height(16.dp))
+      // 1. Dedicated Forehead & Tilt Direction Visual Card
+      StripiFeatureCardLight(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(18.dp)
+      ) {
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.SpaceBetween,
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Text(
+            text = "HOW TO PLAY",
+            style = StripiTypeTokens.microCap.copy(color = StripiPrimary)
+          )
+          StripiSoftPillTag(
+            text = if (hasAccelerometer) "Tilt Sensor Active" else "Touch Screen Active",
+            containerColor = StripiSubduedHover,
+            contentColor = StripiBrandDark900
+          )
+        }
 
-      // Section 8 Blueprint: 6 Signature Mzansi Physical Cues Tutorial Accordion
+        Spacer(modifier = Modifier.height(14.dp))
+
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+          // 1. Forehead placement
+          Row(
+            modifier = Modifier
+              .fillMaxWidth()
+              .clip(StripiRounded.md)
+              .background(StripiCanvasSoft)
+              .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Box(
+              modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(StripiBrandDark900),
+              contentAlignment = Alignment.Center
+            ) {
+              Icon(
+                imageVector = Icons.Default.PhoneAndroid,
+                contentDescription = null,
+                tint = StripiOnPrimary,
+                modifier = Modifier.size(20.dp)
+              )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+              Text(
+                text = "1. Place on Forehead",
+                style = StripiTypeTokens.headingSm.copy(color = StripiInk)
+              )
+              Text(
+                text = "Hold phone upright against your forehead facing your friends.",
+                style = StripiTypeTokens.caption.copy(color = StripiInkSecondary)
+              )
+            }
+          }
+
+          if (hasAccelerometer) {
+            // 2. Tilt Down (Correct)
+            Row(
+              modifier = Modifier
+                .fillMaxWidth()
+                .clip(StripiRounded.md)
+                .background(StripiPrimary.copy(alpha = 0.08f))
+                .border(1.dp, StripiPrimary.copy(alpha = 0.25f), StripiRounded.md)
+                .padding(12.dp),
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Box(
+                modifier = Modifier
+                  .size(36.dp)
+                  .clip(CircleShape)
+                  .background(StripiPrimary),
+                contentAlignment = Alignment.Center
+              ) {
+                Icon(
+                  imageVector = Icons.Default.ArrowDownward,
+                  contentDescription = null,
+                  tint = StripiOnPrimary,
+                  modifier = Modifier.size(20.dp)
+                )
+              }
+              Spacer(modifier = Modifier.width(12.dp))
+              Column {
+                Text(
+                  text = "2. Tilt DOWN = Correct (+1)",
+                  style = StripiTypeTokens.headingSm.copy(color = StripiPrimaryDeep)
+                )
+                Text(
+                  text = "Nod phone down toward the floor when your team guesses right.",
+                  style = StripiTypeTokens.caption.copy(color = StripiInkSecondary)
+                )
+              }
+            }
+
+            // 3. Tilt Up (Pass)
+            Row(
+              modifier = Modifier
+                .fillMaxWidth()
+                .clip(StripiRounded.md)
+                .background(StripiRuby.copy(alpha = 0.07f))
+                .border(1.dp, StripiRuby.copy(alpha = 0.25f), StripiRounded.md)
+                .padding(12.dp),
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Box(
+                modifier = Modifier
+                  .size(36.dp)
+                  .clip(CircleShape)
+                  .background(StripiRuby),
+                contentAlignment = Alignment.Center
+              ) {
+                Icon(
+                  imageVector = Icons.Default.ArrowUpward,
+                  contentDescription = null,
+                  tint = StripiOnPrimary,
+                  modifier = Modifier.size(20.dp)
+                )
+              }
+              Spacer(modifier = Modifier.width(12.dp))
+              Column {
+                Text(
+                  text = "3. Tilt UP = Pass (Skip)",
+                  style = StripiTypeTokens.headingSm.copy(color = StripiRuby)
+                )
+                Text(
+                  text = "Tip phone back toward the ceiling to skip to the next card.",
+                  style = StripiTypeTokens.caption.copy(color = StripiInkSecondary)
+                )
+              }
+            }
+          } else {
+            Row(
+              modifier = Modifier
+                .fillMaxWidth()
+                .clip(StripiRounded.md)
+                .background(StripiCanvasSoft)
+                .padding(12.dp),
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Box(
+                modifier = Modifier
+                  .size(36.dp)
+                  .clip(CircleShape)
+                  .background(StripiPrimary),
+                contentAlignment = Alignment.Center
+              ) {
+                Icon(
+                  imageVector = Icons.Default.Check,
+                  contentDescription = null,
+                  tint = StripiOnPrimary,
+                  modifier = Modifier.size(20.dp)
+                )
+              }
+              Spacer(modifier = Modifier.width(12.dp))
+              Column {
+                Text(
+                  text = "Touch Screen Controls",
+                  style = StripiTypeTokens.headingSm.copy(color = StripiInk)
+                )
+                Text(
+                  text = "Tap on-screen Pass (Skip) or Correct (+1) buttons during play.",
+                  style = StripiTypeTokens.caption.copy(color = StripiInkSecondary)
+                )
+              }
+            }
+          }
+        }
+      }
+
+      // 2. Mode Rules Card
+      StripiCreamCard(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(16.dp)
+      ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Icon(
+            imageVector = when (gameMode) {
+              "hit_the_beat" -> Icons.Default.MusicNote
+              "mzansi_30_seconds" -> Icons.Default.RecordVoiceOver
+              "my_reaction" -> Icons.Default.Face
+              else -> Icons.AutoMirrored.Filled.DirectionsRun
+            },
+            contentDescription = null,
+            tint = StripiInk,
+            modifier = Modifier.size(18.dp)
+          )
+          Spacer(modifier = Modifier.width(8.dp))
+          Text(
+            text = when (gameMode) {
+              "hit_the_beat" -> "Hit the Beat Mode Rules"
+              "mzansi_30_seconds" -> "30-Seconds Verbal Blitz Rules"
+              "my_reaction" -> "My Reaction Mode Rules"
+              else -> "Act It Out Mode Rules"
+            },
+            style = StripiTypeTokens.headingSm.copy(color = StripiInk)
+          )
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+          text = when (gameMode) {
+            "hit_the_beat" -> "Dance Amapiano, 3-Step, or Bacardi and hum the rhythm. No singing lyrics!"
+            "mzansi_30_seconds" -> "Describe rapidly before the 30s buzzer. Never say the Forbidden Root Words on the card!"
+            "my_reaction" -> "Point to ranks 1 to 5 with your face only. Zero spoken words or physical sound!"
+            else -> "Pure silent physical mime and SASL gestures. Zero talking or noise allowed."
+          },
+          style = StripiTypeTokens.bodyMd.copy(color = StripiInkSecondary)
+        )
+      }
+
+      // 3. Warmup Accordion
       StripiFeatureCardLight(
         modifier = Modifier.fillMaxWidth(),
         backgroundColor = StripiCanvasSoft,
@@ -1368,8 +1595,7 @@ private fun TiltGuideScreen(
         }
       }
 
-      Spacer(modifier = Modifier.height(20.dp))
-
+      // 4. Primary CTA Button
       StripiPrimaryPillButton(
         text = "I'm Ready, Start Countdown",
         modifier = Modifier
