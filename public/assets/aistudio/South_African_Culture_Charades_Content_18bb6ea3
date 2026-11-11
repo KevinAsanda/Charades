@@ -1,0 +1,399 @@
+﻿South African Cultural Content Blueprint (2000–2026) for a Mzansi Charades App
+Building a culturally resonant South African charades application spanning 2000 to November 2026 requires structuring your database around the specific ways South Africans turn everyday life, music, sport, and national crises into shared physical comedy1. To maximize replayability across generations, your app's content database should be segmented into seven core thematic decks: (1) Trending Apps & Digital Platforms, (2) TikTok Challenges, Viral Formats & Lockdown Memes, (3) Soccer Stars & Sporting Icons, (4) Mzansi Music Eras (Amapiano, 3-Step & Lekompo), (5) Classic & Streaming TV/Film (2000–2026), (6) Digital Creators, Alter-Egos & Podcasts, and (7) Mzansi Slang, SASL Gestures & Everyday Tropes1. Rather than relying on a single silent-mime mechanic, pairing these decks with four distinct gameplay modes—Act It Out (physical mime), Hit the Beat (dance choreography and humming), Mzansi 30-Seconds (rapid verbal description without forbidden root words), and My Reaction (facial-expression ranking inspired by the October 2026 TikTok trend)—allows players to physically perform everything from a "Bacardi dance" to a "Now, Just Now, Now Now" time-check8.
+Every prompt, cultural milestone, and statistic in this blueprint is grounded in documented records through November 20267. Before importing these decks into your game engine, note two archival scope boundaries in the available source records: first, while the documentation provides comprehensive coverage of the 2020–2026 digital platform landscape—including industry research showing TikTok's surge to 38.6% national penetration in 2024 and the shutdown of standalone Showmax on 30 April 2026—it does not contain primary data on defunct early-2000s feature-phone chat applications12. Second, while the records capture major soccer figures and storylines including late soccer star Senzo Meyiwa (Senzo: Murder of a Soccer Star), Bafana Bafana head coach Mosimane, Kaizer Chiefs signing Mokwana, Mamelodi Sundowns, and the 2023–2026 tournament runs of Bafana Bafana and Banyana Banyana, they do not include historical player rosters of retired early-2000s soccer stars6. Where early-2000s and 2010s nostalgia is represented in the records, it is anchored by enduring South African screen staples (Tsotsi, Yesterday, Sarafina!, Mapantsula, Faith Like Potatoes, Generations, 7de Laan, Muvhango, Uzalo, and Skeem Saam) and timeless local lexicon5.
+1. Game Mechanics & Deck Architecture
+South African digital and street culture is highly physical and performative, making it well suited for mobile party games1. According to a 2023 South African Sign Language (SASL) Bill announcement cited by The TEFL Academy, young Deaf South Africans have even coined provincial SASL slang signs across Cape Town, Johannesburg, and Durban for Amapiano dance moves and TikTok in-jokes5. By tagging each card in your JSON database with both an Era Tag (2000s–2010s Heritage, 2020 Lockdown, 2021–2024 Piano Boom, or 2025–2026 Current) and a Primary Game Mode, your app can dynamically filter decks for Gen Z and Gen Alpha players, Millennial and Gen X family gatherings, or mixed-age braais2.
+  
+
+To prevent gameplay friction, your app should assign each card a difficulty tier based on how easily it translates into physical gesture:
+1. Tier 1 (Easy / Universal Mzansi): Everyday physical habits, iconic food items, and household soapies (Braai, Bunny chow, Robots, 7de Laan, Generations, Zol Song, Tyla's Water / Bacardi Dance)2.
+2. Tier 2 (Medium / Timeline Regulars): Specific TikTok transitions, major sporting moments, and streaming hits (Shoe kick transition, Dricus du Plessis's 8% oxygen nose surgery, The Wife, Shaka iLembe, Tshwala Bam, Nikhona?)13.
+3. Tier 3 (Hard / Chronically Online): Niche creator alter-egos, specific 2025–2026 viral controversies, and regional sub-genres (Grace Mondlana's dog Kai's 1st birthday party, The Jenny Ruyter Saga, Lekompo, Sgidongo Bounce, Bone Thug)20.
+2. Deck 1: Trending Apps, Streaming Platforms & Digital Milestones
+While the available records do not cover early-2000s feature-phone chat apps, they document the social platforms, streaming services, and e-commerce ecosystems that shaped South African digital life through 202612. According to the Ornico and World Wide Worx SA Social Media Landscape Report 2025, TikTok's South African penetration jumped from 34.0% in 2023 to 38.6% in 2024, establishing it as a central hub for local music, comedy skits, and restaurant discovery1. Meanwhile, the local streaming landscape underwent a major consolidation on 30 April 2026, when Showmax ceased operations as a standalone streaming service after more than a decade and transitioned its catalogue into a dedicated section inside DStv Stream13.
+
+
+App / Platform / Digital Milestone
+	Documented SA Cultural Context (up to Nov 2026)
+	Charades Acting / Clue Prompt
+	Recommended Mode
+	TikTok (FYP)
+	Jumped from 34.0% (2023) to 38.6% (2024) SA penetration per Ornico/World Wide Worx; hub for Amapiano dances, POV skits, and food discovery1.
+	Hold an imaginary phone vertically, scroll rapidly with your thumb, then immediately burst into a 3-second Amapiano footwork routine1.
+	Act It Out / 30-Seconds
+	Showmax (Standalone Shutdown)
+	Pioneer African streamer where local content drove 57% of viewing in FY2023 per MultiChoice reporting; standalone app ended on 30 April 202613.
+	Mime binge-watching a tense telenovela (The Wife), then suddenly mime the standalone app vanishing and merging into DStv Stream13.
+	Mzansi 30-Seconds
+	DStv Stream
+	Absorbed the Showmax Originals offering in 2026 alongside Mzansi Magic and drama hits like Inimba, Empini, and Shaka iLembe13.
+	Mime flipping between a royal historical drama (Shaka iLembe), a private-security action series (Empini), and a courtroom drama27.
+	Mzansi 30-Seconds
+	Netflix South Africa
+	Home to global breakouts like Bad Influencer (#3 global English series in 2025 per TV Mzansi), Kings of Jo'Burg, Marked, and Umjolo6.
+	Perform a dramatic TV intro knock, then mime a high-stakes Johannesburg heist (iNumber Number: Jozi Gold)6.
+	Hit the Beat / Act It Out
+	X (formerly Twitter) Comment Section
+	The battlefield where South Africans unite to roast international accounts in 5+ local languages ("Msunu Voetsek", "Tsek")29.
+	Mime furious two-thumb typing with a wicked grin, counting to five on your fingers for the different languages used in the roast29.
+	Act It Out
+	WhatsApp / Facebook Video Sharing
+	Primary sharing channels for viral lockdown memes, comedy clips, and daily Mzansi news links2.
+	Hold a phone to your ear or mouth to record a dramatic reaction to a family situation, then nod approvingly as the comments roll in1.
+	Act It Out
+	Viu South Africa
+	Free-to-watch local streaming app hosting daily catch-ups of Skeem Saam, Uzalo, Muvhango, Generations, and 7de Laan16.
+	Mime watching daily soapies on your phone with earphones in, gasping dramatically at plot twists every 10 seconds16.
+	Act It Out
+	CapCut & Clipchamp
+	Video editing apps used by creators to stitch outfit transitions, animated subtitles, and "Cheer the Camera" drink swaps19.
+	Mime clapping your hands or kicking a shoe in mid-air, freezing, and pretending to trim the video clip on a timeline19.
+	Act It Out
+	Takealot
+	E-commerce brand featured in the 2023 DStv Content Creator Awards nominee Takealot | The Jenny Ruyter Saga (by The Cavalry)24.
+	Mime clicking "buy" on a phone, peeking through the curtains impatiently, and signing for a delivery box24.
+	Act It Out
+	Cars.co.za
+	Automotive platform and title sponsor of the Cars.co.za Automotive Content Award (won by Tebogo Moropa in 2026)7.
+	Mime revving a steering wheel, inspecting a vehicle, and filming a car review with a smartphone24.
+	Act It Out
+	eVOD
+	Official broadcast partner of the 2026 Samsung Galaxy Content Creator Awards3.
+	Mime watching a purple-carpet awards ceremony on your screen while voting via SMS to 336223.
+	Mzansi 30-Seconds
+	Fakaza & Afro House King
+	South African music download and news portals tracking Amapiano, Gqom, Hip Hop, and Afro House releases through 202622.
+	Mime frantically searching for a newly dropped Amapiano or 3-Step track and hitting download before the weekend groove22.
+	Mzansi 30-Seconds
+	3. Deck 2: TikTok Challenges, Viral Formats & Lockdown Memes
+This deck powers your Act It Out, Hit the Beat, and My Reaction modes by combining physical South African dance challenges, 2024–2026 TikTok transition formats, the May 2020 Day-50 National Lockdown memes, and major social media controversies2.
+3.1 Amapiano, Bacardi & Cultural Dance Challenges
+South African dance challenges travel rapidly from local townships to global timelines, giving players unmistakable physical routines to act out1. A premier card is the Bacardi Dance (widely called the "Tyla Dance" on TikTok after Tyla popularized it alongside her hit "Water", though Bona Magazine notes she stated in an interview that she prefers its original name, the Bacardi dance)9. Another staple is the "Kwenzekalani" Amapiano Dance Challenge (2024), which GQ South Africa reports gained massive traction when Cassper Nyovest and his wife Thobeka Majozi, alongside DJs Kabza De Small and DJ Maphorisa, showcased their moves on TikTok35. Players can also act out the "Tshwala Bam" Dance Challenge (by TitoM & Yuppe, a 2024 Song of the Year nominee), the "Mnike" (Tyler ICU) and "Dalie" (Kamo Mphela) challenges, or the Traditional Zulu Cultural Dance Challenge, which Bona Magazine highlights for spawning two contrasting TikTok versions: an energetic original with high leg-raises and a ultra-graceful version where dancers barely lift their legs off the floor9. For verbal-physical comedy, include the "Off Course" Challenge (2024), which South Africans localized with vernacular humor and everyday twists, even catching the attention of Will Smith35.
+3.2 2024–2026 Viral TikTok Skits, Memes & Transitions
+Beyond music choreography, 2024–2026 TikTok trends offer structured physical formats that translate directly into charades prompts8. For teenage and Gen Alpha players, "6-7" / "67" was crowned Dictionary.com's Word of the Year for 2025 after originating in rapper Skrilla's 2024 lyric "6-7, I just bipped right on the highway" from "Doot Doot (6 7)", evolving into a communal teenage chant and meme17. Workplace and lifestyle comedy is anchored by "Very Demure, Very Mindful" (2024), where creators explain how their makeup or behavior is modest and suitable for work35, alongside "Lunch in My City" (September 2025), where creators hop between local hidden-gem food spots8.
+
+
+2025–2026 TikTok Format / Trend
+	Documented Format Mechanics
+	Charades Acting Prompt
+	"My Reaction" Facial Ranking (Oct 2026)
+	Using only facial expressions as the ranking system to give honest opinions on a niche topic8.
+	Point to invisible ranks 1 to 5 in the air, shifting your face from disgust to joy with zero words8.
+	"Getting Robbed, But First..." (Oct 2026)
+	One shot: a creator glued to their phone in the foreground while a bag gets stolen in the background8.
+	Stare obsessively at your palm while gesturing behind your back for a teammate to "steal" an imaginary bag8.
+	"Upside Down, Inside Out" (Oct 2026)
+	Mouthing Diana Ross's lyrics and hitting hand gestures before a makeup/outfit reveal on "inside out"8.
+	Sync upside-down and inside-out hand flips over your face, then freeze in a glamorous "after" pose8.
+	"Shoe Kick Transition" (Oct 2025/2026)
+	Balancing a sneaker, heel, or boot in a karate-style side kick and kicking into the shoe to change outfits19.
+	Balance on one leg in a karate side-kick holding an imaginary sneaker, kick forward, and strike a new pose19.
+	"Sorry If I Was a Bit Dramatic Today"
+	Apologizing for being dramatic or hangry; friend replies "it's okay, I'm used to it", offending the creator19.
+	Clasp hands apologetically, pause as if hearing the reply, gasp in offence, and storm away19.
+	"Wait, Let Me Wipe the Camera" (2026)
+	Wiping the lens to transition from a rough sketch, bad lifting form, or messy room to a polished result31.
+	Demonstrate terrible gym lifting form, mime breathing on and wiping the camera lens, then show perfect form31.
+	"Spiderman Makeup Transition"
+	Celebrating the Spiderman: Brand New Day movie by doing the webbed-hands pose and pulling the screen19.
+	Shoot two Spider-Man web-wrists forward, grab the air, yank the "screen" toward you, and pose19.
+	"Why You So Obsessed With Me" (Mar 2026)
+	Stopping people mid-walk to make them look, snapping a screenshot, and acting like everyone is staring8.
+	Wave to stop an imaginary passerby, strike a model pose as they look, and mime taking a phone screenshot8.
+	"My Top 5 Horror Movies" (2026)
+	A 7-second b-roll clip with "My top 5 horror movies" text that actually lists 5 relatable everyday pet peeves8.
+	Shiver in terror like watching a horror film, then mime five everyday work or customer frustrations1.
+	"Cheer the Camera" Drink Swap (2026)
+	Two friends simultaneously grab their drinks and move them across to the other side in a loose circle31.
+	Clink an imaginary glass toward the camera, then sweep both hands in a circle to swap drinks with a partner31.
+	"Training Season Manifestation"
+	Lip-syncing Dua Lipa's Training Season while pretending to pray with friends to manifest career/personal wins19.
+	Gather teammates, clasp hands in exaggerated prayer, and point to imaginary text overlays above your heads19.
+	"Ramalama Costume Walk" & "Transition Dab"
+	Walking to Roisin Murphy's Ramalama as the camera pans up (Oct), or hitting a quick dab to glow up (Mar 2026)8.
+	Zombie-walk forward while miming a camera panning up from your shoes to your head, or hit a sharp dab into a pose8.
+	"Me and My POV" & "Alter Ego" (2026)
+	Split-screen selfie + what you are looking at (June 2026), or two people doing one iconic walk reveal (Mar 2026)8.
+	Strut forward lip-syncing, then dramatically pass the "camera" to a partner to finish the walk8.
+	"Charger for My Phone, Charger for Me" (2026)
+	Showing a phone cable first, then revealing a favourite snack or hobby item as the "human charger"31.
+	Mime plugging a cable into your phone, then mime plugging a snack or coffee mug directly into your own chest31.
+	3.3 The Iconic 2020 National Lockdown Meme Vault
+Published records from IOL on Day 50 of South Africa's national lockdown (15 May 2020) preserve 20 specific memes and viral videos that kept South Africans laughing2. These serve as a ready-made nostalgic checklist for a "2020 Lockdown" mini-deck:
+1. The "Zol Song" & Zol Minister Running After Zol Song Maker: Mime wagging a stern ministerial finger and sprinting after a music producer2.
+2. Alcohol Returns & Durban's Essential Item: Mime celebrating the lifting of the liquor ban or sneaking Durban's essential item through a checkpoint2.
+3. President Evil & Does Mandela Know?: Mime delivering a tense national lockdown briefing, or looking up at a statue of Nelson Mandela in disbelief2.
+4. Lockdown Haircuts & Wash Your Hands: Mime taking electric clippers to your own head in a mirror and botching the fade, followed by 20 seconds of vigorous hand-washing2.
+5. Lasizwe's Back to School Video & Parents Trying to Get Children to Do School Work: Mime Lasizwe's dramatic return-to-school skit or an exhausted parent battling over home-schooling2.
+6. Pallbearer's Titanic Video & Teenage Mutant Ninja Turtles: Hoist an imaginary load on your shoulders doing the pallbearer dance while humming Titanic2.
+7. Missing Dishcloths, Vix Meme & Day-Care Fares for Mother-in-Law: Mime a frantic search for missing kitchen dishcloths or rubbing Vicks on everything2.
+8. No Kissing, Can't See COVID-19, Thing of the Past & UNO: Mime dodging a kiss during lockdown or slamming down a Draw-Four UNO card on a family member2.
+3.4 Viral Pop-Culture Headlines & Timeline Drama (2024–2026)
+For your Mzansi 30-Seconds verbal clue mode, include the major celebrity and social media sagas documented between 2024 and 2026. Teacher-turned-TikTok star Grace Mondlana generated multiple viral timeline moments: brushing off "mean girl" backlash when choosing safety over content (June 2024), publicly mourning her late partner Sipho Lazarus Zulu after a June 2025 car accident, sparking a debate over a pricey bar menu and a "free drinks" promise at her star-studded year-end party (November 2025), and going viral on 25 July 2026 for hosting a first birthday party for her dog, Kai23. Another major cultural storyline is Chidimma Adetshina, the Soweto-born law student who reached the Miss South Africa 2024 Top 16 before withdrawing amid a Home Affairs fraud investigation into her mother Anabela Rungo's citizenship acquisition; Adetshina subsequently won Miss Universe Nigeria 2024, finished as 1st Runner-Up at Miss Universe 2024 in Mexico (crowned Miss Universe Africa and Oceania), and made headlines in January–August 2026 after being arrested at the Lebombo border for allegedly entering South Africa illegally, with her deportation case postponed to February 202736. Contrast this with Mia le Roux, who won Miss South Africa 2024 and championed disability and cochlear-implant inclusion through the B4i Academy x Mia le Roux Movement41, as well as viral X creator Akreana, known for the catchphrase "O Jewa Ke Eng?"7.
+4. Deck 3: Soccer Stars, Coaching Legends & South African Sporting Icons
+For your sports deck, the research material documents a high-visibility period of South African national team and individual competition between 2023 and November 2026 across football, rugby, cricket, and mixed martial arts11. As noted in the introduction, while retired early-2000s soccer player rosters are not itemized in the provided records, key football figures and 2023–2026 national campaigns are documented alongside South Africa's UFC, rugby, and cricket stars6.
+  
+
+4.1 Soccer Stars, Coaches, Clubs & National Campaigns
+Football cards in your app can draw on both iconic individuals and dramatic tournament runs between 2023 and 2026. A major cultural and true-crime touchstone is late soccer star Senzo Meyiwa, whose story is the subject of the Netflix documentary Senzo: Murder of a Soccer Star and ongoing live murder-trial coverage on SABC News in 20266. On the touchline, Coach Mosimane returned to the spotlight naming his final Bafana Bafana squad in November 2026 for back-to-back AFCON qualifiers against Kenya (assembling in Johannesburg on 8 November 2026), highlighting the core players who led South Africa in the 2024 AFCON, the 2025 AFCON, and the 2026 FIFA World Cup45. In domestic Premier Soccer League (PSL) transfer news, 27-year-old Bafana international Mokwana—who caught South Africa's eye with his 2024 form, played against Egypt in December 2025, and was on the bench for the January 2026 AFCON Round of 16 loss to Cameroon—made headlines transferring to Kaizer Chiefs pending medicals15, while Mamelodi Sundowns' dominance was immortalized in the 2024 DStv Content Creator Awards nominated feature Overthinking Football: 'This Is What Makes Malelodi Sundowns Successful'14.
+National team tournament cards provide rich trivia and acting prompts for soccer fans. At the 2025 Africa Cup of Nations in Morocco (played December 2025–January 2026), Bafana Bafana lost 0–1 to Egypt in Agadir (26 December 2025) and defeated regional rivals Zimbabwe 3–2 in Marrakesh (29 December 2025) during Group B play before falling 1–2 to Cameroon in the Round of 16 in Rabat on 4 January 202611. Six months later, at the 2026 FIFA World Cup, South Africa advanced to the Round of 32, where they were edged 0–1 by Canada at SoFi Stadium in Inglewood, California on 28 June 202611. Meanwhile, the South African women's national team (Banyana Banyana) delivered three major tournament runs: at the 2023 FIFA Women's World Cup, they drew 2–2 with Argentina and defeated Italy 3–2 in Wellington to reach the Round of 16 (losing 0–2 to the Netherlands)11; at the 2025 Women's Africa Cup of Nations (WAFCON), they beat Ghana 2–0 and Mali 4–0 in Group C, eliminated Senegal 4–1 on penalties in the quarter-finals, and finished fourth after losing 1–2 to eventual champions Nigeria in the semi-finals and 3–4 on penalties to Ghana in the third-place playoff11; and at the 2026 WAFCON, they defeated Burkina Faso 1–0 in Group B, fell 1–2 to hosts Morocco in the quarter-finals on 8 August 2026, and defeated Nigeria 2–1 in a classification match on 13 August 202611.
+4.2 UFC, Springboks & Proteas Icons
+Outside of soccer, South Africa's combat sports, rugby, and cricket stars provide some of the most recognizable physical charades cues in the country. In the Ultimate Fighting Championship (UFC), Welkom-born Afrikaner Dricus "Stillknocks" du Plessis (24–3 MMA record as of July 2026, with 9 knockouts and 11 submissions) became the first South African fighter to win a UFC championship21. According to his coach Morne Visser, du Plessis competed in the UFC with "only 8% oxygen" intake through his nostrils prior to undergoing nose surgery in April 202321. He captured the UFC Middleweight Championship by defeating Sean Strickland at UFC 297 in Toronto (20 January 2024), defended the belt by submitting Israel Adesanya via fourth-round face crank at UFC 305 in Perth (17/18 August 2024) and defeating Strickland by unanimous decision in their UFC 312 rematch in Sydney (8 February 2025), lost the title by unanimous decision to undefeated contender Khamzat Chimaev at UFC 319 in Chicago (16 August 2025), and made a winning return on 18 July 2026 by defeating former champion Kamaru Usman via unanimous decision (50–45, 49–46, 49–46) at UFC Fight Night 281 in Oklahoma City21. MMA fans can also act out welterweight contender Themba Gorimbo, who fought Vicente Luque in December 202411.
+In rugby union, the Springboks cemented their dynasty by winning the Castle Lager Rugby Championship in both 2024 and 2025, dominating their 2025 home test schedule (facing Italy, Georgia, Australia, and Argentina), and competing in the 2026 Nations Championship44. High-recognition rugby cards include head coach Rassie Erasmus, assistant coach Mzwandile Stick, lock Eben Etzebeth, flyhalf Manie Libbok (noted for his major return to the Sharks), historical one-eyed Springbok flanker Martin Pelser ("One-eyed Bok who terrorised the All Blacks into submission"), and the South Africa Women's National Rugby Union Team, who finished second in Pool D behind France at the 2025 Women's Rugby World Cup2.
+In cricket, the Men's Proteas ended their long wait for a senior world title in June 2025 by defeating Australia in the World Test Championship (WTC) Final43. Following a runner-up finish at the T20 World Cup55, the Proteas reached the 2026 ICC Men's T20 World Cup Semi-Final in Kolkata (March 2026, losing to New Zealand after Super 8 wins over the West Indies and Zimbabwe), won the 2026 Namibia T20I Tri-Series Final against Zimbabwe in Windhoek (6 September 2026), defeated Australia 2–1 in both a home ODI series (September 2026) and a three-match home Test series (October 2026), and won the 2026 Hong Kong Sixes Final against England on 1 November 202611. Standout men's player cards include Test captain Temba Bavuma (Player of the Match in the innings-and-31-run second Test win over Australia in Gqeberha), Aiden Markram, Kagiso Rabada, David Miller, Keshav Maharaj, Simon Harmer, Marco Jansen, Anrich Nortje, Dewald Brevis, Lhuan-dre Pretorius, Connor Esterhuizen, Matthew Breetzke, Jordan Hermann, Blake Simpson, Jorich van Schalkwyk, and Wayne Parnell2. Equally essential are the Women's Proteas, who reached the 2026 ICC Women's T20 World Cup Semi-Final at The Kia Oval in London (2 July 2026) behind captain Laura Wolvaardt (jersey #14), Marizanne Kapp, Tazmin Brits, Chloe Tryon, Ayabonga Khaka, Anneke Bosch, Kayla Reyneke, Annerie Dercksen, Miane Smit, and Nthabiseng Nini11.
+5. Deck 4: Mzansi Music Eras — Amapiano, 3-Step, Lekompo & Classics
+Music in South Africa is inseparable from physical movement and vocal call-and-response1. By 2025–2026, alongside Amapiano (spanning soulful Private School Piano and township Sgija log-drum mixes), two distinct sonic waves surged across streaming platforms and street parties: 3-Step (a percussive Afro-house and Amapiano crossover championed by Dlala Thukzin, JAZZWRLD, and Thukuthela) and Lekompo (Limpopo's fastest-rising sound led by Kharishma and Shandesh), alongside Gqom and Sgidongo Bounce4.
+
+
+Song / Album / Sub-Genre
+	Artist(s)
+	Year / Era
+	Charades / "Hit the Beat" Gameplay Cue
+	"Water"
+	Tyla
+	2023–2024
+	Hum the hook and perform the viral Bacardi dance while miming pouring water down your back1.
+	"Tshwala Bam"
+	TitoM & Yuppe
+	2024
+	Hum the bassline and perform the synchronized shoulder-roll line dance9.
+	"Mnike"
+	Tyler ICU
+	2023–2024
+	Mime a DJ slamming the mixer fader down and shaking the room when the heavy log drum drops14.
+	"iPLAN"
+	Dlala Thukzin
+	2023–2026
+	Mime tapping your temple ("having a plan") while stepping to a driving 3-Step beat14.
+	"uValo"
+	JAZZWRLD, Thukuthela & Babalwa M ft. Dlala Thukzin
+	Late 2025–2026
+	2026 3-Step/Amapiano crossover smash; mime rolling down car windows as a motorist blasting the track4.
+	"Bengicela"
+	MaWhoo, GL Ceejay & Thukuthela ft. JAZZWRLD
+	2025–2026
+	Clasp hands in a pleading gesture ("Bengicela") while swaying to MaWhoo's vocals4.
+	"Shela"
+	Sam Deep, Nia Pearl, Boohle & Mano
+	Dec 2025–2026
+	Standout early-2026 Amapiano chart-topper per Music In Africa; mime flirting across a crowded party4.
+	"Amanxeba"
+	Sami Kay, Rox Roberson & Misokuhle
+	Dec 2025–2026
+	Amassed over 5 million YouTube views by Feb 2026; mime holding your heart ("wounds of love") with energetic choreography4.
+	"ZEP" & "Thandaza"
+	DJ Smallz, ZinedinexSguche & 031Choppa ft. Uncool MC / Sam Deep & Thatohatsi
+	2026
+	Put hands together in prayer for "Thandaza", or mime an underground Durban/031 vocal cypher for "ZEP"4.
+	"Abantwana Bakho" & "Lalelani"
+	DJ Maphorisa, Xduppy & Kabza De Small ft. Nkosazana Daughter / Kabza De Small
+	2026
+	Cup a hand to your ear for "Lalelani" ("Listen"), or mime Kabza and Maphorisa back-to-back on the decks4.
+	"Umbayimbayi"
+	Inkabi Zezwe
+	2023
+	2023 Song of the Year nominee; stomp one foot heavily in traditional style while miming firing a cannon24.
+	"Lemons (Lemonade)" & "Company"
+	AKA ft. Nasty C / AKA & KDDO
+	2023
+	Dual 2023 Song of the Year nominees; mime squeezing lemons into a glass, then holding a mic to the sky in tribute to AKA24.
+	"Fatela", "Kancane" & "Dalie"
+	Aymos & Ami Faku / Musa Keys / Kamo Mphela
+	2023–2024
+	Pinch thumb and index finger together for "Kancane", or perform Kamo Mphela's high-energy "Dalie" choreography14.
+	Lekompo (Limpopo Wave)
+	Kharishma, Shandesh, DJ Sunco & Queen Jenny ("Oska Ba Dumelela")
+	2024–2026
+	Perform fast-paced Limpopo street-party footwork, hyping the crowd to Kharishma and Shandesh25.
+	Balcony Mix Africa & Uncle Waffles
+	Major League DJz (e.g., B2B JAZZWRLD at Thaba Entle) / Uncle Waffles
+	2020–2026
+	Put on oversized sunglasses at twin turntables on a balcony, or perform Uncle Waffles' signature DJ booth dance34.
+	2026 Album & Single Wave
+	Stixx (Destiny), Masterpiece YVK (The Italian Job), LeeMcKrazy (Intando Ka God 3), Mr JazziQ (Coolest in the City), Sun-EL Musician ("Sifikile"), DJ Zinhle & Young Stunna ("Nayvee's Prayer")
+	2026
+	Mime a prayer with DJ headphones on ("Nayvee's Prayer"), or act out an Italian heist on the dancefloor (The Italian Job)22.
+	6. Deck 5: South African TV Shows, Soaps & Movies (2000–2026)
+Television and film form the bridge between older and younger players in a South African charades game6. Your app should split this deck into Heritage Classics & Daily Soaps (which households know from the 2000s and 2010s) and The Streaming Era (2020–2026) across Showmax/DStv Stream, Mzansi Magic, e.tv, kykNET, and Netflix6.
+6.1 2000s–2010s Heritage Movies & Daily Soaps
+For classic South African cinema preserved on local streaming catalogues, players can act out Tsotsi, Yesterday, Sarafina!, Mapantsula, and Faith Like Potatoes, alongside the beloved Durban Indian family comedy franchise Trippin' with the Kandasamys and Kandasamys: The Baby6. In the daily soapie category—all of which remain staples on free streaming platform Viu alongside SABC and e.tv broadcasts—prompts should include Generations, 7de Laan, Muvhango, Uzalo, and Skeem Saam, as well as e.tv's Isitha: The Enemy (scheduled to conclude in April 2027) and Tshedza Pictures' primetime drama The 4 of Us13.
+6.2 2020–2026 Streaming Blockbusters, Docuseries & Reality TV
+The 2020–2026 streaming boom produced high-recognition local titles that frequently trended across South African social media13. On Showmax (now housed inside DStv Stream), The Wife accumulated more than 50 million hours watched to become the platform's most popular series13, while Cape Town extreme-motorsport drama Spinners won Best Foreign TV Series at the 2024 Shanghai TV Festival's Magnolia Awards—beating the final season of HBO's Succession—ahead of its Season 2 global release across 45+ countries in 202613. On Mzansi Magic and DStv Stream, Shaka iLembe cemented itself as MultiChoice's biggest production ever (with Season 3 confirmed for 2026), while Inimba dominated timelines after its April 2025 premiere alongside private-security drama Empini (Seasons 1–2), boarding-school hit Youngins (Seasons 1–3, where Season 3 became the most-watched drama series on Showmax upon its early-2025 premiere), Adulting, Outlaws, Law, Love and Betrayal (Season 2 in March 2026), kykNET period murder drama Niggies, Reyka, Donkerbos, and DAM13.
+On Netflix South Africa, 2025's breakout crime comedy-thriller Bad Influencer—starring Jo-Anne Reyneke and Cindy Mahlangu—reached #1 in South Africa and #3 on the global Netflix English TV Top 10, while six-part drama GO! (directed by Tristan Holmes and starring Wonder Ndlovu and Shalate Sekhabi) also shot to #1 on the local trending list alongside heist thriller Marked and Fatal Seduction (Seasons 1–2)6. Round out this deck with Netflix's Kings of Jo'Burg, Queen Sono, Unseen, How to Ruin Christmas, How to Ruin Love, How to Ruin Diwali, Lobola Man, Silverton Siege, iNumber Number: Jozi Gold, the four-part Umjolo relationship movie series (The Gone Girl, My Beginning, My End!, There is No Cure, and Day Ones), Oscar-winning documentary My Octopus Teacher, true-crime sensations Beauty and the Bester, Devilsdorp, Steinheist, and The People vs. VBS (revisiting the VBS Mutual Bank scandal eight years after its collapse), and reality hits Young, Famous & African, The Ultimatum: South Africa, Love Never Lies: South Africa, and The Masked Singer South Africa6.
+7. Deck 6: Digital Creators, Comedians, Alter-Egos & Podcasts
+South Africa's creator economy is officially benchmarked each year by the Content Creator Awards—known as the DStv Content Creator Awards in 2022–2024 and rebranded in 2026 with Samsung Galaxy as title sponsor for the 2026 Samsung Galaxy Content Creator Awards, held on 17 October 2026 at The Galleria in Sandton7. Including a "Creators, Alter-Egos & Podcasts" deck allows players to impersonate the country's most recognizable digital voices.
+
+
+Creator / Alter-Ego / Podcast
+	Documented Accolades & Signature Persona (2022–2026)
+	Charades Impersonation Cue
+	Grace Mondlana
+	2024 Emerging Creator winner; won both Samsung Galaxy Creator of the Year and Trendsetter Award in Oct 2026; former teacher known for lifestyle vlogs7.
+	Mime teaching at a chalkboard, then transitioning into a lifestyle vlog showing off a new home or GWM car ambassadorship23.
+	Lasizwe Dambuza
+	Won 2026 YouTube Creator of the Year; creator of hit online series Awkward Dates by Lasizwe and viral comedy skits7.
+	Mime sitting across from a date with a drink, cringing at an awkward question, and pulling a dramatic side-eye expression26.
+	Vafa Naraghi
+	Won both Best Social Series Award and Thumbstopping Award at the 2026 Samsung Galaxy Content Creator Awards3.
+	Switch rapidly between two contrasting South African characters in a one-person comedy skit7.
+	Noko Mashaba (The Adventures of Noko Mashaba)
+	Won the 2026 Telkom Best Online Series Award; beloved for comedy on unemployment struggles and rekere7.
+	Mime an ingenious township hustler passionately pitching a wild survival scheme7.
+	Coconut Kelz (Lesego Tlabi)
+	2022 Content Creator Awards winner and host of the 2026 Nominee Announcement event26.
+	Flip imaginary hair over your shoulder and deliver satirical social commentary in an exaggerated suburban accent26.
+	Constantia Mom (Cassidy Nicholson)
+	2023 Alter Ego Award nominee; joined Carl Wastie on radio in Feb 202624.
+	Put sunglasses on top of your head, hold an imaginary iced coffee, and act like an affluent Cape Town suburban mom24.
+	That Mozambican Dude, Mologadi, Neth Thunder & Tums the Narrator
+	2023 Alter Ego Award nominees (Sipho Twala, Titus Mokou, Tshoganyetso Mothoa, and Tumi Mmope)24.
+	Wrap an imaginary headscarf like a strict mother (Mologadi) or mime narrating someone's bad decisions in real time (Tums the Narrator)24.
+	Coachella Randy, Moghelingz & Khanyisa Unfiltered
+	2024 Trendsetter Award winner (Coachella Randy) and nominees (Moghelingz, Khanyisa Unfiltered)14.
+	Deliver a loud, theatrical kitchen or living-room monologue with exaggerated hand claps14.
+	Podcast and Chill With MacG & SMWX Podcast
+	2023 Podcast of the Year nominee (MacG) and 2026 Podcast of the Year winner (SMWX Podcast)7.
+	Lean back with studio headphones laughing at celebrity gossip (MacG), or map out serious political analysis (SMWX)7.
+	Shandor Larenty & @Joshwideawake (Joshua Rubin)
+	Multiple Thumb-stopping nominee (Shandor Larenty) and 2026 Impact Creator winner (@Joshwideawake)7.
+	Mime grooming a giant lion (Shandor) or walking through South Africa's most dangerous neighbourhood with a mic (@Joshwideawake)7.
+	Sifo The Cooking Husband & The Lazy Makoti
+	2023 Foodie Award nominees (Sifo also nominated for 2024 Creator of the Year)14.
+	Tie an apron around your waist, chop ingredients with a warm smile, and plate a traditional South African feast14.
+	2026 Category Winners
+	Chad Jones (Dance), Ikho Kweba (Comedy), Yasmin Furmie (Style), Mikhalé Jones (947 Sound of Tomorrow), @Lindosasmr (Wildcard), Miss Angler (Expert Voices), Nabilah Kariem (Brand Collab)7.
+	Tap fingernails on a microphone for ASMR (@Lindosasmr), showcase a Le Creuset pot (Nabilah Kariem), or teach an exam lesson (Miss Angler)7.
+	8. Deck 7: Mzansi Slang, SASL Gestures & Everyday Cultural Tropes
+Nothing makes a South African party game louder than players trying to act out local idioms, traffic habits, and multi-lingual slang borrow-words from isiZulu, isiXhosa, Sesotho, Afrikaans, and English5. As highlighted by The TEFL Academy's coverage of the 2023 SASL Bill announcement, young Deaf South Africans have also popularized official South African Sign Language (SASL) slang gestures that work naturally as physical charades cues5.
+To onboard new players in your app's tutorial screen, you can feature six signature Mzansi physical cues as visual instruction cards: (1) The Bacardi Dance (performing the rhythmic hip move from Tyla's "Water" challenge), (2) SASL "Sharp Sharp" & "Vibe" (flashing a rhythmic doubled-up thumbs-up for Sharp sharp, or a loose flick-of-the-wrist borrowed from Amapiano dance culture for Vibe), (3) The "Shoe Kick Transition" (balancing a sneaker on your foot in a karate-style side kick before jumping into a new outfit pose), (4) "Now, Just Now, Now Now" (pointing to a wristwatch with varying urgency to distinguish South Africa's three tiers of time), (5) Dricus "Stillknocks" du Plessis (pinching your nostrils for "8% oxygen" before strapping on a UFC belt), and (6) Durban Bunny Chow (miming scooping spicy curry out of a hollowed-out loaf of bread)5.
+Complete Mzansi Slang & Cultural Tropes Dictionary (Charades-Ready)
+
+
+Slang Term / Cultural Trope
+	Meaning & Documented Origin
+	"Act It Out" / "Mzansi 30-Seconds" Clue Strategy
+	"Now" vs. "Just Now" vs. "Now Now"
+	The three tiers of SA time: Now = eventually/in a minute; Just now = later (minutes to hours); Now now = shortly/as soon as I can10.
+	Tap your wrist once while yawning (Just now), vs. tapping your wrist twice urgently while grabbing car keys (Now now)10.
+	"Robots"
+	South African term for traffic lights10.
+	Walk like a stiff mechanical robot, then hold up three fingers (Red, Amber, Green) to direct cars at an intersection10.
+	"Nikhona?"
+	Nguni term meaning "Are y'all here / around?"—used by South Africans when invading international TikTok comment sections20.
+	Cup a hand over your brow, peer into an imaginary comment section, and wave a South African flag20.
+	"Is Not Make Sure"
+	2025 township/TikTok slang meaning something is not convincing, not good, an overreach, or delusional64.
+	Watch someone's imaginary TikTok dance, shake your head slowly, and wave both hands in dismissal64.
+	"Bone Thug"
+	"Skrr Skrr" youth slang for a Sangoma (traditional healer)20.
+	Do a "Skrr Skrr" steering-wheel swerve, then kneel and throw imaginary divination bones on the mat20.
+	"Dyan"
+	isiXhosa slang for a grootman or a stoic man ("Ayicatchi idyan" = a dyan doesn't catch feelings)64.
+	Stand with arms folded like a stone-faced boss while someone tries to flirt with you, showing zero emotion64.
+	"Iqaza"
+	isiXhosa slang for a shoe or fresh pair of sneakers (e.g., spotted at Sportscene)64.
+	Point down to your feet, polish your imaginary sneakers with a cloth, and strut proudly64.
+	"Voke"
+	2025 slang meaning to tease or make fun of someone ("Please don't voke me")64.
+	Point and laugh playfully at a teammate's outfit until they cover their face64.
+	"Situationship"
+	An informal, unestablished romantic relationship—central to the Netflix Umjolo universe and modern SA dating6.
+	Walk holding hands with someone in private, then immediately drop their hand and act like strangers when friends pass64.
+	"Bunny Chow"
+	Durban culinary icon: a hollowed-out loaf of bread filled with curry5.
+	Hop like a rabbit (Bunny), then mime tearing the soft centre out of a loaf of bread and scooping up spicy curry5.
+	"Shisa Nyama" & "Braai"
+	Township grill spot ("burn the meat") and South African barbecue over hot coals5.
+	Hold a cold drink in one hand and braai tongs in the other, turning meat over hot coals while dancing to Amapiano5.
+	"Pap"
+	Maize porridge staple; also used as an adjective meaning limp or weak5.
+	Stir a heavy pot with a wooden spoon (pap), then slump your whole body as if completely limp and exhausted5.
+	SASL "Vibe", "Lit", "Selfie" & "Sharp Sharp"
+	Youth SASL signs: flick-of-the-wrist (Vibe), fingers sparking outward (Lit), thumb-and-pinky phone tilted to face (Selfie), doubled-up thumbs-up (Sharp sharp)5.
+	Perform the four SASL signs in sequence without speaking a word5.
+	"Eish", "Shem", "Thula" & "Ngiyakhathala"
+	Classic reactions: Eish (frustration/sympathy sigh), Shem (sweet sympathy), Thula (be quiet/hush), Ngiyakhathala ("I am tired, I no longer care")5.
+	Slap your forehead (Eish), place hands on heart (Shem), put a finger to your lips (Thula), or collapse on a chair (Ngiyakhathala)5.
+	"Jol" & "Gesuip"
+	Jol = a great party/night out; Gesuip = drunk5.
+	Dance wildly under club lights (Jol), then stumble sideways holding onto a doorframe (Gesuip)10.
+	"Skelm" & "Skebenga"
+	A sly rogue, crook, tsotsi, or trickster5.
+	Tip-toe with exaggerated cartoon stealth, looking left and right before pocketing a piece of meat off the braai5.
+	"Chommie", "China", "Ntwana", "Jita" & "Bra/Bru"
+	South African terms for a close friend, mate, brother, or guy5.
+	Perform a multi-step township handshake followed by a shoulder-bump hug5.
+	"Stellies", "Khongolose" & "Ngoetsi"
+	Stellies = Stellenbosch; Khongolose = colloquial isiZulu nickname for the ANC; Ngoetsi = Sesotho term for a newlywed woman10.
+	Mime swirling a glass of wine between university modules (Stellies), or draping a traditional shawl over a new bride's shoulders (Ngoetsi)10.
+	9. Developer Implementation Checklist for Your App
+To turn this cultural database into a high-retention mobile game, structure your JSON card objects and UI flows around three local product mechanics:
+1. Include a "Skip Penalty / Roast" Audio Pack: When a team passes on an easy Tier-1 card, trigger short local text overlays or soundbites drawn from South African social media vernacular—such as "Is not make sure!", "O jewa ke eng?", "Ngiyakhathala", or "You're being roasted in 5 languages"5.
+2. Build a "Festive Season / Groove" Filter: Package the Amapiano, 3-Step (uValo, Bengicela, iPLAN), Lekompo (Kharishma, Shandesh), and How to Ruin Christmas prompts into a dedicated festive-season party deck for year-end functions and family braais1.
+3. Add an In-App "Me and My POV" Video Share Feature: Because South African TikTok thrives on relatable family skits and reaction videos1, use the device's front-facing camera during Act It Out and My Reaction rounds so players can export a split-screen clip ("Me and my POV" format) directly to TikTok and WhatsApp8.
+Works cited
+1. What's Trending on South African TikTok Right Now - GrowthCharter, https://growthcharter.co.za/tiktok-newsroom/tiktok-trends-south-african-tiktok/
+2. Memes that left South Africans in stitches in the past 50 days - IOL, https://iol.co.za/lifestyle/health/2020-05-15-memes-that-left-south-africans-in-stitches-in-the-past-50-days/
+3. The Stars Turn Out for the 2026 Samsung Galaxy Content Creator, https://www.thehouseofpop.co.za/the-stars-turn-out-for-the-2026-samsung-galaxy-content-creator-awards-purple-carpet/
+4. Top amapiano songs of 2026 - Music In Africa, https://musicinafrica.net/magazine/top-amapiano-songs-2026/
+5. How South Africa Rewrote English | The TEFL Academy, https://www.theteflacademy.com/press/english-day-sa/
+6. South African Movies & TV | Netflix Official Site, https://www.netflix.com/na/browse/genre/1146875
+7. 2026 Samsung Galaxy Content Creator Awards Full Winners List, https://creatorinsider.co.za/2026/10/20/2026-samsung-galaxy-content-creator-awards-full-winners-list/
+8. Current TikTok Trends to Try in 2026 - Later, https://later.com/blog/tiktok-trends/
+9. South African TikTok dance challenges that got us shaking our, https://www.bona.co.za/lifestyle/south-african-tiktok-dance-challenges-that-got-us-shaking-our-bodies-this-year/
+10. Getting Used to South African Slang, https://blog.aifsabroad.com/2017/03/08/aifs-south-africa-slang/
+11. Google Sports Data, https://support.google.com/knowledgepanel/answer/9787176
+12. TikTok and Twitter as Platforms for Youth Political Mobilization, https://ddp.org.za/blog/tiktok-and-twitter-as-platforms-for-youth-political-mobilization-dilemmas-and-opportunities
+13. Showmax 2026: What Happened, Shows, DStv Stream & More, https://tvmzansi.co.za/showmax/
+14. SA: DStv Content Creator Awards announce 2024 nominees, https://musicinafrica.net/magazine/sa-dstv-content-creator-awards-announce-2024-nominees/
+15. Kaizer Chiefs’ new R11 million man set for medical, https://www.thesouthafrican.com/sport/soccer/psl-south-africa/kaizer-chiefs-transfers-mokwana-medical/
+16. Local - Viu, https://www.viu.com/ott/za/en/category/766/Local
+17. Social Media Trends 2026 - Hootsuite, https://www.hootsuite.com/research/social-trends
+18. You Know You're in South Africa When You Hear These 6 Words, https://blog.aifsabroad.com/2018/03/02/south-africa-language-vocabulary/
+19. TikTok's biggest trends right now (2026) | Clipchamp Blog, https://clipchamp.com/en/blog/tiktok-trends-challenges/
+20. Browse African slang words - Africtionary, https://africtionary.com/browse.php?amp%3Brecords=10&page=106&records=10
+21. Dricus du Plessis - Wikipedia, https://en.wikipedia.org/wiki/Dricus_du_Plessis
+22. Latest Amapiano Songs, Albums Download 2026 - Fakaza, https://fakaza.com/tag/amapiano/
+23. Grace Mondlana - Wikipedia, https://en.wikipedia.org/wiki/Grace_Mondlana
+24. Nominees Announced For Year Two Of DStv Content Creator, https://www.samusicnews.co.za/entertainment/nominees-announced-for-year-two-of-dstv-content-creator-awards-in-association-with-samsung-galaxy/
+25. Shandesh & Kharishma best of LEKOMPO Mix 2025 | Dj Webaba, https://www.youtube.com/watch?v=wL7ZK1me8Zs
+26. Full 2026 Content Creator Awards SA Nominee List, http://creatorinsider.co.za/2026/08/12/full-2026-content-creator-awards-sa-nominee-list/
+27. 10 South African TV Shows you need to watch before 2025 ends, https://tvmzansi.co.za/10-south-african-shows-you-must-dive-into-before-2025-ends/
+28. New on Showmax in March - TV Mzansi, https://tvmzansi.co.za/new-on-showmax-in-march-2026/
+29. South Africans Unite: Hilarious Defence Against Viral X Account!, https://www.goodthingsguy.com/south-africans-unite-hilarious-defence-against-viral-x-account/
+30. How do we even come up with this stuff - YouTube, https://www.youtube.com/watch?v=7YEemBAaIdI
+31. TikTok trends 2026 — what's trending on TikTok this month? - Envato, https://elements.envato.com/learn/tiktok-trends
+32. Content Creator Awards Partners With Cars.co.za - Media Update, https://www.mediaupdate.co.za/media/161341/content-creator-awards-partners-with-carscoza
+33. Afro House King • Afro House, Amapiano, Deep House, Soulful, https://afrohouseking.com/
+34. AMAPIANO MIX 2026/ BEST OF 3 STEP SONGS MIX DJ ... - YouTube, https://www.youtube.com/watch?v=_88BA3Tv3KU
+35. 5 TikTok challenges that have been on your FYP - GQ South Africa, https://gq.co.za/culture/entertainment/2024-09-04-5-tiktok-challenges-that-have-been-on-your-fyp/
+36. Chidimma Adetshina - Wikipedia, https://en.wikipedia.org/wiki/Chidimma_Adetshina
+37. Wait, what's '6-7'? Why the internet's favourite number is now Word, https://iol.co.za/lifestyle/2025-10-30-wait-whats-67-why-the-internets-favourite-number-is-now-word-of-the-year/
+38. Chidimma Adetshina decries unfair treatment in deportation bid, https://www.sabcnews.com/sabcnews/chidimma-adetshina-decries-unfair-treatment-in-deportation-bid/
+39. Chidimma Adetshina's bid to halt deportation postponed to August, https://www.sabcnews.com/sabcnews/chidimma-adetshinas-bid-to-halt-deportation-postponed-to-august/
+40. Bail Conditions Amended for Anabela Rungo, Mother of Beauty, https://centralnews.co.za/bail-conditions-amended-for-anabela-rungo-mother-of-beauty-queen-chidimma-adetshina/
+41. Mia Le Roux Miss SA 2024 - Miss SA, https://www.misssa.co.za/mia-le-roux-miss-sa-2024/
+42. Miss South Africa 2024 Mia Le Roux on Redefining ... - YouTube, https://www.youtube.com/watch?v=xJfu4VuCjgk
+43. Markram says South Africa test success bodes well for T20 World Cup, https://supersport.com/cricket/news/f373cd4b-4850-423d-b4ff-878fd11e00cd/markram-says-south-africa-test-success-bodes-well-for-t20-world-cup
+44. Tournaments | Castle Lager Rugby Championship, https://springboks.rugby/tournaments/castle-lager-rugby-championship
+45. Coach Mosimane names his final Bafana squad for the back-to-back, https://www.safa.net/general-news/coach-mosimane-names-his-final-bafana-squad-for-the-back-to-back-afcon-qualifiers-against-kenya/
+46. Bafana Bafana v Kenya: Date, venue, kickoff time, predicted starting XI, https://www.thesouthafrican.com/sport/soccer/bafana-bafana/bafana-bafana-v-kenya-date-venue-kickoff-time-predicted-starting-xi/
+47. Dricus Du Plessis - UFC.com, https://www.ufc.com/athlete/dricus-du-plessis
+48. Dricus Du Plessis Record: 24-3-0 - UFC Stats, http://ufcstats.com/fighter-details/0d7b51c9d2649a6e
+49. Du Plessis makes winning return with dominant decision over Usman, https://www.aljazeera.com/sports/2026/7/19/dricus-du-plessis-mma-ufc-unanimous-decision-kamaru-usman
+50. UFC 312: Du Plessis vs Strickland 2, https://www.ufc.com/event/ufc-312
+51. UFC 305: Du Plessis vs Adesanya, https://www.ufc.com/event/ufc-305
+52. Opponents and dates for Boks' 2025 home tests confirmed | rugby, https://supersport.com/rugby/news/c5db2903-9a16-409c-9162-f10cd937422d/opponents-and-dates-for-boks-2025-home-tests-confirmed
+53. Springboks Men Upcoming - SuperSport, https://supersport.com/rugby/tour/ea4101d0-b6cd-4d46-970c-7ea376181bcc/fixtures
+54. The Springboks | SA Rugby, https://springboks.rugby/sa-teams-players/springboks
+55. 'We Have a Duty': Growing African Cricket As Proteas Tour Namibia, https://www.forbesafrica.com/current-affairs/2026/08/20/we-have-a-duty-growing-african-cricket-as-proteas-tour-namibia
+56. BEST AMAPIANO MIX 2026 || 3 STEP MIX || Jazzwrld, Dlala Thukzin, https://www.youtube.com/watch?v=eY6_ERk-oLA
+57. BEST OF SOUTH AFRICAN MUSIC | AMAPIANO | 3 STEP | LEKOMPO, https://www.youtube.com/watch?v=yduiCUkdhMg
+58. Shandesh Best of Lekompo Mix 2026 Part 2 | DJ Webaba - YouTube, https://www.youtube.com/watch?v=ZyYD-DmUcaI
+59. Top 100: South Africa - Playlist - Apple Music, https://music.apple.com/sk/playlist/top-100-south-africa/pl.447bd05172824b89bd745628f7f54c18
+60. AFDA Alumna Dithapelo Segodi Mthombeni Leads e.tv's New, https://afda.co.za/afda-alumna-dithapelo-segodi-mthombeni-leads-e-tvs-new-primetime-drama-the-4-of-us/
+61. Samsung Galaxy Content Creator Awards Announces Star-Studded, https://www.iloveza.com/blogs/news/samsung-galaxy-content-creator-awards-announces-star-studded-line-up-and-show-stopping-performances-for-2026-grand-event
+62. South African Memes - YouTube, https://www.youtube.com/@southafrican_memes
+63. Cassidy Nicholson | Bizcommunity, https://www.bizcommunity.com/Tag/Cassidy+Nicholson
+64. Browse African slang words | Africtionary, https://africtionary.com/browse.php?amp%3Brecords=10&page=75&records=10
+65. an analysis of english slang words discussed by slang content, https://www.researchgate.net/publication/405356849_AN_ANALYSIS_OF_ENGLISH_SLANG_WORDS_DISCUSSED_BY_SLANG_CONTENT_CREATORS_ON_TIKTOK

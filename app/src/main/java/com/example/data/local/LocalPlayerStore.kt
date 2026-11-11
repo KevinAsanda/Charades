@@ -206,7 +206,7 @@ class LocalPlayerStore(context: Context) {
 
   private fun loadProfile(): UserProfile {
     val raw = prefs.getString(KEY_PROFILE_JSON, null)
-    val defaultPacks = listOf("core_kwaito", "core_slang", "core_2000s_tv", "core_tuckshop", "core_sports")
+    val defaultPacks = com.example.data.model.PredefinedDecks.FREE_DECK_IDS
     if (raw.isNullOrBlank()) {
       return UserProfile(
         id = "local_user",

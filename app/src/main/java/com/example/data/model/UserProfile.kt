@@ -13,7 +13,7 @@ data class UserProfile(
   val email: String? = null,
   val photoUrl: String? = null,
   val coins: Long = 150L,
-  val unlockedPacks: List<String> = listOf("core_kwaito", "core_slang", "core_2000s_tv", "core_tuckshop", "core_sports"),
+  val unlockedPacks: List<String> = PredefinedDecks.FREE_DECK_IDS,
   val gamesPlayed: Long = 0L,
   val totalCorrect: Long = 0L,
   val highScore: Long = 0L,

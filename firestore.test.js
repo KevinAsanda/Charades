@@ -120,7 +120,7 @@ test("Validation: Reject profile with negative coins or ghost fields", async () 
   );
 });
 
-test("Game sessions: User can create session, but cannot modify past sessions", async () => {
+test("Game sessions: User can create session in new blueprint modes, but cannot modify past sessions", async () => {
   const aliceDb = testEnv.authenticatedContext(ALICE_UID).firestore();
   const sessionRef = aliceDb
     .collection("users")
@@ -131,14 +131,14 @@ test("Game sessions: User can create session, but cannot modify past sessions", 
   await assertSucceeds(
     sessionRef.set({
       userId: ALICE_UID,
-      deckId: "kwaito_2000s",
-      deckName: "Kwaito & 2000s Grooves",
-      gameMode: "party_teams",
+      deckId: "deck_tiktok_lockdown",
+      deckName: "TikTok Trends & Lockdown Vault",
+      gameMode: "my_reaction",
       teamAScore: 7,
       teamBScore: 5,
-      wordsGuessed: ["Nkalakatha", "Boom Shaka"],
-      wordsPassed: ["Mapaputsi"],
-      durationSeconds: 120,
+      wordsGuessed: ["Bacardi Dance", "My Reaction Facial Ranking"],
+      wordsPassed: ["Shoe Kick Transition"],
+      durationSeconds: 60,
       createdAt: new Date(),
     })
   );

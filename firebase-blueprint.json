@@ -37,7 +37,18 @@
         "userId": { "type": "string" },
         "deckId": { "type": "string" },
         "deckName": { "type": "string" },
-        "gameMode": { "type": "string" },
+        "gameMode": {
+          "type": "string",
+          "enum": [
+            "act_it_out",
+            "hit_the_beat",
+            "mzansi_30_seconds",
+            "my_reaction",
+            "heads_up",
+            "party_teams",
+            "quick_play"
+          ]
+        },
         "teamAScore": { "type": "integer" },
         "teamBScore": { "type": "integer" },
         "wordsGuessed": { "type": "array" },

@@ -39,14 +39,14 @@ class MzansiRepositoryRuleTest : FirestoreEmulatorTestBase() {
 
       val session = GameSession(
         userId = uid,
-        deckId = "core_kwaito",
-        deckName = "Kwaito & 2000s Grooves",
-        gameMode = "party_teams",
+        deckId = "deck_trending_apps",
+        deckName = "Trending Apps & Digital SA",
+        gameMode = "mzansi_30_seconds",
         teamAScore = 8,
-        teamBScore = 6,
-        wordsGuessed = listOf("Nkalakatha", "Vul'indlela"),
-        wordsPassed = listOf("Izinja"),
-        durationSeconds = 90
+        teamBScore = 0,
+        wordsGuessed = listOf("TikTok (FYP)", "Showmax Standalone Shutdown"),
+        wordsPassed = listOf("eVOD Purple Carpet"),
+        durationSeconds = 30
       )
 
       val sessionId = withTimeout(DEFAULT_TIMEOUT_MS) {
@@ -57,7 +57,7 @@ class MzansiRepositoryRuleTest : FirestoreEmulatorTestBase() {
       val sessions = withTimeout(FLOW_TIMEOUT_MS) {
         sessionRepo.observeSessions(uid).first { list -> list.any { it.id == sessionId } }
       }
-      assertTrue(sessions.any { it.id == sessionId })
+      assertTrue(sessions.any { it.id == sessionId && it.gameMode == "mzansi_30_seconds" })
     }
   }
 

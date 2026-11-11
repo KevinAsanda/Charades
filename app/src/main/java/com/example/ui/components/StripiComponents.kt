@@ -27,16 +27,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Celebration
 import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.Forum
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.Tv
+import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -115,12 +118,16 @@ object StripiRounded {
  */
 fun deckIconForId(deckId: String): ImageVector {
   return when (deckId) {
+    "deck_trending_apps" -> Icons.Default.PhoneAndroid
+    "deck_tiktok_lockdown" -> Icons.Default.Whatshot
+    "deck_creators_podcasts" -> Icons.Default.Mic
+    "deck_festive_groove" -> Icons.Default.Celebration
     "core_kwaito" -> Icons.Default.MusicNote
     "core_2000s_tv" -> Icons.Default.Tv
     "core_slang" -> Icons.Default.Forum
     "core_tuckshop" -> Icons.Default.Fastfood
     "core_sports" -> Icons.Default.SportsSoccer
-    "exp_pantsula" -> Icons.Default.DirectionsRun
+    "exp_pantsula" -> Icons.AutoMirrored.Filled.DirectionsRun
     "exp_school_days" -> Icons.Default.School
     "exp_road_trip" -> Icons.Default.DirectionsCar
     "exp_memes" -> Icons.Default.Celebration

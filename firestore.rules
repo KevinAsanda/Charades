@@ -46,7 +46,7 @@ service cloud.firestore {
       return data.userId is string && data.userId == request.auth.uid &&
              data.deckId is string && data.deckId.size() <= 64 &&
              data.deckName is string && data.deckName.size() <= 100 &&
-             data.gameMode is string && data.gameMode in ['heads_up', 'party_teams', 'quick_play'] &&
+             data.gameMode is string && data.gameMode in ['act_it_out', 'hit_the_beat', 'mzansi_30_seconds', 'my_reaction', 'heads_up', 'party_teams', 'quick_play'] &&
              data.teamAScore is int && data.teamAScore >= 0 &&
              data.teamBScore is int && data.teamBScore >= 0 &&
              data.wordsGuessed is list && data.wordsGuessed.size() <= 200 &&

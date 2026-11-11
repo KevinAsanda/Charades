@@ -301,8 +301,8 @@ fun AuthScreen(
 
           // Tabular Deck Telemetry Rows (`body-tabular` with `tnum`)
           MockupDeckRow(
-            deckTitle = "Kwaito & 2000s Grooves",
-            era = "2000-2005",
+            deckTitle = "Trending Apps & Digital SA",
+            era = "2020-2026",
             cardCount = "12 cards",
             tierStatus = "Included"
           )
@@ -311,9 +311,9 @@ fun AuthScreen(
             color = StripiHairline
           )
           MockupDeckRow(
-            deckTitle = "2000s TV & Nostalgic Jingles",
-            era = "1998-2006",
-            cardCount = "10 cards",
+            deckTitle = "TikTok Trends & Lockdown Vault",
+            era = "2020-2026",
+            cardCount = "18 cards",
             tierStatus = "Included"
           )
           HorizontalDivider(
@@ -321,9 +321,9 @@ fun AuthScreen(
             color = StripiHairline
           )
           MockupDeckRow(
-            deckTitle = "Pure SA Slang & Phrases",
-            era = "All Eras",
-            cardCount = "10 cards",
+            deckTitle = "Amapiano, 3-Step, Lekompo & Kwaito",
+            era = "2000-2026",
+            cardCount = "13 cards",
             tierStatus = "Included"
           )
         }
@@ -351,8 +351,8 @@ fun AuthScreen(
         ) {
           FeatureTileContent(
             icon = Icons.Default.MusicNote,
-            title = "Kwaito & 2000s TV Anthems",
-            subtitle = "Mandoza Nkalakatha, TKZee Shibobo, Queen Moroka, and Saturday night Tata Ma Millions."
+            title = "4 Authentic Gameplay Modes",
+            subtitle = "Act It Out, Hit the Beat, Mzansi 30-Seconds, and the Oct 2026 My Reaction facial ranking challenge."
           )
         }
 
@@ -367,8 +367,8 @@ fun AuthScreen(
           ) {
             FeatureTileContent(
               icon = Icons.Default.SportsSoccer,
-              title = "Local Slang",
-              subtitle = "2010 World Cup vuvuzelas, Sharp Fede, Voetstoots, and Spatlo Kotas."
+              title = "2000-2026 Culture",
+              subtitle = "Dricus 8% oxygen, 3-Step, Lekompo, SASL Vibe signs, and 2020 Lockdown memes."
             )
           }
 
@@ -379,7 +379,7 @@ fun AuthScreen(
             FeatureTileContent(
               icon = Icons.Default.CreditCard,
               title = "ZAR Settlement",
-              subtitle = "5 free core decks plus instant unlocks via Card, PayShap, or SnapScan."
+              subtitle = "8 free core decks plus instant unlocks via Card, PayShap, or SnapScan."
             )
           }
         }
@@ -404,7 +404,7 @@ fun AuthScreen(
             style = StripiTypeTokens.caption.copy(color = StripiInkSecondary)
           )
           Text(
-            text = "5 Core Decks · ZAR Billing",
+            text = "8 Free Core Decks · ZAR Billing",
             style = StripiTypeTokens.caption.copy(color = StripiInkMute)
           )
         }
@@ -485,9 +485,9 @@ private fun FeatureTileContent(
 }
 
 private fun resolveWebClientId(context: Context): String? {
-  val resId = context.resources.getIdentifier("default_web_client_id", "string", context.packageName)
-  if (resId == 0) return null
-  return runCatching { context.getString(resId) }.getOrNull()?.takeIf { it.isNotBlank() }
+  return runCatching { context.getString(com.example.R.string.default_web_client_id) }
+    .getOrNull()
+    ?.takeIf { it.isNotBlank() }
 }
 
 private fun attemptAutoSignIn(
