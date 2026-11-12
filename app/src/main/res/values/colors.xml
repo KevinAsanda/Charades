@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Brand Core -->
+    <color name="brand_primary">#533AFD</color>
+    <color name="brand_secondary">#1C1E54</color>
+    <color name="brand_tertiary">#EA2261</color>
+    <color name="brand_neutral">#0D253D</color>
+    <color name="brand_navy">#0E1B43</color>
+    <color name="brand_navy_dark">#040F31</color>
+    <color name="brand_gold">#D9A64E</color>
+
+    <!-- Stripi Design System Tokens -->
     <color name="stripi_primary">#FF533AFD</color>
     <color name="stripi_primary_deep">#FF4434D4</color>
     <color name="stripi_primary_press">#FF2E2B8C</color>
@@ -8,7 +18,8 @@
     <color name="stripi_canvas">#FFFFFFFF</color>
     <color name="stripi_canvas_soft">#FFF6F9FC</color>
     <color name="stripi_canvas_cream">#FFF5E9D4</color>
-    <!-- Legacy compatibility aliases mapped to Stripi tokens -->
+
+    <!-- Legacy compatibility aliases -->
     <color name="purple_200">#FFB9B9F9</color>
     <color name="purple_500">#FF533AFD</color>
     <color name="purple_700">#FF4434D4</color>
@@ -16,4 +27,95 @@
     <color name="teal_700">#FF2E2B8C</color>
     <color name="black">#FF0D253D</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Primary tonal palette -->
+    <color name="primary_tone_0">#000000</color>
+    <color name="primary_tone_10">#130067</color>
+    <color name="primary_tone_20">#2400A2</color>
+    <color name="primary_tone_30">#3600E1</color>
+    <color name="primary_tone_40">#5036FA</color>
+    <color name="primary_tone_50">#6C5EFF</color>
+    <color name="primary_tone_60">#8A80FF</color>
+    <color name="primary_tone_70">#A7A1FF</color>
+    <color name="primary_tone_80">#C5C0FF</color>
+    <color name="primary_tone_90">#E3DFFF</color>
+    <color name="primary_tone_95">#F3EEFF</color>
+    <color name="primary_tone_100">#FFFFFF</color>
+
+    <!-- Secondary tonal palette -->
+    <color name="secondary_tone_0">#000000</color>
+    <color name="secondary_tone_10">#12144B</color>
+    <color name="secondary_tone_20">#282A60</color>
+    <color name="secondary_tone_30">#3F4178</color>
+    <color name="secondary_tone_40">#575992</color>
+    <color name="secondary_tone_50">#7072AD</color>
+    <color name="secondary_tone_60">#898BC8</color>
+    <color name="secondary_tone_70">#A4A6E4</color>
+    <color name="secondary_tone_80">#C0C1FF</color>
+    <color name="secondary_tone_90">#E1E0FF</color>
+    <color name="secondary_tone_95">#F1EFFF</color>
+    <color name="secondary_tone_100">#FFFFFF</color>
+
+    <!-- Tertiary tonal palette -->
+    <color name="tertiary_tone_0">#000000</color>
+    <color name="tertiary_tone_10">#400013</color>
+    <color name="tertiary_tone_20">#670024</color>
+    <color name="tertiary_tone_30">#900036</color>
+    <color name="tertiary_tone_40">#BD0048</color>
+    <color name="tertiary_tone_50">#E51D5E</color>
+    <color name="tertiary_tone_60">#FF4E79</color>
+    <color name="tertiary_tone_70">#FF869C</color>
+    <color name="tertiary_tone_80">#FFB2BD</color>
+    <color name="tertiary_tone_90">#FFD9DD</color>
+    <color name="tertiary_tone_95">#FFECED</color>
+    <color name="tertiary_tone_100">#FFFFFF</color>
+
+    <!-- Neutral tonal palette -->
+    <color name="neutral_tone_0">#000000</color>
+    <color name="neutral_tone_10">#031D34</color>
+    <color name="neutral_tone_20">#1B324A</color>
+    <color name="neutral_tone_30">#334862</color>
+    <color name="neutral_tone_40">#4A607B</color>
+    <color name="neutral_tone_50">#637995</color>
+    <color name="neutral_tone_60">#7D92AF</color>
+    <color name="neutral_tone_70">#97ADCB</color>
+    <color name="neutral_tone_80">#B2C8E7</color>
+    <color name="neutral_tone_90">#D2E4FF</color>
+    <color name="neutral_tone_95">#EAF1FF</color>
+    <color name="neutral_tone_100">#FFFFFF</color>
+
+    <!-- Material 3 colour roles (light) -->
+    <color name="primary">#3600E1</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#E3DFFF</color>
+    <color name="on_primary_container">#130067</color>
+    <color name="secondary">#575992</color>
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="secondary_container">#DBE9FF</color>
+    <color name="on_secondary_container">#474556</color>
+    <color name="tertiary">#900036</color>
+    <color name="on_tertiary">#FFFFFF</color>
+    <color name="tertiary_container">#FFD9DD</color>
+    <color name="on_tertiary_container">#400013</color>
+    <color name="error">#BA1A1A</color>
+    <color name="on_error">#FFFFFF</color>
+    <color name="error_container">#FFDAD6</color>
+    <color name="on_error_container">#410002</color>
+    <color name="background">#F7F9FF</color>
+    <color name="on_background">#031D34</color>
+    <color name="surface">#F7F9FF</color>
+    <color name="on_surface">#031D34</color>
+    <color name="surface_variant">#DBE9FF</color>
+    <color name="on_surface_variant">#474556</color>
+    <color name="surface_container_lowest">#FFFFFF</color>
+    <color name="surface_container_low">#EEF3FF</color>
+    <color name="surface_container">#E5EEFF</color>
+    <color name="surface_container_high">#DBE9FF</color>
+    <color name="surface_container_highest">#D2E4FF</color>
+    <color name="outline">#777588</color>
+    <color name="outline_variant">#C7C5D8</color>
+    <color name="inverse_surface">#1B324A</color>
+    <color name="inverse_on_surface">#EAF1FF</color>
+    <color name="inverse_primary">#C5C0FF</color>
+    <color name="scrim">#000000</color>
 </resources>

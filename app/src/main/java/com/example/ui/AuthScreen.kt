@@ -3,6 +3,7 @@ package com.example.ui
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -44,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.credentials.ClearCredentialStateRequest
@@ -51,6 +54,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
+import com.example.R
 import com.example.data.local.LocalPlayerStore
 import com.example.ui.components.StripiCreamCard
 import com.example.ui.components.StripiDashboardMockupCard
@@ -127,14 +131,26 @@ fun AuthScreen(
       StripiGradientMeshHero(
         contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 40.dp, bottom = 28.dp)
       ) {
-        // Element 1: Eyebrow pill tag (`pill-tag-soft`)
-        StripiSoftPillTag(text = "South African Edition")
+        // Element 1: Eyebrow pill tag (`pill-tag-soft`) with brand emblem
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+          Image(
+            painter = painterResource(id = R.drawable.logo_emblem),
+            contentDescription = "Lekker Charades Emblem",
+            modifier = Modifier
+              .size(38.dp)
+              .clip(RoundedCornerShape(8.dp))
+          )
+          StripiSoftPillTag(text = "South African Edition")
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Element 2: Thin Display Headline (weight 300, negative tracking)
         Text(
-          text = "Mzansi Charades.",
+          text = "Lekker Charades.",
           style = StripiTypeTokens.displayMobileHero.copy(color = StripiInk)
         )
 
@@ -400,7 +416,7 @@ fun AuthScreen(
           verticalAlignment = Alignment.CenterVertically
         ) {
           Text(
-            text = "Mzansi Charades",
+            text = "Lekker Charades",
             style = StripiTypeTokens.caption.copy(color = StripiInkSecondary)
           )
           Text(

@@ -54,7 +54,7 @@ object StoreCatalog {
   val COIN_BUNDLE_LARGE = StoreItem(
     id = "coins_1000",
     title = "Grootman Chest",
-    subtitle = "1,000 Gold Coins plus priority AI Deck Studio credits",
+    subtitle = "1,000 Gold Coins for expansion decks and custom party modes",
     emoji = "💰",
     costCoins = 0,
     realPriceFormatted = "R79.99",

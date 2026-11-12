@@ -385,7 +385,7 @@ fun StoreScreen(
           )
           Spacer(modifier = Modifier.height(6.dp))
           Text(
-            text = "Unlocks all 4 Expansion Packs permanently plus +1,500 Gold Coins for AI Studio decks.",
+            text = "Unlocks all 4 Expansion Packs permanently plus +1,500 Gold Coins for store decks.",
             style = StripiTypeTokens.bodyMd.copy(
               color = StripiSubduedHover.copy(alpha = 0.88f)
             )

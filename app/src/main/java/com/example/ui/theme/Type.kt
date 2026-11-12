@@ -21,6 +21,13 @@ val InterFontFamily = FontFamily(
   Font(R.font.inter, FontWeight.Bold)
 )
 
+val HankenGroteskFontFamily = FontFamily(
+  Font(R.font.hanken_grotesk_regular, FontWeight.Normal),
+  Font(R.font.hanken_grotesk_medium, FontWeight.Medium),
+  Font(R.font.hanken_grotesk_semibold, FontWeight.SemiBold),
+  Font(R.font.hanken_grotesk_bold, FontWeight.Bold)
+)
+
 object StripiTypeTokens {
   // {typography.display-xxl}: 56px, weight 300, lh 1.03, ls -1.4px, ss01
   val displayXxl = TextStyle(
