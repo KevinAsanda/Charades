@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -78,6 +80,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
@@ -115,6 +118,12 @@ import com.example.ui.theme.StripiSubduedHover
 import com.example.ui.theme.StripiTypeTokens
 import kotlinx.coroutines.delay
 import kotlin.math.abs
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+  is Activity -> this
+  is ContextWrapper -> baseContext.findActivity()
+  else -> null
+}
 
 private fun modeDisplayTitle(gameMode: String): String = when (gameMode) {
   "act_it_out" -> "Act It Out"
@@ -185,17 +194,29 @@ fun GamePlayScreen(
     }
   }
 
-  // Immersive full-screen mode while playing: hide system bars and keep the screen awake
+  // Immersive full-screen mode and automatic landscape orientation during active play
   val view = LocalView.current
-  DisposableEffect(Unit) {
-    var ctx: Context = view.context
-    while (ctx is ContextWrapper && ctx !is Activity) ctx = ctx.baseContext
-    val window = (ctx as? Activity)?.window
+  val activity = remember(context, view) { view.context.findActivity() ?: context.findActivity() }
+  val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+  val shouldUseLandscape = isGuideShown && !isTeamIntermission && !isGameOver
+
+  DisposableEffect(activity, view, shouldUseLandscape) {
+    val window = activity?.window
     val controller = window?.let { WindowCompat.getInsetsController(it, view) }
-    controller?.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-    controller?.hide(WindowInsetsCompat.Type.systemBars())
-    view.keepScreenOn = true
+
+    if (shouldUseLandscape) {
+      activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+      controller?.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+      controller?.hide(WindowInsetsCompat.Type.systemBars())
+      view.keepScreenOn = true
+    } else {
+      activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+      controller?.show(WindowInsetsCompat.Type.systemBars())
+      view.keepScreenOn = false
+    }
+
     onDispose {
+      activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
       controller?.show(WindowInsetsCompat.Type.systemBars())
       view.keepScreenOn = false
     }
@@ -368,41 +389,43 @@ fun GamePlayScreen(
         onStart = { isGuideShown = true }
       )
     } else if (isCountdownReady) {
-      // 3-2-1 Get Ready Screen with Stripi Gradient Mesh
+      // 3-2-1 Get Ready Screen with Stripi Gradient Mesh (adapts cleanly to landscape)
       StripiGradientMeshHero(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(24.dp)
+        contentPadding = PaddingValues(if (isLandscape) 20.dp else 24.dp)
       ) {
-        Column(
-          modifier = Modifier.fillMaxSize(),
-          horizontalAlignment = Alignment.CenterHorizontally,
-          verticalArrangement = Arrangement.Center
-        ) {
-          StripiSoftPillTag(
-            text = if (gameMode == "party_teams") "$activeTeam Turn" else modeDisplayTitle(gameMode)
-          )
-          Spacer(modifier = Modifier.height(16.dp))
-          Text(
-            text = when (gameMode) {
-              "heads_up" -> "Place phone upright on forehead"
-              "hit_the_beat" -> "Get ready to dance & hum the beat"
-              "mzansi_30_seconds" -> "Describe fast without forbidden words"
-              "my_reaction" -> "Rank 1 to 5 with facial expressions only"
-              "party_teams" -> "$activeTeam: Get ready to perform"
-              else -> "Get ready to Act It Out (zero words)"
-            },
-            style = StripiTypeTokens.displayLg.copy(color = StripiInk),
-            textAlign = TextAlign.Center
-          )
-          Spacer(modifier = Modifier.height(6.dp))
-          Text(
-            text = deck.name,
-            style = StripiTypeTokens.bodyLg.copy(color = StripiInkSecondary)
-          )
-          Spacer(modifier = Modifier.height(32.dp))
+        val readyText = when (gameMode) {
+          "heads_up" -> "Place phone sideways on forehead"
+          "hit_the_beat" -> "Get ready to dance & hum the beat"
+          "mzansi_30_seconds" -> "Describe fast without forbidden words"
+          "my_reaction" -> "Rank 1 to 5 with facial expressions only"
+          "party_teams" -> "$activeTeam: Get ready to perform"
+          else -> "Get ready to Act It Out (zero words)"
+        }
+        val headerBlock: @Composable (Modifier, TextAlign, Alignment.Horizontal) -> Unit =
+          { mod, align, colAlign ->
+            Column(modifier = mod, horizontalAlignment = colAlign) {
+              StripiSoftPillTag(
+                text = if (gameMode == "party_teams") "$activeTeam Turn" else modeDisplayTitle(gameMode)
+              )
+              Spacer(modifier = Modifier.height(12.dp))
+              Text(
+                text = readyText,
+                style = StripiTypeTokens.displayLg.copy(color = StripiInk),
+                textAlign = align
+              )
+              Spacer(modifier = Modifier.height(6.dp))
+              Text(
+                text = deck.name,
+                style = StripiTypeTokens.bodyLg.copy(color = StripiInkSecondary),
+                textAlign = align
+              )
+            }
+          }
+        val countdownCircle: @Composable () -> Unit = {
           Box(
             modifier = Modifier
-              .size(128.dp)
+              .size(if (isLandscape) 112.dp else 128.dp)
               .clip(CircleShape)
               .background(StripiBrandDark900),
             contentAlignment = Alignment.Center
@@ -413,6 +436,30 @@ fun GamePlayScreen(
               fontSize = 48,
               fontWeight = FontWeight.Light
             )
+          }
+        }
+
+        if (isLandscape) {
+          Row(
+            modifier = Modifier
+              .fillMaxSize()
+              .windowInsetsPadding(WindowInsets.safeDrawing)
+              .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(32.dp)
+          ) {
+            headerBlock(Modifier.weight(1f), TextAlign.Start, Alignment.Start)
+            countdownCircle()
+          }
+        } else {
+          Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+          ) {
+            headerBlock(Modifier.fillMaxWidth(), TextAlign.Center, Alignment.CenterHorizontally)
+            Spacer(modifier = Modifier.height(32.dp))
+            countdownCircle()
           }
         }
       }
@@ -836,7 +883,10 @@ fun GamePlayScreen(
           modifier = Modifier
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(horizontal = 20.dp, vertical = 12.dp),
+            .padding(
+              horizontal = if (isLandscape) 24.dp else 20.dp,
+              vertical = if (isLandscape) 8.dp else 12.dp
+            ),
           horizontalAlignment = Alignment.CenterHorizontally
         ) {
           // Slim top bar: exit, timer, score, hints
@@ -961,14 +1011,14 @@ fun GamePlayScreen(
                   }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(if (isLandscape) 10.dp else 20.dp))
 
-                // Hero Prompt Word with responsive font size based on length
+                // Hero Prompt Word with responsive font size based on length & orientation
                 val term = currentCard?.term.orEmpty()
                 val termFontSize = when {
-                  term.length > 28 -> 32.sp
-                  term.length > 16 -> 40.sp
-                  else -> 50.sp
+                  term.length > 28 -> if (isLandscape) 34.sp else 32.sp
+                  term.length > 16 -> if (isLandscape) 46.sp else 40.sp
+                  else -> if (isLandscape) 60.sp else 50.sp
                 }
                 Text(
                   text = term,
@@ -1364,11 +1414,11 @@ private fun TiltGuideScreen(
             Spacer(modifier = Modifier.width(12.dp))
             Column {
               Text(
-                text = "1. Place on Forehead",
+                text = "1. Place Sideways on Forehead",
                 style = StripiTypeTokens.headingSm.copy(color = StripiInk)
               )
               Text(
-                text = "Hold phone upright against your forehead facing your friends.",
+                text = "Screen rotates to landscape when you start - hold horizontally facing your friends.",
                 style = StripiTypeTokens.caption.copy(color = StripiInkSecondary)
               )
             }
