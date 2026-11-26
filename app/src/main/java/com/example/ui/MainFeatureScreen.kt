@@ -431,7 +431,9 @@ fun MainFeatureScreen(
                   productId = checkoutSpec.itemId,
                   onResult = { success, msg ->
                     if (!success && msg != null && msg != "Purchase cancelled") {
-                      snackbarHostState.showSnackbar(msg)
+                      coroutineScope.launch {
+                        snackbarHostState.showSnackbar(msg)
+                      }
                     }
                   },
                   onFallbackSimulation = {
